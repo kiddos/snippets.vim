@@ -1,0 +1,555 @@
+## Main
+# main
+snippet main
+	int main(int argc, char *argv[]) {
+		${0}
+		return 0;
+	}
+# main(void)
+snippet mainn
+	int main(int argc, char *argv[]) {
+		${0}
+		return 0;
+	}
+# void main(void)
+snippet vmain
+	void main(void) {
+		${0}
+		return 0;
+	}
+##
+## Preprocessor
+# #include <...>
+snippet inc
+	#include <${1:stdio.h}>
+snippet incl
+	#include <${1:stdio.h}>
+snippet inclu
+	#include <${1:stdio.h}>
+snippet includ
+	#include <${1:stdio.h}>
+snippet include
+	#include <${1:stdio.h}>
+# #include "..."
+snippet Inc
+	#include "${1:`vim_snippets#Filename("$1.h")`}"
+snippet Incl
+	#include "${1:`vim_snippets#Filename("$1.h")`}"
+snippet Inclu
+	#include "${1:`vim_snippets#Filename("$1.h")`}"
+snippet Includ
+	#include "${1:`vim_snippets#Filename("$1.h")`}"
+snippet Include
+	#include "${1:`vim_snippets#Filename("$1.h")`}"
+# ifndef...define...endif
+snippet ndef
+	#ifndef $1
+	#define ${1:SYMBOL} ${2:value}
+	#endif /* ifndef $1 */
+# define
+snippet def
+	#define
+snippet defi
+	#define
+snippet defin
+	#define
+snippet define
+	#define
+# ifdef...endif
+snippet ifdef
+	#ifdef ${1:FOO}
+		${2:#define }
+	#endif
+# if
+snippet #if
+	#if ${1:FOO}
+		${0}
+	#endif
+# header include guard
+snippet once
+	#ifndef ${1:`toupper(vim_snippets#Filename('$1_H', 'UNTITLED_H'))`}
+	#define $1
+
+	${0}
+
+	#endif /* end of include guard: $1 */
+##
+## Control Statements
+# if
+snippet if
+	if (${1:true}) {
+		${0}
+	}
+snippet ife
+	if (${1:true}) {
+		${2}
+	} else {
+		${0}
+	}
+# else
+snippet el
+	else {
+		${0}
+	}
+# else if
+snippet elif
+	else if (${1:true}) {
+		${0}
+	}
+# ifi
+snippet ifi
+	if (${1:true}) ${0};
+# ternary
+snippet t
+	${1:/* condition */} ? ${2:a} : ${3:b}
+# switch
+snippet switch
+	switch (${1:/* variable */}) {
+		case ${2:/* variable case */}:
+			${3}
+			${4:break;}${5}
+		default:
+			${6}
+	}
+# switch without default
+snippet switchndef
+	switch (${1:/* variable */}) {
+		case ${2:/* variable case */}:
+			${3}
+			${4:break;}${5}
+	}
+# case
+snippet case
+	case ${1:/* variable case */}:
+		${2}
+		${3:break;}
+snippet ret
+	return ${0};
+##
+## Loops
+# for
+snippet for
+	for (${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
+		${4}
+	}
+# for (custom)
+snippet forr
+	for (${1:i} = ${2:0}; ${3:$1 < 10}; $1${4:++}) {
+		${5}
+	}
+# while
+snippet wh
+	while (${1:/* condition */}) {
+		${2}
+	}
+# do... while
+snippet do
+	do {
+		${2}
+	} while (${1:/* condition */});
+##
+## Functions
+# function definition
+snippet fun
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+snippet func
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+snippet funct
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+snippet functi
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+snippet functio
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+snippet function
+	${1:void} ${2:function_name}(${3:void}) {
+		${4}
+	}
+# function declaration
+snippet fund
+	${1:void} ${2:function_name}(${3:void});
+##
+## Types
+# typedef
+snippet td
+	typedef ${1:int} ${2:MyCustomType};
+# struct
+snippet st
+	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* data */}
+	}${3: /* optional variable list */};
+# typedef struct
+snippet tds
+	typedef struct ${2:_$1 }{
+		${3:/* data */}
+	} ${1:`vim_snippets#Filename('$1_t', 'name')`};
+snippet enum
+	enum ${1:name} { ${0} };
+# typedef enum
+snippet tde
+	typedef enum {
+		${2:/* data */}
+	} ${1:`vim_snippets#Filename('$1_t', 'name')`_t};
+# typedef
+snippet typedef struct
+	typedef struct ${2:_$1 }{
+		${3:/* data */}
+	} ${1:`vim_snippets#Filename('$1_t', 'name')`};
+snippet typedef enum
+	typedef enum {
+		${2:/* data */}
+	} ${1:`vim_snippets#Filename('$1_t', 'name')`_t};
+##
+## Input/Output
+# printf
+snippet pr
+	printf("${1:%s}\n"${2});
+snippet pri
+	printf("${1:%s}\n"${2});
+snippet prin
+	printf("${1:%s}\n"${2});
+snippet print
+	printf("${1:%s}\n"${2});
+snippet printf
+	printf("${1:%s}\n"${2});
+snippet prinf
+	printf("${1:%s}\n"${2});
+# fprintf (again, this isn't as nice as TextMate's version, but it works)
+snippet fpr
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+snippet fpri
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+snippet fprin
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+snippet fprint
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+snippet fprintf
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+snippet fprinf
+	fprintf(${1:stderr}, "${2:%s}\n"${3});
+# getopt
+snippet getopt
+	int choice;
+	while (1)
+	{
+		static struct option long_options[] =
+		{
+			/* Use flags like so:
+			{"verbose",	no_argument,	&verbose_flag, 'V'}*/
+			/* Argument styles: no_argument, required_argument, optional_argument */
+			{"version", no_argument,	0,	'v'},
+			{"help",	no_argument,	0,	'h'},
+			${1}
+			{0,0,0,0}
+		};
+
+		int option_index = 0;
+
+		/* Argument parameters:
+			no_argument: " "
+			required_argument: ":"
+			optional_argument: "::" */
+
+		choice = getopt_long( argc, argv, "vh",
+					long_options, &option_index);
+
+		if (choice == -1)
+			break;
+
+		switch( choice )
+		{
+			case 'v':
+				${2}
+				break;
+
+			case 'h':
+				${3}
+				break;
+
+			case '?':
+				/* getopt_long will have already printed an error */
+				break;
+
+			default:
+				/* Not sure how to get here... */
+				return EXIT_FAILURE;
+		}
+	}
+
+	/* Deal with non-option arguments here */
+	if ( optind < argc )
+	{
+		while ( optind < argc )
+		{
+			${0}
+		}
+	}
+##
+## Miscellaneous
+# This is kind of convenient
+snippet .
+	[${1}]
+##
+## opengl snippets
+snippet vao
+	GLuint ${1:vertexArray} = 0;
+	glGenVertexArrays(${2:1}, &$1);
+	glBindVertexArray($1);
+##
+## template
+snippet template blank
+	#include <stdio.h>
+
+	int main(${2:int argc, char *argv[]}) {
+		${1:// code ...}
+		return 0;
+	}
+snippet template hello world
+	#include <stdio.h>
+
+	int main(void) {
+		printf("Hello World\n");
+		return 0;
+	}
+snippet template SDL2
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_image.h>
+	#include <SDL2/SDL_ttf.h>
+
+	#include <time.h>
+
+	#define WIDTH 640
+	#define HEIGHT 480
+
+	#define FPS_FONT "tama.ttf"
+	#define FPS_SIZE 12
+
+	const double FPS = 60;
+
+	int main_init();
+	SDL_Texture *main_init_fps_texture(TTF_Font *font,
+			uint64_t frames, uint32_t tp,
+			SDL_Renderer *ren, SDL_Color color);
+	void main_render_fps(SDL_Renderer *ren, SDL_Texture *fps_tex);
+
+	int main(int argc, char *argv[]) {
+		SDL_Window *win = NULL;
+		SDL_Renderer *ren = NULL;
+		SDL_Texture *fps = NULL;
+
+		TTF_Font *font = NULL;
+		SDL_Event e;
+		SDL_bool running = SDL_TRUE;
+		SDL_Color fc;
+		fc.r = 255;
+		fc.a = 255;
+		fc.g = 255;
+		fc.b = 255;
+
+		uint32_t st = 0, ttp = 0;
+		uint32_t fst = 0, ftp = 0;
+		uint32_t frames = 0;
+
+		if (!main_init()) return 1;
+
+		win = SDL_CreateWindow("Test",
+				0, 0, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+		if (!win) {
+			fprintf(stderr, "fail to create SDL window, error: %s\n",
+					SDL_GetError());
+			return 1;
+		}
+
+		ren = SDL_CreateRenderer(win, -1,
+				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		if (!ren) {
+			fprintf(stderr, "fail to create SDL renderer, error: %s\n",
+					SDL_GetError());
+			SDL_DestroyWindow(win);
+			return 1;
+		}
+
+		font = TTF_OpenFont(FPS_FONT, FPS_SIZE);
+		if (!font) {
+			fprintf(stderr, "fail to open TTF font, error: %s\n",
+					TTF_GetError());
+			SDL_DestroyWindow(win);
+			SDL_DestroyRenderer(ren);
+			return 1;
+		}
+
+		fps = main_init_fps_texture(font, frames, ttp, ren, fc);
+		if (!fps) {
+			fprintf(stderr, "fail to create fps texture, error: %s\n",
+					SDL_GetError());
+			SDL_DestroyWindow(win);
+			SDL_DestroyRenderer(ren);
+			TTF_CloseFont(font);
+			return 1;
+		}
+
+		// main loop
+		while (running) {
+			fst = SDL_GetTicks();
+			while(SDL_PollEvent(&e)) {
+				if(e.type == SDL_QUIT)
+					running = SDL_FALSE;
+			}
+
+			// update
+			frames ++;
+			if(frames == 0) st = 0;
+
+			// compute start time and fps
+			ttp = SDL_GetTicks() - st;
+			if(fps) SDL_DestroyTexture(fps);
+			fps = main_init_fps_texture(font, frames, ttp, ren, fc);
+
+			// render
+			SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+			SDL_RenderClear(ren);
+			// fps
+			main_render_fps(ren, fps);
+			// drawings
+
+
+			SDL_RenderPresent(ren);
+			// end of rendering
+
+			// control fps
+			ftp = SDL_GetTicks() - fst;
+			if(ftp < 1000 / FPS)
+				SDL_Delay(1000 / FPS - ftp);
+		}
+
+		// free memory
+		SDL_DestroyWindow(win);
+		SDL_DestroyRenderer(ren);
+		SDL_DestroyTexture(fps);
+		TTF_CloseFont(font);
+		return 0;
+	}
+
+	int main_init() {
+		const unsigned int IMG_FLAG = IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_JPG;
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+			fprintf(stderr, "fail to initialize SDL, error: %s\n",
+					SDL_GetError());
+			return 0;
+		}
+		atexit(SDL_Quit);
+		if ((IMG_Init(IMG_FLAG) & IMG_FLAG) != IMG_FLAG) {
+			fprintf(stderr, "fail to initialize IMG, error: %s\n",
+					SDL_GetError());
+			return 0;
+		}
+		atexit(IMG_Quit);
+		if (TTF_Init() == -1) {
+			fprintf(stderr, "fail to initialize TTF, error: %s\n",
+					SDL_GetError());
+			return 0;
+		}
+		atexit(TTF_Quit);
+		return 1;
+	}
+
+	void main_render_fps(SDL_Renderer *renderer, SDL_Texture *texture) {
+		SDL_Rect dst;
+
+		SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
+		dst.x = WIDTH - 65;
+		dst.y = 0;
+		SDL_RenderCopy(renderer, texture, NULL, &dst);
+	}
+
+	SDL_Texture* main_init_fps_texture(TTF_Font *font,
+			uint64_t frames, uint32_t tp,
+			SDL_Renderer *ren, SDL_Color color) {
+		SDL_Surface* surf = NULL;
+		SDL_Texture* texture = NULL;
+
+		if (!font || !ren) {
+			fprintf(stderr, "null pointer\n");
+			return NULL;
+		}
+
+		char text[1024] = {'\0'};
+		sprintf(text, "fps: %.2lf", frames * 1000.0 / tp);
+		surf = TTF_RenderText_Blended(font, text, color);
+		if (!surf) {
+			fprintf(stderr, "Fail to render text to sdl surface\n");
+			return NULL;
+		}
+
+		texture = SDL_CreateTextureFromSurface(ren, surf);
+		if (!texture) {
+			fprintf(stderr, "Fail to create texture from surface\n");
+			SDL_FreeSurface(surf);
+			return NULL;
+		}
+
+		SDL_FreeSurface(surf);
+		return texture;
+	}
+snippet template opengl glfw
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <GL/glew.h>
+	#include <GLFW/glfw3.h>
+	#include <glm/glm.hpp>
+
+	int main(void) {
+		if (!glfwInit()) {
+			fprintf(stderr, "Fail to initialize GLFW\n");
+			return -1;
+		}
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		GLFWwindow *window = glfwCreateWindow(1024, 768, "Tutorial 1", NULL, NULL);
+		if (!window) {
+			fprintf(stderr, "Fail to open GLFW window");
+			glfwTerminate();
+			return -1;
+		}
+
+		glfwMakeContextCurrent(window);
+
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK) {
+			fprintf(stderr, "Fail to initialize GLEW\n");
+			glfwDestroyWindow(window);
+			glfwTerminate();
+			return -1;
+		}
+
+		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		do {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+		} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+		         glfwWindowShouldClose(window) == 0);
+
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		return 0;
+	}
