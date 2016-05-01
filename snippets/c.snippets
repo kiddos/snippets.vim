@@ -1,12 +1,12 @@
 ## Main
 # main
 snippet main
-	int main(int argc, char *argv[]) {
+	int main(void) {
 		${0}
 		return 0;
 	}
 # main(void)
-snippet mainn
+snippet mainargs
 	int main(int argc, char *argv[]) {
 		${0}
 		return 0;
@@ -181,9 +181,38 @@ snippet fund
 ## Types
 # typedef
 snippet td
-	typedef ${1:int} ${2:MyCustomType};
+	typedef ${1:int} ${2:MyCustomType};${3}
+# enum
+snippet en
+	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* enums */}
+	}${3}
+snippet enu
+	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* enums */}
+	}${3}
+snippet enum
+	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* enums */}
+	}${3}
 # struct
 snippet st
+	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* data */}
+	}${3: /* optional variable list */};
+snippet str
+	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* data */}
+	}${3: /* optional variable list */};
+snippet stru
+	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* data */}
+	}${3: /* optional variable list */};
+snippet struc
+	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
+		${2:/* data */}
+	}${3: /* optional variable list */};
+snippet struct
 	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
 		${2:/* data */}
 	}${3: /* optional variable list */};
