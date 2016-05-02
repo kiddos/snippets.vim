@@ -1,0 +1,34 @@
+snippet func
+	FUNCTION_BLOCK
+	${1}
+
+	END_FUNCTION_BLOCK
+
+snippet input
+	VAR_INPUT
+		${1:VAR_NAME} ${2:REAL};
+		${3}
+	END_VAR
+
+snippet fuzzy
+	FUZZIFY ${1:VAR_NAME}
+		TERM ${2:TERM_NAME} := (${3:0}, 0) (${4:0}, 1) (${5:0}, 0);
+	END_FUZZIFY
+
+snippet term
+	TERM ${1:TERM_NAME} := (${2:0}, 0) (${3:0}, 1) (${4:0}, 0);${5}
+snippet defuzzy
+	DEFUZZIFY valve
+		METHOD: MoM;
+	END_DEFUZZIFY
+
+snippet ruleblock
+	RULEBLOCK ${1:RULE_NAME}
+		AND: MIN;
+		ACCUM: MAX;
+		RULE 0: IF ${2:CONDITION} THEN ${3:ACTION}
+	END_RULEBLOCK
+
+snippet rule
+	RULE ${1:0}: IF ${2:CONDITION} THEN ${3:ACTION}
+
