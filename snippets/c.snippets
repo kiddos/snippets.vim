@@ -582,3 +582,12 @@ snippet template opengl glfw
 		glfwTerminate();
 		return 0;
 	}
+snippet declare c
+	#ifndef ${2:`toupper(Filename('$1'))`}_H
+	#define $2_H
+
+	typedef struct ${3:_$1 }{
+		${4:/* data */}
+	} ${1:`Filename('$1')`}_t;
+
+	#endif /* end of include guard: $1 */

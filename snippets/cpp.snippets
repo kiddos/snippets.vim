@@ -66,84 +66,28 @@ snippet fr
 # mutable
 snippet mu
 	mutable
-##
-## Class
-snippet cl
-	class ${1:`vim_snippets#Filename('$1', 'name')`} {
+# Class
+snippet class simple
+	class ${1:`Filename('$1')`} {
 	 public:
-		$1(${2});
+		$1();
+
+	 private:
+		${0:/* fields */}
+	};
+snippet class full
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+		$1(const $1& ${2:`tolower(Filename('$1'))`});
+		$1& operator= (const $1& ${2:`tolower(Filename('$1'))`});
 		~$1();
 
 	 private:
 		${0:/* fields */}
 	};
-snippet cla
-	class ${1:`vim_snippets#Filename('$1', 'name')`} {
-	 public:
-		$1(${2});
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet clas
-	class ${1:`vim_snippets#Filename('$1', 'name')`} {
-	 public:
-		$1(${2});
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class
-	class ${1:`vim_snippets#Filename('$1', 'name')`} {
-	 public:
-		$1(${2});
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-# member function implementation
-snippet mfun
-	${4:void} ${1:`vim_snippets#Filename('$1', 'ClassName')`}::${2:memberFunction}(${3}) {
-		${0}
-	}
-snippet readfile
-	std::ifstream file("${1:inputFile.txt}", std::ios::in);
-	std::string content;
-	if (file.is_open()) {
-		for (std::string line ; getline(file, line) ;)
-		content += line + "\n";
-		std::cout << content << std::endl;
-		file.close();
-	}
 # namespace
 snippet ns
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet nam
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet name
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet names
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet namesp
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet namespa
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
-snippet namespac
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
 	} /* end of $1 namespace */
@@ -151,7 +95,6 @@ snippet namespace
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
 	} /* end of $1 namespace */
-##
 ## Input/Output
 # std::cout
 snippet cout
@@ -193,3 +136,16 @@ snippet lld
 	[${1}](${2}) {
 		${3}
 	}
+snippet declare cpp
+	#ifndef ${2:`toupper(Filename('$1'))`}_H
+	#define $2_H
+
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+
+	 private:
+		${0:/* fields */}
+	};
+
+	#endif /* end of include guard: $1 */
