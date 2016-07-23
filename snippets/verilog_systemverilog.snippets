@@ -1,0 +1,89 @@
+# if statement
+snippet if
+	if (${1}) begin
+		${0}
+	end
+# If/else statements
+snippet ife
+	if (${1}) begin
+		${2}
+	end
+	else begin
+		${1}
+	end
+# Else if statement
+snippet eif
+	else if (${1}) begin
+		${0}
+	end
+#Else statement
+snippet el
+	else begin
+		${0}
+	end
+# While statement
+snippet wh
+	while (${1}) begin
+		${0}
+	end
+# Repeat Loop
+snippet rep
+	repeat (${1}) begin
+		${0}
+	end
+# for loop
+snippet for
+	for (i = 0 ; i < ${1:64} ; i = i + 1) begin
+		${2:/* content */}
+	end
+# Case statement
+snippet case
+	case (${1:/* variable */})
+		${2:/* value */}: begin
+			${3}
+		end
+		default: begin
+			${4}
+		end
+	endcase
+# CaseZ statement
+snippet casez
+	casez (${1:/* variable */})
+		${2:/* value */}: begin
+			${3}
+		end
+		default: begin
+			${4}
+		end
+	endcase
+# Always block
+snippet always
+	always @(${1:/* sensitive list */}) begin
+		${0}
+	end
+# Module block
+snippet module
+	module ${1:`Filename('$1')`} (${2});
+		${0}
+	endmodule
+snippet dumpfile
+	initial begin
+		$dumpfile("${1:file.vcd}");
+		$dumpvars(0, clk);
+		$dumpvars(1, reset);
+		$dumpvars(2, value);
+	end
+snippet init
+	initial begin
+		${1}
+	end
+# input/output
+snippet in
+	input ${1}
+snippet out
+	output ${1}
+# begin
+snippet begin
+	begin
+		${1}
+	end
