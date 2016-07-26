@@ -10,3 +10,26 @@ snippet thr
 	threadIdx.${1:x}
 snippet blc
 	blockIdx.${1:x}
+snippet cuda check
+	int num_devices = 0;
+	cudaGetDeviceCount(&num_devices);
+	if (num_devices == 0) {
+		${1:// error message}
+		return -1;
+	}
+snippet cuda info
+	int num_devices = 0;
+	cudaGetDeviceCount(&num_devices);
+	for (int i = 0; i < num_devices; ++i) {
+		cudaDeviceProp prop;
+		cudaGetDeviceProperties(&prop, i);
+		printf("Device Number: %d\n", i);
+		printf("  Device name: %s\n", prop.name);
+		printf("  Memory Clock Rate (KHz): %d\n",
+			prop.memoryClockRate);
+		printf("  Memory Bus Width (bits): %d\n",
+			prop.memoryBusWidth);
+		printf("  Peak Memory Bandwidth (GB/s): %f\n\n",
+			2.0*prop.memoryClockRate*(prop.memoryBusWidth/8)/1.0e6);
+	}
+	
