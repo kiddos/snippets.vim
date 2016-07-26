@@ -1,11 +1,24 @@
 extends cpp
 
 snippet global
-	__global__
+	__global__ ${1:void} ${2:kernel_name}(${3}) {
+		${4:// kernel code...}
+	}
+snippet shared
+	__shared__ ${1:double} tdata[1024];${2}
+snippet eshared
+	extern __shared__ ${1:double} tdata[];${2}
 snippet device
-	__device__
+	__device__ ${1:void} ${2:kernel_name}(${3}) {
+		${4:// kernel code...}
+	}
 snippet host
-	__host__
+	__host__ ${1:void} ${2:host_function}(${3}) {
+		${4:// host code...}
+	}
+snippet sync
+	__syncthreads();
+	${1}
 snippet thr
 	threadIdx.${1:x}
 snippet blc
@@ -32,4 +45,18 @@ snippet cuda info
 		printf("  Peak Memory Bandwidth (GB/s): %f\n\n",
 			2.0*prop.memoryClockRate*(prop.memoryBusWidth/8)/1.0e6);
 	}
-	
+snippet cuda timer
+	cudaEvent_t start, end;
+	cudaEventCreate(&start);
+	cudaEventCreate(&end);
+
+	cudaEventRecord(start, 0);
+	${1:// kernel to time}
+	cudaEventRecord(end, 0);
+	cudaEventSynchronize(end);
+	float elapsed_time = 0;
+	cudaEventElapsedTime(&elapsed_time, start, end);
+snippet malloc
+	cudaMalloc(${1:&d_data}, ${2:sizeof(h_data[0]) * datasize});${3}
+snippet free
+	cudaFree(${1:0});${2}
