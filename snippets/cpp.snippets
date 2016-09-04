@@ -169,4 +169,23 @@ snippet header container
 	using std::cout;
 	using std::vector;
 	using std::shared_ptr;
+# template
+snippet template c++ basic
+	#include <iostream>
 
+	using std::cout;
+
+	int main(int argc, char** argv) {
+		return 0;
+	}
+snippet template c++ cuda
+	#include <cuda_runtime.h>
+	#include <cublas_v2.h>
+	#include <iostream>
+	#include <memory>
+
+	using std::cout;
+
+	int main(int argc, char** argv) {
+		return 0;
+	}
