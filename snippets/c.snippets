@@ -7,7 +7,7 @@ snippet main
 	}
 # main(void)
 snippet mainargs
-	int main(int argc, const char** argv) {
+	int main(int argc, const char** const argv) {
 		${0}
 		return 0;
 	}
@@ -15,7 +15,6 @@ snippet mainargs
 snippet vmain
 	void main(void) {
 		${0}
-		return 0;
 	}
 ##
 ## Preprocessor
@@ -335,21 +334,31 @@ snippet vao
 	glBindVertexArray($1);
 ##
 ## template
-snippet template blank
+snippet template c basic
 	#include <stdio.h>
+	#include <stdlib.h>
+	#include <time.h>
+	#include <stdint.h>
 
-	int main(${2:int argc, char *argv[]}) {
+	int main(int argc, const char** const argv) {
 		${1:// code ...}
 		return 0;
 	}
-snippet template hello world
+snippet template c empty
+	#include <stdio.h>
+
+	int main(int argc, const char* const argv) {
+		${1:// code ...}
+		return 0;
+	}
+snippet template c hello world
 	#include <stdio.h>
 
 	int main(void) {
 		printf("Hello World\n");
 		return 0;
 	}
-snippet template SDL2
+snippet template c SDL2
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_image.h>
 	#include <SDL2/SDL_ttf.h>
@@ -529,7 +538,7 @@ snippet template SDL2
 		SDL_FreeSurface(surf);
 		return texture;
 	}
-snippet template opengl glfw
+snippet template c opengl glfw
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <GL/glew.h>
@@ -591,3 +600,17 @@ snippet declare c
 	} ${1:`Filename('$1')`}_t;
 
 	#endif /* end of include guard: $1 */
+##
+## header
+snippet header c basic
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <stdint.h>
+	#include <string.h>
+	#include <time.h>
+	#include <math.h>
+snippet header cuda
+	#include <cuda_runtime.h>
+	#include <cublas_v2.h>
+snippet header c io
+	#include <stdio.h>
