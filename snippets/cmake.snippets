@@ -1,52 +1,17 @@
 snippet init
-	cmake_minimum_required(version ${1:2.8.2})
+	cmake_minimum_required(version ${1:2.8})
 	project(${2:ProjectName})
 
-	find_package(${3:library})
+	set(CMAKE_CXX_STANDARD 11)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-	include_directories(${$3_INCLUDE_DIRS})
-
-	add_subdirectory(${0:src})
-
-	add_executable($2)
-
-	target_link_libraries($2 ${$3_LIBRARIES})
-
-snippet proj
-	project(${0:Name})
-
-snippet min
-	cmake_minimum_required(version ${0:2.8.2})
-
-snippet include
-	include_directories(${${0:include_dir}})
-
-snippet find
-	find_package(${1:library} ${0:REQUIRED})
-
+	add_subdirectory(src)
+	enable_testing()
+	add_subdirectory(test)
 snippet glob
-	file(glob ${1:srcs} *.${0:cpp})
-
-snippet subdir
-	add_subdirectory(${0:src})
-
-snippet lib
-	add_library(${1:lib} ${${0:srcs}})
-
-snippet link
-	target_link_libraries(${1:bin} ${0:somelib})
-
-snippet bin
-	add_executable(${1:bin})
-
-snippet set
-	set(${1:var} ${0:val})
-
-snippet dep
-	add_dependencies(${1:target}
-		${0:dep}
-	)
-
+	file(GLOB ${1:SOURCE} *.cpp *.h)
 snippet Ext_url
 	include(ExternalProject)
 	ExternalProject_Add(${1:googletest}
@@ -59,7 +24,6 @@ snippet Ext_url
 	  INSTALL_COMMAND   ""
 	  TEST_COMMAND      ""
 	)
-
 snippet Ext_git
 	include(ExternalProject)
 	ExternalProject_Add(${1:googletest}
@@ -72,12 +36,5 @@ snippet Ext_git
 	  INSTALL_COMMAND   ""
 	  TEST_COMMAND      ""
 	)
-
-snippet props
-	set_target_properties(${1:target}
-		${2:properties} ${3:compile_flags}
-		${0:"-O3 -Wall -pedantic"}
-	)
-
 snippet test
 	add_test(${1:ATestName} ${0:testCommand --options})
