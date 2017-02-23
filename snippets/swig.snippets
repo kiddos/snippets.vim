@@ -1,0 +1,16 @@
+snippet init
+	%module ${1:module_name}
+
+	%{
+	#define SWIG_FILE_WITH_INIT
+	#include "$1.h"
+	%}
+
+	%include "$1.h"
+snippet numpy
+	%include "numpy.i"
+	%init %{
+	import_array()
+	%}
+
+	%apply (DTYPE* IN_ARRAY1, int DIM1) {(DTYPE* a, int n)};
