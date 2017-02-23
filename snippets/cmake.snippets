@@ -38,3 +38,27 @@ snippet Ext_git
 	)
 snippet test
 	add_test(${1:ATestName} ${0:testCommand --options})
+snippet gtest
+	enable_testing()
+	find_package(GTest REQUIRED)
+	include_directories(${GTEST_INCLUDE_DIRS})
+	set(CMAKE_INCLUDE_CURRENT_DIR on)
+
+	if (TARGET target)
+	set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread target)
+	add_executable(test_target test_src.cpp)
+	target_link_libraries(test_target ${TEST_LIBS})
+	add_test(Test1 test_target)
+	endif ()
+snippet swig
+	find_package(SWIG REQUIRED)
+	include(${SWIG_USE_FILE})
+
+	find_package(PythonLibs 2.7 REQUIRED)
+	include_directories(${PYTHON_INCLUDE_PATH})
+	include_directories(${CMAKE_CURRNET_SOURCE_DIR})
+
+	set(CMAKE_SWIG_FLAGS "")
+	set_source_file_properties(module_name.i PROPERTIES CPLUSPLUS ON)
+	swig_add_module(module_name python module_name.i ${SOURCE_FILES})
+	swig_link_libraries(module_name ${PYTHON_LIBRARIES})
