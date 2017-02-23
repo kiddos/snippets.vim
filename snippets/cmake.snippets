@@ -15,26 +15,26 @@ snippet glob
 snippet Ext_url
 	include(ExternalProject)
 	ExternalProject_Add(${1:googletest}
-	  URL ${2:http://googletest.googlecode.com/files/gtest-1.7.0.zip}
-	  URL_HASH SHA1=${3:f85f6d2481e2c6c4a18539e391aa4ea8ab0394af}
-	  SOURCE_DIR "${4:${CMAKE_BINARY_DIR}/gtest-src}"
-	  BINARY_DIR "${0:${CMAKE_BINARY_DIR}/gtest-build}"
-	  CONFIGURE_COMMAND ""
-	  BUILD_COMMAND     ""
-	  INSTALL_COMMAND   ""
-	  TEST_COMMAND      ""
+		URL ${2:http://googletest.googlecode.com/files/gtest-1.7.0.zip}
+		URL_HASH SHA1=${3:f85f6d2481e2c6c4a18539e391aa4ea8ab0394af}
+		SOURCE_DIR "${4:${CMAKE_BINARY_DIR}/gtest-src}"
+		BINARY_DIR "${0:${CMAKE_BINARY_DIR}/gtest-build}"
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND     ""
+		INSTALL_COMMAND   ""
+		TEST_COMMAND      ""
 	)
 snippet Ext_git
 	include(ExternalProject)
 	ExternalProject_Add(${1:googletest}
-	  GIT_REPOSITORY    ${2:https://github.com/google/googletest.git}
-	  GIT_TAG           ${3:master}
-	  SOURCE_DIR        "${4:${CMAKE_BINARY_DIR}/googletest-src}"
-	  BINARY_DIR        "${0:${CMAKE_BINARY_DIR}/googletest-build}"
-	  CONFIGURE_COMMAND ""
-	  BUILD_COMMAND     ""
-	  INSTALL_COMMAND   ""
-	  TEST_COMMAND      ""
+		GIT_REPOSITORY    ${2:https://github.com/google/googletest.git}
+		GIT_TAG           ${3:master}
+		SOURCE_DIR        "${4:${CMAKE_BINARY_DIR}/googletest-src}"
+		BINARY_DIR        "${0:${CMAKE_BINARY_DIR}/googletest-build}"
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND     ""
+		INSTALL_COMMAND   ""
+		TEST_COMMAND      ""
 	)
 snippet test
 	add_test(${1:ATestName} ${0:testCommand --options})
@@ -58,7 +58,15 @@ snippet swig
 	include_directories(${PYTHON_INCLUDE_PATH})
 	include_directories(${CMAKE_CURRNET_SOURCE_DIR})
 
+	file(GLOB SOURCE_FILES *.cc *.h)
 	set(CMAKE_SWIG_FLAGS "")
-	set_source_file_properties(module_name.i PROPERTIES CPLUSPLUS ON)
-	swig_add_module(module_name python module_name.i ${SOURCE_FILES})
-	swig_link_libraries(module_name ${PYTHON_LIBRARIES})
+	set_source_files_properties(${1:module_name}.i PROPERTIES CPLUSPLUS ON)
+	swig_add_module($1 python $1.i ${SOURCE_FILES})
+	swig_link_libraries($1 ${PYTHON_LIBRARIES})
+snippet numpy.i
+	if (NOT EXISTS ./numpy.i)
+		message("Downloading numpy.i from github.com...")
+		file(DOWNLOAD
+			https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i
+			./numpy.i EXPECTED_MD5 7ace9cd48149759e03624dae78cf2216 SHOW_PROGRESS)
+	endif ()
