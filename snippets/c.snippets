@@ -11,11 +11,6 @@ snippet mainargs
 		${0}
 		return 0;
 	}
-# void main(void)
-snippet vmain
-	void main(void) {
-		${0}
-	}
 ##
 ## Preprocessor
 # #include <...>
@@ -264,64 +259,6 @@ snippet fprintf
 	fprintf(${1:stderr}, "${2:%s}\n"${3});
 snippet fprinf
 	fprintf(${1:stderr}, "${2:%s}\n"${3});
-# getopt
-snippet getopt
-	int choice;
-	while (1)
-	{
-		static struct option long_options[] =
-		{
-			/* Use flags like so:
-			{"verbose",	no_argument,	&verbose_flag, 'V'}*/
-			/* Argument styles: no_argument, required_argument, optional_argument */
-			{"version", no_argument,	0,	'v'},
-			{"help",	no_argument,	0,	'h'},
-			${1}
-			{0,0,0,0}
-		};
-
-		int option_index = 0;
-
-		/* Argument parameters:
-			no_argument: " "
-			required_argument: ":"
-			optional_argument: "::" */
-
-		choice = getopt_long( argc, argv, "vh",
-					long_options, &option_index);
-
-		if (choice == -1)
-			break;
-
-		switch( choice )
-		{
-			case 'v':
-				${2}
-				break;
-
-			case 'h':
-				${3}
-				break;
-
-			case '?':
-				/* getopt_long will have already printed an error */
-				break;
-
-			default:
-				/* Not sure how to get here... */
-				return EXIT_FAILURE;
-		}
-	}
-
-	/* Deal with non-option arguments here */
-	if ( optind < argc )
-	{
-		while ( optind < argc )
-		{
-			${0}
-		}
-	}
-##
 ## Miscellaneous
 # This is kind of convenient
 snippet .
@@ -600,17 +537,3 @@ snippet declare c
 	} ${1:`Filename('$1')`}_t;
 
 	#endif /* end of include guard: $1 */
-##
-## header
-snippet header c basic
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <stdint.h>
-	#include <string.h>
-	#include <time.h>
-	#include <math.h>
-snippet header cuda
-	#include <cuda_runtime.h>
-	#include <cublas_v2.h>
-snippet header c io
-	#include <stdio.h>
