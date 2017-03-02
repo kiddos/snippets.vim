@@ -24,7 +24,16 @@ snippet sp
 snippet dl
 	delay(${1});
 snippet template empty
+	void Init() {
+		// normal timer
+		TCCR1A = _BV(WGM10);
+		TCCR1B = _BV(CS11) | _BV(CS10) | _BV(WGM12);
+		TCCR2A = _BV(WGM21) | _BV(WGM20);
+		TCCR2B = _BV(CS22);
+	}
+
 	void setup() {
+		Init();
 		${1:// setup code}
 	}
 
