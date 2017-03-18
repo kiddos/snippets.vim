@@ -193,3 +193,19 @@ snippet template gtest
 	TEST(${1:TestName}, ${2:Description}) {
 		EXPECT_EQ(${3:true});
 	}
+snippet exception
+	class ${1:Exception} : public std::exception {
+	 public:
+		$1() : msg_("$1") {}
+		explicit $1(const char* msg)
+		: msg_(std::string("$1: ") + msg) {}
+		explicit $1(const std::string& msg)
+		: msg_(std::string("CustomException: ") + msg) {}
+		virtual ~$1() {}
+		virtual const char* what() const noexcept {
+		return msg_.c_str();
+		}
+
+	 protected:
+		std::string msg_;
+	};
