@@ -240,3 +240,9 @@ snippet kwargs
 	**kwargs${1:,}${0}
 snippet akw
 	*args, **kwargs${1:,}${0}
+snippet template unittest
+	import unittest
+
+	class ${1:TestName}(unittest.TestCase):
+		def ${2:test_case1}(self):
+			pass
