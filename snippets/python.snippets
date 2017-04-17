@@ -21,37 +21,31 @@ snippet docs
 	Description: ${0}
 	"""
 
-snippet wh
-	while ${1:condition}:
-		${0}
-# dowh - does the same as do...while in other languages
-snippet dowh
-	while True:
-		${1}
-		if ${0:condition}:
-			break
-snippet with
-	with ${1:expr} as ${2:var}:
-		${0}
 # New Class
 snippet cl
 	class ${1:ClassName}(${2:object}):
 		"""${3:docstring for $1}"""
-		def __init__(self, ${4:arg}):
-			${5:super($1, self).__init__()}
-			self.$4 = $4
-			${0}
+		def __init__(self):
+			${0:pass}
+snippet cla
+	class ${1:ClassName}(${2:object}):
+		"""${3:docstring for $1}"""
+		def __init__(self):
+			${0:pass}
+snippet clas
+	class ${1:ClassName}(${2:object}):
+		"""${3:docstring for $1}"""
+		def __init__(self):
+			${0:pass}
+snippet class
+	class ${1:ClassName}(${2:object}):
+		"""${3:docstring for $1}"""
+		def __init__(self):
+			${0:pass}
 # New Function
 snippet def
 	def ${1:fname}(${2:`indent('.') ? 'self' : ''`}):
 		"""${3:docstring for $1}"""
-		${0}
-snippet deff
-	def ${1:fname}(${2:`indent('.') ? 'self' : ''`}):
-		${0}
-# New Method
-snippet defm
-	def ${1:mname}(self, ${2:arg}):
 		${0}
 # New Property
 snippet property
@@ -65,20 +59,6 @@ snippet property
 			${0:del self._$1}
 		return locals()
 	$1 = property(**$1())
-# Ifs
-snippet if
-	if ${1:condition}:
-		${0}
-snippet el
-	else:
-		${0}
-snippet ei
-	elif ${1:condition}:
-		${0}
-# For
-snippet for
-	for ${1:item} in ${2:items}:
-		${0}
 # Encodes
 snippet cutf8
 	# -*- coding: utf-8 -*-
@@ -86,39 +66,6 @@ snippet clatin1
 	# -*- coding: latin-1 -*-
 snippet cascii
 	# -*- coding: ascii -*-
-# Lambda
-snippet ld
-	${1:var} = lambda ${2:vars} : ${0:action}
-snippet .
-	self.
-snippet try Try/Except
-	try:
-		${1}
-	except ${2:Exception}, ${3:e}:
-		${0:raise $3}
-snippet try Try/Except/Else
-	try:
-		${1}
-	except ${2:Exception}, ${3:e}:
-		${4:raise $3}
-	else:
-		${0}
-snippet try Try/Except/Finally
-	try:
-		${1}
-	except ${2:Exception}, ${3:e}:
-		${4:raise $3}
-	finally:
-		${0}
-snippet try Try/Except/Else/Finally
-	try:
-		${1}
-	except ${2:Exception}, ${3:e}:
-		${4:raise $3}
-	else:
-		${5}
-	finally:
-		${0}
 # if __name__ == '__main__':
 snippet ifmain
 	if __name__ == '__main__':
@@ -168,38 +115,9 @@ snippet pprint
 snippet "
 	"""${0:doc}
 	"""
-# assertions
-snippet a=
-	self.assertEqual(${0}, ${1})
-# test function/method
-snippet test
-	def test_${1:description}(${2:`indent('.') ? 'self' : ''`}):
-		${0}
 # test case
-snippet testcase
-	class ${1:ExampleCase}(unittest.TestCase):
-
-		def test_${2:description}(self):
-			${0}
 snippet fut
 	from __future__ import ${0}
-#getopt
-snippet getopt
-	try:
-		# Short option syntax: "hv:"
-		# Long option syntax: "help" or "verbose="
-		opts, args = getopt.getopt(sys.argv[1:], "${1:short_options}", [${2:long_options}])
-
-	except getopt.GetoptError, err:
-		# Print debug info
-		print str(err)
-		${3:error_action}
-
-	for option, argument in opts:
-		if option in ("-h", "--help"):
-			${0}
-		elif option in ("-v", "--verbose"):
-			verbose = argument
 # logging
 # glog = get log
 snippet glog
@@ -229,7 +147,7 @@ snippet epydoc
 	"""
 snippet dol
 	def ${1:__init__}(self, *args, **kwargs):
-	    super(${0:ClassName}, self).$1(*args, **kwargs)
+		super(${0:ClassName}, self).$1(*args, **kwargs)
 snippet kwg
 	self.${1:var_name} = kwargs.get('$1', ${2:None})
 snippet lkwg
@@ -240,9 +158,159 @@ snippet kwargs
 	**kwargs${1:,}${0}
 snippet akw
 	*args, **kwargs${1:,}${0}
+snippet tf weights
+	h$2_size = ${1:256}
+	w = tf.get_variable(name='w${2:1}', shape=input_shape + [h$2_size],
+		dtype=tf.float32,
+		initializer=tf.random_normal_initializer(stddev=0.1))
+	b = tf.get_variable(name='b$2', shape=[h$2_size],
+		dtype=tf.float32, initializer=tf.ones_initializer())
+	h = tf.nn.relu(tf.matmul(h, w) + b)
 snippet template unittest
 	import unittest
 
 	class ${1:TestName}(unittest.TestCase):
 		def ${2:test_case1}(self):
 			pass
+snippet template machine-learning
+	from __future__ import print_function
+	from optparse import OptionParser
+	import numpy as np
+	import tensorflow as tf
+	import logging
+	import os
+
+
+	class Model(object):
+		def __init__(self, input_shape, output_shape,
+			model_name='Model', learning_rate=1e-3):
+			logging.basicConfig()
+			self.logger = logging.getLogger(model_name)
+			self.logger.setLevel(logging.INFO)
+			self.logger.info('setting up model...')
+			with tf.variable_scope(model_name):
+				self.inputs, self.labels, self.outputs, self.loss, self.train_op = \
+					self._build_model(input_shape, output_shape, learning_rate)
+			self.start_epoch = 0
+			self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
+			# saver
+			self.logger.info('setting up saver...')
+			self.saver = tf.train.Saver()
+			# summary writer
+			self.logger.info('setting up summary writer...')
+			self.summary_writer = tf.summary.FileWriter(summary_path,
+			tf.get_default_graph())
+			tf.summary.scalar(name='loss', tensor=self.loss)
+			tf.summary.histogram(name='outputs', values=self.outputs)
+			self.merged_summary = tf.summary.merge_all()
+
+		def _prepare_save_dir(self, model_name):
+			index = 0
+			while os.path.isdir(model_name + str(index)):
+				index += 1
+			self.logger.info('creating model&summary directory...')
+			model_path = model_name + str(index)
+			os.mkdir(model_path)
+			summary_path = os.path.join(model_path, 'summary')
+			os.mkdir(summary_path)
+			checkpoint_path = os.path.join(model_path, model_name)
+			return checkpoint_path, summary_path
+
+		def _build_model(self, input_shape, output_shape, lr):
+			inputs = tf.placeholder(dtype=tf.float32, shape=[None] + input_shape)
+			labels = tf.placeholder(dtype=tf.float32, shape=[None] + output_shape)
+			# model
+			with tf.name_scope('scope'):
+				hidden_size = 256
+				w = tf.get_variable(name='w1', shape=input_shape + [hidden_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(stddev=0.1))
+				b = tf.get_variable(name='b1', shape=[hidden_size],
+					dtype=tf.float32, initializer=tf.ones_initializer())
+				h = tf.nn.relu(tf.matmul(inputs, w) + b)
+
+				w = tf.get_variable(name='ow', shape=[hidden_size] + output_shape,
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(stddev=0.1))
+				b = tf.get_variable(name='ob', shape=output_shape,
+					dtype=tf.float32, initializer=tf.ones_initializer())
+				logits = tf.matmul(h, w) + b
+				outputs = tf.nn.softmax(logits)
+			# loss and optimizer
+			with tf.name_scope('loss'):
+				loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+					logits=logits, labels=labels))
+			with tf.name_scope('optimizer'):
+				optimizer = tf.train.GradientDescentOptimizer(lr)
+				train_op = optimizer.minimize(loss)
+			return inputs, labels, outputs, loss, train_op
+
+		def load(self, sess, checkpoint_path):
+			if os.path.isfile(checkpoint_path + '.meta') and \
+				os.path.isfile(checkpoint_path + '.index'):
+				self.logger.info('loading last %s checkpoint...' % (checkpoint_path))
+				self.saver.restore(sess, checkpoint_path)
+				self.start_epoch = int(checkpoint_path.split('-')[-1].strip())
+			else:
+				self.logger.warning('%s does not exists' % (checkpoint_path))
+
+		def train(self, sess, data, label,
+			batch_size=1024, output_period=1000, max_epoch=10000):
+			# initialize
+			if self.start_epoch == 0:
+				self.logger.info('initializing variables...')
+				sess.run(tf.global_variables_initializer())
+			# training
+			self.logger.info('start training...')
+			for epoch in range(self.start_epoch, self.start_epoch + max_epoch + 1):
+				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
+				batch_data = data[offset:offset+batch_size, :]
+				batch_label = label[offset:offset+batch_size, :]
+				_, loss = sess.run([self.train_op, self.loss], feed_dict={
+					self.inputs: batch_data,
+					self.labels: batch_label
+				})
+				if epoch % output_period == 0:
+					self.logger.info('%d. loss: %f | saving...' % (epoch, loss))
+					self.saver.save(sess, self.checkpoint_path, global_step=epoch)
+					ms = sess.run(self.merged_summary, feed_dict={
+						self.inputs: batch_data,
+						self.labels: batch_label
+					})
+					self.summary_writer.add_summary(ms, global_step=epoch)
+
+		def predict(self, sess, data):
+			return sess.run(self.outputs, feed_dict={
+				self.inputs: data
+			})
+
+
+	def main():
+		parser = OptionParser()
+		parser.add_option('-c', '--checkpoint', dest='checkpoint', default='',
+			help='last checkpoint to load for further training')
+		parser.add_option('-n', '--model_name', dest='model_name', default='Model',
+			help='model name for output')
+		parser.add_option('-e', '--max_epoch', dest='max_epoch', default=10000,
+			help='max epoch for training')
+		parser.add_option('-b', '--batch_size', dest='batch_size', default=1024,
+			help='batch size for training')
+		parser.add_option('-d', '--output_period', dest='output_period', default=1000,
+			help='output period for training')
+		options, args = parser.parse_args()
+
+		data = np.random.randn(1024, 10)
+		label = np.random.randn(1024, 3)
+		model = Model([10], [3], model_name=options.model_name)
+
+		with tf.Session() as sess:
+			if options.checkpoint:
+				model.load(sess, options.checkpoint)
+			model.train(sess, data, label,
+				batch_size=options.batch_size,
+				output_period=options.output_period,
+				max_epoch=options.max_epoch)
+
+
+	if __name__ == '__main__':
+		main()
