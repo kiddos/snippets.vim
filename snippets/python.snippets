@@ -4,13 +4,9 @@ snippet #!
 snippet #!3
 	#!/usr/bin/env python3
 	# -*- coding: utf-8 -*-
-snippet imp
-	import ${0:module}
-snippet uni
+snippet unicode
 	def __unicode__(self):
 		${0:representation}
-snippet from
-	from ${1:package} import ${0:module}
 # Module Docstring
 snippet docs
 	"""
@@ -21,32 +17,6 @@ snippet docs
 	Description: ${0}
 	"""
 
-# New Class
-snippet cl
-	class ${1:ClassName}(${2:object}):
-		"""${3:docstring for $1}"""
-		def __init__(self):
-			${0:pass}
-snippet cla
-	class ${1:ClassName}(${2:object}):
-		"""${3:docstring for $1}"""
-		def __init__(self):
-			${0:pass}
-snippet clas
-	class ${1:ClassName}(${2:object}):
-		"""${3:docstring for $1}"""
-		def __init__(self):
-			${0:pass}
-snippet class
-	class ${1:ClassName}(${2:object}):
-		"""${3:docstring for $1}"""
-		def __init__(self):
-			${0:pass}
-# New Function
-snippet def
-	def ${1:fname}(${2:`indent('.') ? 'self' : ''`}):
-		"""${3:docstring for $1}"""
-		${0}
 # New Property
 snippet property
 	def ${1:foo}():
@@ -60,51 +30,16 @@ snippet property
 		return locals()
 	$1 = property(**$1())
 # Encodes
-snippet cutf8
+snippet encoding utf8
 	# -*- coding: utf-8 -*-
-snippet clatin1
+snippet encoding latin1
 	# -*- coding: latin-1 -*-
-snippet cascii
+snippet encoding ascii
 	# -*- coding: ascii -*-
 # if __name__ == '__main__':
 snippet ifmain
 	if __name__ == '__main__':
 		${0:main()}
-# __magic__
-snippet _
-	__${1:init}__
-# python debugger (pdb)
-snippet pdb
-	import pdb
-	pdb.set_trace()
-# bpython debugger (bpdb)
-snippet bpdb
-	import bpdb
-	bpdb.set_trace()
-# ipython debugger (ipdb)
-snippet ipdb
-	import ipdb
-	ipdb.set_trace()
-# embed ipython itself
-snippet iem
-	import IPython
-	IPython.embed()
-# ipython debugger (pdbbb)
-snippet pdbbb
-	import pdbpp
-	pdbpp.set_trace()
-# remote python debugger (rpdb)
-snippet rpdb
-	import rpdb
-	rpdb.set_trace()
-# ptpython
-snippet ptpython
-	from ptpython.repl import embed
-	embed(globals(), locals(), vi_mode=${1:False}, history_filename=${2:None})
-# python console debugger (pudb)
-snippet pudb
-	import pudb
-	pudb.set_trace()
 # pdb in nosetests
 snippet nosetrace
 	from nose.tools import set_trace
@@ -112,28 +47,11 @@ snippet nosetrace
 snippet pprint
 	import pprint
 	pprint.pprint(${1})
-snippet "
-	"""${0:doc}
-	"""
-# test case
-snippet fut
-	from __future__ import ${0}
 # logging
-# glog = get log
-snippet glog
+snippet logging
 	import logging
 	logger = logging.getLogger(${0:__name__})
-snippet le
-	logger.error(${0:msg})
 # conflict with lambda=ld, therefor we change into Logger.debuG
-snippet lg
-	logger.debug(${0:msg})
-snippet lw
-	logger.warning(${0:msg})
-snippet lc
-	logger.critical(${0:msg})
-snippet li
-	logger.info(${0:msg})
 snippet epydoc
 	"""${1:Description}
 
@@ -158,96 +76,145 @@ snippet kwargs
 	**kwargs${1:,}${0}
 snippet akw
 	*args, **kwargs${1:,}${0}
-snippet tf weights
-	h$2_size = ${1:256}
-	w = tf.get_variable(name='w${2:1}', shape=input_shape + [h$2_size],
-		dtype=tf.float32,
-		initializer=tf.random_normal_initializer(stddev=0.1))
-	b = tf.get_variable(name='b$2', shape=[h$2_size],
-		dtype=tf.float32, initializer=tf.ones_initializer())
-	h = tf.nn.relu(tf.matmul(h, w) + b)
-snippet template unittest
-	import unittest
+## defined classes template
+snippet class Unit Test
+	class TestName(unittest.TestCase):
+		def test_case1(self):
+			self.assertTrue(True)
+snippet class Gym Environment
+	class CustomEnvironment(Env):
+		metadata = {'render.modes': ['ansi', 'rgb_array', 'human']}
 
-	class ${1:TestName}(unittest.TestCase):
-		def ${2:test_case1}(self):
+		def __init__(self, path):
+			self.current_dir = os.path.dirname(os.path.realpath(__file__))
+			self._reset()
+			logging.basicConfig()
+			self.logger = logging.getLogger(__name__)
+			self.logger.setLevel(logging.INFO)
+			self.spec = None
+			self.view = None
+			self.action_space = spaces.Discrete(2)
+			self.observation_space = spaces.Box(low=0, high=1, shape=(1, 1))
+
+		def get_state(self):
+			return np.zeros(shape=[1, 1])
+
+		def _seed(self, seed=None):
 			pass
-snippet template machine-learning
-	from __future__ import print_function
-	from optparse import OptionParser
-	import numpy as np
-	import tensorflow as tf
-	import logging
-	import os
 
+		def _step(self, action):
+			info = {}
+			reward = 0
+			done = False
+			return self.get_state(), reward, done, info
 
-	class Model(object):
-		def __init__(self, input_shape, output_shape,
-			model_name='Model', learning_rate=1e-3):
+		def _reset(self):
+			return self.get_state()
+
+		def _render(self, mode='human', close=False):
+			if not close:
+				if mode == 'rgb_array':
+					return self.get_state()
+				elif mode is 'human':
+					pass
+				else:
+					self.logger.info('\n%s\n' % (str(self.get_state())))
+
+		def _close(self):
+			pass
+##
+## Tensorflow Framework
+snippet tensorflow Feedforward
+	class ${1:FeedForwardModel}(object):
+		def __init__(self, input_size, output_size,
+				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
+			# logger
 			logging.basicConfig()
 			self.logger = logging.getLogger(model_name)
 			self.logger.setLevel(logging.INFO)
 			self.logger.info('setting up model...')
+			# model
 			with tf.variable_scope(model_name):
-				self.inputs, self.labels, self.outputs, self.loss, self.train_op = \
-					self._build_model(input_shape, output_shape, learning_rate)
+				self.inputs, self.labels, self.keep_prob, \
+					self.outputs, self.loss, self.accuracy, self.train_op = \
+					self._build_model(input_size, output_size, learning_rate, decay)
+			# checkpoint
 			self.start_epoch = 0
-			self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
-			# saver
-			self.logger.info('setting up saver...')
-			self.saver = tf.train.Saver()
-			# summary writer
-			self.logger.info('setting up summary writer...')
-			self.summary_writer = tf.summary.FileWriter(summary_path,
-			tf.get_default_graph())
-			tf.summary.scalar(name='loss', tensor=self.loss)
-			tf.summary.histogram(name='outputs', values=self.outputs)
+			self.saving = saving
+			if saving:
+				self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
+				# saver
+				self.logger.info('setting up saver...')
+				self.saver = tf.train.Saver()
+				# summary writer
+				self.logger.info('setting up summary writer...')
+				self.summary_writer = tf.summary.FileWriter(summary_path,
+					tf.get_default_graph())
 			self.merged_summary = tf.summary.merge_all()
 
 		def _prepare_save_dir(self, model_name):
 			index = 0
 			while os.path.isdir(model_name + str(index)):
 				index += 1
-			self.logger.info('creating model&summary directory...')
 			model_path = model_name + str(index)
+			self.logger.info('creating model directory %s...' % (model_path))
 			os.mkdir(model_path)
 			summary_path = os.path.join(model_path, 'summary')
 			os.mkdir(summary_path)
 			checkpoint_path = os.path.join(model_path, model_name)
 			return checkpoint_path, summary_path
 
-		def _build_model(self, input_shape, output_shape, lr):
-			inputs = tf.placeholder(dtype=tf.float32, shape=[None] + input_shape)
-			labels = tf.placeholder(dtype=tf.float32, shape=[None] + output_shape)
+		def _build_model(self, input_size, output_size, learning_rate, decay):
+			# inputs
+			inputs = tf.placeholder(dtype=tf.float32, shape=[None, input_size])
+			labels = tf.placeholder(dtype=tf.float32, shape=[None, output_size])
+			keep_prob = tf.placeholder(dtype=tf.float32, shape=())
+			tf.summary.histogram(name='inputs', values=inputs)
+			tf.summary.histogram(name='labels', values=labels)
+			# learning rate
+			self.learning_rate = tf.Variable(learning_rate, name='learning_rate')
+			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
+			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
 			# model
-			with tf.name_scope('scope'):
+			with tf.name_scope('hidden1'):
 				hidden_size = 256
-				w = tf.get_variable(name='w1', shape=input_shape + [hidden_size],
+				w = tf.get_variable(name='w1', shape=[input_size, hidden_size],
 					dtype=tf.float32,
-					initializer=tf.random_normal_initializer(stddev=0.1))
+					initializer=tf.random_normal_initializer(
+						stddev=np.sqrt(2.0 / input_size)))
 				b = tf.get_variable(name='b1', shape=[hidden_size],
-					dtype=tf.float32, initializer=tf.ones_initializer())
-				h = tf.nn.relu(tf.matmul(inputs, w) + b)
-
-				w = tf.get_variable(name='ow', shape=[hidden_size] + output_shape,
 					dtype=tf.float32,
-					initializer=tf.random_normal_initializer(stddev=0.1))
-				b = tf.get_variable(name='ob', shape=output_shape,
-					dtype=tf.float32, initializer=tf.ones_initializer())
+					initializer=tf.constant_initializer(value=1e-3))
+				h = tf.nn.relu(tf.matmul(inputs, w) + b)
+				h = tf.nn.dropout(h, keep_prob)
+			with tf.name_scope('output'):
+				w = tf.get_variable(name='ow', shape=[hidden_size, output_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+						stddev=np.sqrt(2.0 / hidden_size)))
+				b = tf.get_variable(name='ob', shape=[output_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
 				logits = tf.matmul(h, w) + b
 				outputs = tf.nn.softmax(logits)
+				tf.summary.histogram(name='outputs', values=outputs)
 			# loss and optimizer
 			with tf.name_scope('loss'):
 				loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
 					logits=logits, labels=labels))
+				tf.summary.scalar(name='loss', tensor=loss)
+				accuracy = tf.reduce_sum(tf.cast(tf.equal(
+					tf.argmax(outputs, axis=1), tf.argmax(labels, axis=1)), tf.float32)) * \
+					100.0 / tf.cast(tf.shape(labels)[0], tf.float32)
+				tf.summary.scalar(name='accuracy', tensor=accuracy)
 			with tf.name_scope('optimizer'):
-				optimizer = tf.train.GradientDescentOptimizer(lr)
+				optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
 				train_op = optimizer.minimize(loss)
-			return inputs, labels, outputs, loss, train_op
+			return inputs, labels, keep_prob, outputs, loss, accuracy, train_op
 
 		def load(self, sess, checkpoint_path):
 			if os.path.isfile(checkpoint_path + '.meta') and \
-				os.path.isfile(checkpoint_path + '.index'):
+					os.path.isfile(checkpoint_path + '.index'):
 				self.logger.info('loading last %s checkpoint...' % (checkpoint_path))
 				self.saver.restore(sess, checkpoint_path)
 				self.start_epoch = int(checkpoint_path.split('-')[-1].strip())
@@ -255,62 +222,241 @@ snippet template machine-learning
 				self.logger.warning('%s does not exists' % (checkpoint_path))
 
 		def train(self, sess, data, label,
-			batch_size=1024, output_period=1000, max_epoch=10000):
+				batch_size=1024, output_period=1000,
+				keep_prob=0.8, max_epoch=10000):
 			# initialize
 			if self.start_epoch == 0:
 				self.logger.info('initializing variables...')
 				sess.run(tf.global_variables_initializer())
 			# training
 			self.logger.info('start training...')
+			last = time.time()
 			for epoch in range(self.start_epoch, self.start_epoch + max_epoch + 1):
+				# prepare batch data
 				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
 				batch_data = data[offset:offset+batch_size, :]
 				batch_label = label[offset:offset+batch_size, :]
 				_, loss = sess.run([self.train_op, self.loss], feed_dict={
 					self.inputs: batch_data,
-					self.labels: batch_label
+					self.labels: batch_label,
+					self.keep_prob: keep_prob
 				})
+				# output
 				if epoch % output_period == 0:
-					self.logger.info('%d. loss: %f | saving...' % (epoch, loss))
-					self.saver.save(sess, self.checkpoint_path, global_step=epoch)
-					ms = sess.run(self.merged_summary, feed_dict={
+					feed_dict={
 						self.inputs: batch_data,
-						self.labels: batch_label
-					})
-					self.summary_writer.add_summary(ms, global_step=epoch)
+						self.labels: batch_label,
+						self.keep_prob: 1.0
+					}
+					ms, loss, accuracy = sess.run(
+						[self.merged_summary, self.loss, self.accuracy], feed_dict)
+					self.logger.info('%d. loss: %f | accuracy: %f | time used: %f' %
+						(epoch, loss, accuracy, (time.time() - last)))
+					last = time.time()
+					if self.saving:
+						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
+						self.summary_writer.add_summary(ms, global_step=epoch)
 
 		def predict(self, sess, data):
 			return sess.run(self.outputs, feed_dict={
-				self.inputs: data
+				self.inputs: data,
+				self.keep_prob: 1.0
 			})
 
 
-	def main():
-		parser = OptionParser()
-		parser.add_option('-c', '--checkpoint', dest='checkpoint', default='',
-			help='last checkpoint to load for further training')
-		parser.add_option('-n', '--model_name', dest='model_name', default='Model',
-			help='model name for output')
-		parser.add_option('-e', '--max_epoch', dest='max_epoch', default=10000,
-			help='max epoch for training')
-		parser.add_option('-b', '--batch_size', dest='batch_size', default=1024,
-			help='batch size for training')
-		parser.add_option('-d', '--output_period', dest='output_period', default=1000,
-			help='output period for training')
-		options, args = parser.parse_args()
-
+	def test():
 		data = np.random.randn(1024, 10)
-		label = np.random.randn(1024, 3)
-		model = Model([10], [3], model_name=options.model_name)
+		label = np.zeros(shape=[1024, 3])
+		label[:, 0] = 1.0
+		model = FeedForwardModel(10, 3, model_name='test', saving=False)
 
 		with tf.Session() as sess:
-			if options.checkpoint:
-				model.load(sess, options.checkpoint)
 			model.train(sess, data, label,
-				batch_size=options.batch_size,
-				output_period=options.output_period,
-				max_epoch=options.max_epoch)
+				batch_size=256,
+				output_period=10,
+				keep_prob=0.8,
+				max_epoch=100)
+snippet tensorflow Convolution
+	class ${1:ConvolutionModel}(object):
+		def __init__(self, input_width, input_height, input_channel, output_size,
+				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
+			# logger
+			logging.basicConfig()
+			self.logger = logging.getLogger(model_name)
+			self.logger.setLevel(logging.INFO)
+			self.logger.info('setting up model...')
+			# model
+			with tf.variable_scope(model_name):
+				self.inputs, self.labels, self.keep_prob, \
+					self.outputs, self.loss, self.accuracy, self.train_op = \
+					self._build_model(input_width, input_height, input_channel,
+					output_size, learning_rate, decay)
+			# checkpoint
+			self.start_epoch = 0
+			self.saving = saving
+			if saving:
+				self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
+				# saver
+				self.logger.info('setting up saver...')
+				self.saver = tf.train.Saver()
+				# summary writer
+				self.logger.info('setting up summary writer...')
+				self.summary_writer = tf.summary.FileWriter(summary_path,
+					tf.get_default_graph())
+			self.merged_summary = tf.summary.merge_all()
+
+		def _prepare_save_dir(self, model_name):
+			index = 0
+			while os.path.isdir(model_name + str(index)):
+				index += 1
+			model_path = model_name + str(index)
+			self.logger.info('creating model directory %s...' % (model_path))
+			os.mkdir(model_path)
+			summary_path = os.path.join(model_path, 'summary')
+			os.mkdir(summary_path)
+			checkpoint_path = os.path.join(model_path, model_name)
+			return checkpoint_path, summary_path
+
+		def _build_model(self, input_width, input_height, input_channel,
+			output_size, learning_rate, decay):
+			# inputs
+			inputs = tf.placeholder(dtype=tf.float32,
+			shape=[None, input_height, input_width, input_channel])
+			labels = tf.placeholder(dtype=tf.float32, shape=[None, output_size])
+			keep_prob = tf.placeholder(dtype=tf.float32, shape=())
+			tf.summary.image(name='input_images', tensor=inputs)
+			tf.summary.histogram(name='labels', values=labels)
+			# learning rate
+			self.learning_rate = tf.Variable(learning_rate, name='learning_rate')
+			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
+			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
+			# model
+			with tf.name_scope('conv1'):
+				h1_size = 32
+				w = tf.get_variable(name='conv_w1',
+					shape=[5, 5, input_channel, h1_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(stddev=0.01))
+				b = tf.get_variable(name='conv_b1', shape=[h1_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
+				h = tf.nn.relu(tf.nn.conv2d(inputs, w, strides=[1, 1, 1, 1],
+					padding='SAME') + b)
+				h = tf.nn.max_pool(h, strides=[1, 2, 2, 1], ksize=[1, 2, 2, 1],
+					padding='SAME')
+				h = tf.nn.dropout(h, keep_prob)
+			with tf.name_scope('conv2'):
+				h2_size = 32
+				w = tf.get_variable(name='conv_w2',
+					shape=[5, 5, h1_size, h2_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(stddev=0.01))
+				b = tf.get_variable(name='conv_b2', shape=[h2_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
+				h = tf.nn.relu(tf.nn.conv2d(h, w, strides=[1, 1, 1, 1],
+					padding='SAME') + b)
+				h = tf.nn.max_pool(h, strides=[1, 2, 2, 1], ksize=[1, 2, 2, 1],
+					padding='SAME')
+				h = tf.nn.dropout(h, keep_prob)
+			with tf.name_scope('fully_connected3'):
+				connect_size = input_width * input_height * h2_size / 16
+				h3_size = 256
+				w = tf.get_variable(name='w3',
+					shape=[connect_size, h3_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+						stddev=np.sqrt(2.0 / connect_size)))
+				b = tf.get_variable(name='b3', shape=[h3_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
+				h = tf.nn.relu(tf.matmul(tf.reshape(h, [-1, connect_size]), w) + b)
+			with tf.name_scope('output'):
+				w = tf.get_variable(name='ow', shape=[h3_size, output_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+						stddev=np.sqrt(2.0 / h3_size)))
+				b = tf.get_variable(name='ob', shape=[output_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
+				logits = tf.matmul(h, w) + b
+				outputs = tf.nn.softmax(logits)
+				tf.summary.histogram(name='outputs', values=outputs)
+			# loss and optimizer
+			with tf.name_scope('loss'):
+				loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+					logits=logits, labels=labels))
+				tf.summary.scalar(name='loss', tensor=loss)
+				accuracy = tf.reduce_sum(tf.cast(tf.equal(
+					tf.argmax(outputs, axis=1), tf.argmax(labels, axis=1)), tf.float32)) * \
+					100.0 / tf.cast(tf.shape(labels)[0], tf.float32)
+				tf.summary.scalar(name='accuracy', tensor=accuracy)
+			with tf.name_scope('optimizer'):
+				optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+				train_op = optimizer.minimize(loss)
+			return inputs, labels, keep_prob, outputs, loss, accuracy, train_op
+
+		def load(self, sess, checkpoint_path):
+			if os.path.isfile(checkpoint_path + '.meta') and \
+					os.path.isfile(checkpoint_path + '.index'):
+				self.logger.info('loading last %s checkpoint...' % (checkpoint_path))
+				self.saver.restore(sess, checkpoint_path)
+				self.start_epoch = int(checkpoint_path.split('-')[-1].strip())
+			else:
+				self.logger.warning('%s does not exists' % (checkpoint_path))
+
+		def train(self, sess, data, label,
+				batch_size=1024, output_period=1000,
+				keep_prob=0.8, max_epoch=10000):
+			# initialize
+			if self.start_epoch == 0:
+				self.logger.info('initializing variables...')
+				sess.run(tf.global_variables_initializer())
+			# training
+			self.logger.info('start training...')
+			last = time.time()
+			for epoch in range(self.start_epoch, self.start_epoch + max_epoch + 1):
+				# prepare batch data
+				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
+				batch_data = data[offset:offset+batch_size, :]
+				batch_label = label[offset:offset+batch_size, :]
+				_, loss = sess.run([self.train_op, self.loss], feed_dict={
+					self.inputs: batch_data,
+					self.labels: batch_label,
+					self.keep_prob: keep_prob
+				})
+				# output
+				if epoch % output_period == 0:
+					feed_dict={
+						self.inputs: batch_data,
+						self.labels: batch_label,
+						self.keep_prob: 1.0
+					}
+					ms, loss, accuracy = sess.run(
+						[self.merged_summary, self.loss, self.accuracy], feed_dict)
+					self.logger.info('%d. loss: %f | accuracy: %f | time used: %f' %
+						(epoch, loss, accuracy, (time.time() - last)))
+					last = time.time()
+					if self.saving:
+						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
+						self.summary_writer.add_summary(ms, global_step=epoch)
+
+		def predict(self, sess, data):
+			return sess.run(self.outputs, feed_dict={
+				self.inputs: data,
+				self.keep_prob: 1.0
+			})
 
 
-	if __name__ == '__main__':
-		main()
+	def test():
+		data = np.random.randn(256, 32, 32, 3)
+		label = np.zeros(shape=[256, 10])
+		label[:, 0] = 1.0
+		model = ConvolutionModel(32, 32, 3, 10, model_name='test', saving=False)
+
+		with tf.Session() as sess:
+			model.train(sess, data, label,
+				batch_size=32,
+				output_period=10,
+				keep_prob=0.8,
+				max_epoch=100)
