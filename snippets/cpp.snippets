@@ -1,24 +1,4 @@
 extends c
-# Class
-snippet class simple
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class full
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower(Filename('$1'))`});
-		$1& operator= (const $1& ${2:`tolower(Filename('$1'))`});
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
 # namespace
 snippet ns
 	namespace ${1:`Filename('', 'my')`} {
@@ -35,6 +15,7 @@ snippet cout
 # std::cin
 snippet cin
 	std::cin >> ${1};
+# gtest
 snippet test
 	TEST(${1:TestName}, ${2:Description}) {
 		// test code
@@ -141,19 +122,6 @@ snippet static_if
 
 	#endif /* end of include guard: STATIC_IF_H */
 # template
-snippet template class header
-	#ifndef ${1:`toupper(Filename('$1'))`}_H
-	#define $1_H
-
-	class ${2:`Filename('$1')`} {
-	 public:
-		$2();
-
-	 private:
-		${3:/* fields */}
-	};
-
-	#endif /* end of include guard: $1 */
 snippet template c++ basic
 	#include <iostream>
 
@@ -211,3 +179,271 @@ snippet template exception
 	 protected:
 		std::string msg_;
 	};
+# Class
+snippet class basic
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+		~$1();
+
+	 private:
+		${2:/* fields */}
+	};
+
+	$1::$1() {}
+
+	$1::~$1() {}
+snippet class template
+	template <typename T>
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+		$1(const $1& ${2:`tolower(Filename('$1'))`});
+		$1& operator= (const $1& ${2:`tolower(Filename('$1'))`});
+		~$1();
+
+	 private:
+		${0:/* fields */}
+	};
+snippet opengl Window
+	#include <GL/glew.h>
+	#include <GLFW/glfw3.h>
+	#include <iostream>
+
+	class ${1:GLWindow} {
+	 public:
+		$1();
+		~$1();
+		bool Init();
+		void MainLoop();
+
+	 private:
+		GLFWwindow* window_;
+	};
+
+	$1::$1() : window_(nullptr) {}
+
+	$1::~$1() {
+		glfwTerminate();
+		// window object will be clean up
+	}
+
+	bool $1::Init() {
+		// initialize glfw
+		if (!glfwInit()) {
+			std::cerr << "fail to initialize glfw\n";
+			return 1;
+		}
+		// window setting
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, ${4:3});
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, ${4:3});
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		// create window
+		window_ = glfwCreateWindow(${2:1024}, ${3:756}, "$1", nullptr, nullptr);
+		if (!window_) {
+			std::cerr
+				<< "Failed to open GLFW window. If you have an Intel GPU, they are "
+					"not 3.3 compatible. Try the 2.1 version of the tutorials.\n";
+			glfwTerminate();
+			return false;
+		}
+		glfwMakeContextCurrent(window_);
+
+		// init glew
+		if (glewInit() != GLEW_OK) {
+			std::cerr << "Failed to initialize GLEW\n";
+			glfwTerminate();
+			return false;
+		}
+
+		// Ensure we can capture the escape key being pressed below
+		glfwSetInputMode(window_, GLFW_STICKY_KEYS, GL_TRUE);
+		return true;
+	}
+
+	void $1::MainLoop() {
+		// Dark blue background
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		do {
+			// Clear the screen
+			// flickering, so it's there nonetheless.
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			// Draw
+
+			// Swap buffers
+			glfwSwapBuffers(window_);
+			glfwPollEvents();
+		} while (!glfwWindowShouldClose(window_));
+	}
+snippet opengl Object
+	#ifndef ${3:`toupper(Filename('$1'))`}_H
+	#define $3_H
+
+	#include <GL/glew.h>
+	#include <string>
+	#include <fstream>
+	#include <iostream>
+	#include <sstream>
+
+	namespace ${4:gl} {
+
+	class ${1:OpenGLObject} {
+	 public:
+		$1();
+		$1(const $1& ${2:`tolower(Filename('$1'))`});
+		$1& operator=(const $1& $2);
+		~$1();
+
+		void Init();
+		bool LoadShaders(const std::string& vertex_shader_fpath,
+						const std::string& fragment_shader_fpath);
+		bool Update();
+		void Draw();
+
+	 private:
+		bool ReadShaderFile(const std::string& fpath, std::string& content);
+
+		GLuint vao_;
+		GLuint vbo_;
+		GLuint program_id_;
+	};
+
+	$1::$1() : vao_(0), vbo_(0), program_id_(0) {}
+
+	$1::$1(const $1& $2)
+			: vao_(triangle.vao_),
+				vbo_(triangle.vbo_),
+				program_id_(triangle.program_id_) {}
+
+	$1& $1::operator=(const $1& $2) {
+		vao_ = triangle.vao_;
+		vbo_ = triangle.vbo_;
+		program_id_ = triangle.program_id_;
+		return *this;
+	}
+
+	$1::~$1() {
+		glDeleteBuffers(1, &vbo_);
+		glDeleteVertexArrays(1, &vao_);
+		glDeleteProgram(program_id_);
+	}
+
+	void $1::Init() {
+		// create vertex array object
+		glGenVertexArrays(1, &vao_);
+		glBindVertexArray(vao_);
+
+		// create vertex buffer object
+		const GLfloat vertex_buffer_data[] = {
+			-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		};
+		glGenBuffers(1, &vbo_);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+		// push vertices to OpenGL pipeline
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data),
+					vertex_buffer_data, GL_STATIC_DRAW);
+	}
+
+	bool $1::LoadShaders(const std::string& vertex_shader_fpath,
+						const std::string& fragment_shader_fpath) {
+		// Create the shaders
+		GLuint vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
+		GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+
+		// Read the Shader code
+		std::string vcode;
+		ReadShaderFile(vertex_shader_fpath, vcode);
+		std::string fcode;
+		ReadShaderFile(fragment_shader_fpath, fcode);
+
+		// Compile Vertex Shader
+		const char* const vc = vcode.c_str();
+		glShaderSource(vertex_shader_id, 1, &vc, nullptr);
+		glCompileShader(vertex_shader_id);
+
+		// Check Vertex Shader
+		GLint result = GL_FALSE;
+		int info_log_length = 0;
+		glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		if (!result && info_log_length > 0) {
+			std::string error_msg(info_log_length + 1, ' ');
+			glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr,
+							&error_msg[0]);
+			std::cerr << "ERROR: " << error_msg << '\n';
+			return false;
+		}
+
+		// Compile Fragment Shader
+		const char* const fc = fcode.c_str();
+		glShaderSource(fragment_shader_id, 1, &fc, nullptr);
+		glCompileShader(fragment_shader_id);
+
+		// Check Fragment Shader
+		glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		if (!result && info_log_length > 0) {
+			std::string error_msg(info_log_length + 1, ' ');
+			glGetShaderInfoLog(fragment_shader_id, info_log_length, nullptr,
+							&error_msg[0]);
+			std::cerr << "ERROR: " << error_msg << '\n';
+			return false;
+		}
+
+		// Link the program
+		GLuint program_id = glCreateProgram();
+		glAttachShader(program_id, vertex_shader_id);
+		glAttachShader(program_id, fragment_shader_id);
+		glLinkProgram(program_id);
+
+		// Check the program
+		glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		if (!result && info_log_length > 0) {
+			std::string error_msg(info_log_length + 1, ' ');
+			glGetProgramInfoLog(program_id, info_log_length, nullptr, &error_msg[0]);
+			std::cerr << "ERROR: " << error_msg << '\n';
+		}
+
+		glDetachShader(program_id, vertex_shader_id);
+		glDetachShader(program_id, fragment_shader_id);
+
+		glDeleteShader(vertex_shader_id);
+		glDeleteShader(fragment_shader_id);
+
+		glUseProgram(program_id);
+		return true;
+	}
+
+	bool Triangle::Update() { return true; }
+
+	void $1::Draw() {
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		// Draw the triangle !
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDisableVertexAttribArray(0);
+	}
+
+	bool $1::ReadShaderFile(const std::string& fpath, std::string& content) {
+		std::string vertex_shader_code;
+		std::ifstream vf(fpath, std::ios::in);
+		if (vf.is_open()) {
+			std::stringstream ss;
+			ss << vf.rdbuf();
+			content = ss.str();
+			return true;
+		} else {
+			std::cerr << "ERROR: fail to open " << fpath << '\n';
+			return false;
+		}
+	}
+
+	} /* end of $2 namespace */
+
+	#endif /* end of include guard: $3_H */
