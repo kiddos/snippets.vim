@@ -124,7 +124,7 @@ snippet class Gym Environment
 			pass
 ##
 ## Tensorflow Framework
-snippet tensorflow Feedforward
+snippet tensorflow feedforward
 	class ${1:FeedForwardModel}(object):
 		def __init__(self, input_size, output_size,
 				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
@@ -276,7 +276,7 @@ snippet tensorflow Feedforward
 				output_period=10,
 				keep_prob=0.8,
 				max_epoch=100)
-snippet tensorflow Convolution
+snippet tensorflow convolution
 	class ${1:ConvolutionModel}(object):
 		def __init__(self, input_width, input_height, input_channel, output_size,
 				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
