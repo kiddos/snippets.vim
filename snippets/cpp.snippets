@@ -553,8 +553,7 @@ snippet ros server
 	#include <ros/ros.h>
 	#include <$3/$4.h>
 
-	bool Serve(${3:std_srvs}::${4:SetBool}::Request& req,
-				$3::$4::Response& res) {
+	bool Serve(${3:std_srvs}::${4:SetBool}::Request& req, $3::$4::Response& res) {
 		// res.success = true;
 		// res.message = "";
 		ROS_INFO("request: data=%d", req.data);
@@ -570,3 +569,80 @@ snippet ros server
 		ros::spin();
 		return 0;
 	}
+#
+# sqlite3
+snippet sqlite3 connection object
+	#ifndef SQLITE_CONNECTION_H
+	#define SQLITE_CONNECTION_H
+
+	#include <sqlite3.h>
+	#include <iostream>
+	#include <string>
+
+	namespace sql {
+
+	class ${1:SqliteConnection} {
+	 public:
+		$1();
+		~$1();
+		bool Open(const std::string& db_name);
+		void Close();
+		bool Exec(const std::string& sql_query);
+
+	 private:
+		std::string db_name_;
+		sqlite3* db_;
+	};
+
+	$1::SqliteConnection() : db_(nullptr) {}
+
+	$1::~$1() {}
+
+	bool $1::Open(const std::string& db_name) {
+		db_name_ = db_name;
+		int result_code = sqlite3_open(db_name.c_str(), &db_);
+		if (result_code) {
+			std::cerr << "Can't open database: " << sqlite3_errmsg(db_) << '\n';
+			return false;
+		} else {
+			std::cout << "Opened database successfully\n";
+			return true;
+		}
+	}
+
+	void $1::Close() {
+		if (db_) {
+			std::cout << "Closing db: " << db_name_;
+			sqlite3_close(db_);
+		}
+	}
+
+	bool SqliteConnection::Exec(const std::string& sql_query,
+								sqlite3_callback callback) {
+		char* error_msg = nullptr;
+		int rc = sqlite3_exec(db_, sql_query.c_str(), callback, 0, &error_msg);
+		if (rc != SQLITE_OK) {
+			std::cerr << "SQL error: " << error_msg << '\n';
+			sqlite3_free(error_msg);
+			return false;
+		} else {
+			std::cout << "Table created successfully";
+		}
+		return true;
+	}
+
+	bool SqliteConnection::Exec(const std::string& sql_query) {
+		sqlite3_callback callback = [](void*, int n_cols, char** values,
+										char** column_names) -> int {
+			for (int i = 0; i < n_cols; ++i) {
+			std::cout << column_names[i] << " = " << (values[i] ? values[i] : "NULL")
+						<< '\n';
+			}
+			return 0;
+		};
+		return Exec(sql_query, callback);
+	}
+
+	}  // namespace sql
+
+	#endif /* end of include guard */
