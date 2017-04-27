@@ -460,3 +460,153 @@ snippet tensorflow convolution
 				output_period=10,
 				keep_prob=0.8,
 				max_epoch=100)
+##
+## ROS
+snippet ros publisher
+	#!/usr/bin/env python
+	# -*- coding: utf-8 -*-
+
+	import rospy
+	from std_msgs.msg import String
+
+
+	def talker():
+		pub = rospy.Publisher('${2:topic}', String, queue_size=100)
+		rospy.init_node('${1:node_name}', anonymous=True)
+		rate = rospy.Rate(10)
+		while not rospy.is_shutdown():
+			msg = 'message [%s]' % rospy.get_time()
+			rospy.loginfo(msg)
+			pub.publish(msg)
+			rate.sleep()
+
+
+	if __name__ == '__main__':
+		try:
+			talker()
+		except rospy.ROSInterruptException:
+			pass
+snippet ros subscriber
+	#!/usr/bin/env python
+	# -*- coding: utf-8 -*-
+
+	import rospy
+	from std_msgs.msg import String
+
+
+	def listen_callback(data):
+		rospy.loginfo(rospy.get_caller_id() + ' %s' % (data.data))
+
+
+	def listener():
+		rospy.init_node('listener', anonymous=True)
+		rospy.Subscriber('chatter', String, listen_callback)
+		rospy.spin()
+
+
+	if __name__ == '__main__':
+		listener()
+snippet ros client
+	#!/usr/bin/env python
+	# -*- coding: utf-8 -*-
+
+	import sys
+	import rospy
+	from std_srvs.srv import SetBool
+
+
+	def set_bool_command(b):
+		rospy.wait_for_service('set_bool')
+		try:
+			set_bool = rospy.ServiceProxy('set_bool', SetBool)
+			res = set_bool(b)
+			return res.success, res.message
+		except rospy.ServiceException as e:
+			print('Service Call Failed: %s' % (e))
+
+
+	def main():
+		success, message = set_bool_command(True)
+		print('%s, %s' % (success, message))
+
+
+	if __name__ == '__main__':
+		main()
+snippet ros server
+	#!/usr/bin/env python
+	# -*- coding: utf-8 -*-
+
+	from std_srvs.srv import SetBool, SetBoolResponse
+	import rospy
+
+
+	def set_bool(req):
+		return SetBoolResponse(req.data, 'success')
+
+
+	def start_server():
+		rospy.init_node('set_bool_server')
+		rospy.Service('set_bool', SetBool, set_bool)
+		print('Server Ready...')
+		rospy.spin()
+
+
+	if __name__ == '__main__':
+		start_server()
+snippet ros smach state machine
+	#!/usr/bin/env python
+	# -*- coding: utf-8 -*-
+
+	import roslib
+	import rospy
+	import smach
+	import smach_ros
+
+
+	class ${2:State1}(smach.State):
+		def __init__(self):
+			smach.State.__init__(self, outcomes=['outcome1', 'outcome2'],
+								input_keys=['counter_in'],
+								output_keys=['counter_out'])
+
+		def execute(self, userdata):
+			rospy.loginfo('Executing state 1')
+			if userdata.counter_in < 3:
+				userdata.counter_out = userdata.counter_in + 1
+				return 'outcome1'
+			else:
+				return 'outcome2'
+
+
+	class ${3:State2}(smach.State):
+		def __init__(self):
+			smach.State.__init__(self, outcomes=['outcome2'],
+								input_keys=['counter_in'])
+
+		def execute(self, userdata):
+			rospy.loginfo('Executing state 2')
+			rospy.loginfo('Counter: %f' % (userdata.counter_in))
+			return 'outcome1'
+
+
+	def main():
+		rospy.init_node('${1:smach_state_machine}')
+		sm = smach.StateMachine(outcomes=['outcome4'])
+		sm.userdata.sm_counter = 0
+
+		with sm:
+			smach.StateMachine.add('$2', $2(),
+								transitions={'outcome1': '$2', 'outcome2':
+												'outcome4'},
+								remapping={'counter_in': 'sm_counter',
+											'counter_out': 'sm_counter'})
+			smach.StateMachine.add('$3', $3(),
+								transitions={'outcome2': '$3'},
+								remapping={'counter_in': 'sm_counter'})
+
+		outcome = sm.execute()
+		print(outcome)
+
+
+	if __name__ == '__main__':
+		main()
