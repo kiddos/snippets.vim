@@ -1,25 +1,40 @@
-extend c
-# namespace
-snippet ns
-	namespace ${1:`Filename('', 'my')`} {
-		${2}
-	} /* end of $1 namespace */
+## Unicode Symbols
+snippet unicode snowman
+	u"\u2603";
+## header include guard
+snippet once
+	#ifndef ${1:`toupper(vim_snippets#Filename('$1_H', 'UNTITLED_H'))`}
+	#define $1
+
+	${0}
+
+	#endif /* end of include guard: $1 */
+snippet include standard io
+	#include <iostream>
+	#include <iomanip>
+
+	using std::cout;
+	using std::cin;
+snippet include cuda
+	#include <cuda_runtime.h>
+	#include <cublas_v2.h>
+	#include <cuda.h>
+	#include <memory>
+snippet include locale
+	#include <iostream>
+	#include <string>
+	#include <locale>
+	#include <codecvt>
+## namespace
 snippet namespace
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
 	} /* end of $1 namespace */
 ## Input/Output
-# std::cout
 snippet cout
 	std::cout << ${1} << std::endl;
-# std::cin
 snippet cin
 	std::cin >> ${1};
-# gtest
-snippet test
-	TEST(${1:TestName}, ${2:Description}) {
-		// test code
-	}
 snippet static_if
 	#ifndef STATIC_IF_H
 	#define STATIC_IF_H
@@ -121,32 +136,13 @@ snippet static_if
 	}
 
 	#endif /* end of include guard: STATIC_IF_H */
-# template
-snippet template c++ basic
-	#include <iostream>
-
-	using std::cout;
-
-	int main(int argc, char** argv) {
-		return 0;
-	}
-snippet template c++ cuda
-	#include <cuda_runtime.h>
-	#include <cublas_v2.h>
-	#include <iostream>
-	#include <memory>
-
-	using std::cout;
-
-	int main(int argc, char** argv) {
-		return 0;
-	}
-snippet template benchmark
+## Benchmark
+snippet benchmark
 	#include <benchmark/benchmark.h>
 
 	static void $1(benchmark::State& state) {
 		while (state.KeepRunning()) {
-			// test code ...
+			${0:// test code ...}
 		}
 		state.SetBytesProcessed(int64_t(state.iterations()) *
 								int64_t(state.range(0)));
@@ -155,42 +151,74 @@ snippet template benchmark
 	BENCHMARK(${1:BM_Function});
 
 	BENCHMARK_MAIN();
-snippet template gtest
+snippet benchmark case basic
+	static void $1(benchmark::State& state) {
+		while (state.KeepRunning()) {
+			${0:// test code...}
+		}
+		state.SetBytesProcessed(int64_t(state.iterations()) *
+								int64_t(state.range(0)));
+	}
+
+	BENCHMARK(${1:BM_Function})
+		->Unit(${2:benchmark::kMillisecond})
+		->RangeMultiplier(${3:2})
+		->Range(8, 8 << 10);
+snippet benchmark case template
+	template <typename T>
+	void $1(benchmark::State& state) {
+		while (state.KeepRunning()) {
+			${0:// test code...}
+		}
+		state.SetBytesProcessed(int64_t(state.iterations()) *
+								int64_t(state.range(0)));
+	}
+
+	BENCHMARK_TEMPLATE(${1:BM_Template}, int)
+		->Unit(${2:benchmark::kMillisecond})
+		->RangeMultiplier(${3:2})
+		->Range(1 << 0, 8 << 10);
+##
+## GTest
+snippet gtest
 	#include <gtest/gtest.h>
 
 	TEST(${1:TestName}, ${2:Description}) {
-		EXPECT_EQ(${3:true});
+		${0:// test code...}
 	}
-snippet template exception
-	#include <exception>
-
-	class ${1:Exception} : public std::exception {
-	 public:
-		$1() : msg_("$1") {}
-		explicit $1(const char* msg)
-		: msg_(std::string("$1: ") + msg) {}
-		explicit $1(const std::string& msg)
-		: msg_(std::string("CustomException: ") + msg) {}
-		virtual ~$1() {}
-		virtual const char* what() const noexcept {
-		return msg_.c_str();
-		}
-
-	 protected:
-		std::string msg_;
-	};
-# class
+snippet gtest test case
+	TEST(${1:TestName}, ${2:Description}) {
+		${0:// test code...}
+	}
+##
+## Class
 snippet class basic
 	class ${1:`Filename('$1')`} {
 	 public:
 		$1();
+		$1(const $1& ${2:`tolower('$1')`});
+		$1($1&& ${2:`tolower('$1')`});
 		~$1();
+		$1& operator=(const $1& ${2:`tolower('$1')`});
+		$1& operator=($1&& ${2:`tolower('$1')`});
 
 	 private:
-		${2:/* fields */}
+		${0:/* fields */}
 	};
 
 	$1::$1() {}
+
+	$1::$1(const $1& $2) {}
+
+	$1::$1($1&& $2) {}
+
+	$1& $1::operator=(const $1& $2) {
+		return *this;
+	}
+
+	$1& $1::operator=($1&& $2) {
+		return *this;
+	}
 
 	$1::~$1() {}
 snippet class template
@@ -198,13 +226,79 @@ snippet class template
 	class ${1:`Filename('$1')`} {
 	 public:
 		$1();
-		$1(const $1& ${2:`tolower(Filename('$1'))`});
-		$1& operator= (const $1& ${2:`tolower(Filename('$1'))`});
+		$1(const $1& ${2:`tolower('$1')`});
+		$1($1&& $2);
+		$1& operator=(const $1& $2);
+		$1& operator=($1&& $2);
 		~$1();
 
 	 private:
 		${0:/* fields */}
 	};
+
+	template <typename T>
+	$1<T>::$1() {}
+
+	template <typename T>
+	$1<T>::$1(const $1& $2) {}
+
+	template <typename T>
+	$1<T>::$1($1&& $2) {}
+
+	template <typename T>
+	$1<T>& $1<T>::operator=(const $1& $2) {
+		return *this;
+	}
+
+	template <typename T>
+	$1<T>& $1<T>::operator=($1&& $2) {
+		return *this;
+	}
+
+	template <typename T>
+	$1<T>::~$1() {}
+snippet class exception
+	#include <exception>
+
+	class ${1:Exception} : public std::exception {
+	 public:
+		$1() : msg_("$1") {}
+		explicit $1(const char* msg)
+			: msg_(std::string("$1: ") + msg) {}
+		explicit $1(const std::string& msg)
+			: msg_(std::string("CustomException: ") + msg) {}
+		virtual ~$1() {}
+		virtual const char* what() const noexcept {
+			return msg_.c_str();
+		}
+
+	 protected:
+		std::string msg_;
+	};
+
+##
+## Common Functions
+snippet function random init array
+	template <typename T>
+	void RandomInitialize(T* A, int size) {
+		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
+		std::normal_distribution<T> dist(0, ${1:1.0});
+		for (int i = 0; i < size; ++i) {
+			A[i] = dist(gen);
+		}
+	}
+snippet function random init vector
+	template <typename T>
+	void RandomInitialize(std::vector<T>& vec, int size) {
+		vec = std::vector<T>(size);
+		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
+		std::normal_distribution<T> dist(0, ${1:1.0});
+		for (int i = 0; i < size; ++i) {
+			vec[i] = dist(gen);
+		}
+	}
+##
+## OpenGL
 snippet opengl Window
 	#include <GL/glew.h>
 	#include <GLFW/glfw3.h>
@@ -447,7 +541,16 @@ snippet opengl Object
 	} /* end of $2 namespace */
 
 	#endif /* end of include guard: $3_H */
+##
+## OpenMP
+snippet openmp parallel for
+	#pragma omp parallel for
 # main
+snippet main
+	int main(void) {
+		${0}
+		return 0;
+	}
 snippet main void
 	int main(void) {
 		return 0;
@@ -646,3 +749,73 @@ snippet sqlite3 connection object
 	}  // namespace sql
 
 	#endif /* end of include guard */
+##
+## Qt
+snippet qt simple window
+	#include <QApplication>
+	#include <QMainWindow>
+	#include <QWidget>
+	#include <QObject>
+	#include <QtWidgets/QMenuBar>
+	#include <QtWidgets/QToolBar>
+	#include <QtWidgets/QStatusBar>
+
+	namespace ui {
+
+	class MainWindow : public QMainWindow {
+		Q_OBJECT
+
+	 public:
+		explicit MainWindow(QWidget* parent = nullptr);
+		~MainWindow();
+
+		virtual void SetupUI();
+
+	 private:
+		QMenuBar* menu_bar_;
+		QToolBar* main_tool_bar_;
+		QWidget* central_widget_;
+		QStatusBar* status_bar_;
+	};
+
+
+	MainWindow::MainWindow(QWidget* parent)
+			: QMainWindow(parent),
+			menu_bar_(nullptr),
+			main_tool_bar_(nullptr),
+			central_widget_(nullptr),
+			status_bar_(nullptr) {
+		SetupUI();
+	}
+
+	MainWindow::~MainWindow() {
+		if (menu_bar_) delete menu_bar_;
+		if (main_tool_bar_) delete main_tool_bar_;
+		if (central_widget_) delete central_widget_;
+		if (status_bar_) delete status_bar_;
+	}
+
+	void MainWindow::SetupUI() {
+		resize(400, 300);
+		menu_bar_ = new QMenuBar(this);
+		menu_bar_->setObjectName(QStringLiteral("menuBar"));
+		setMenuBar(menu_bar_);
+		main_tool_bar_ = new QToolBar(this);
+		main_tool_bar_->setObjectName(QStringLiteral("mainToolBar"));
+		addToolBar(main_tool_bar_);
+		central_widget_ = new QWidget(this);
+		central_widget_->setObjectName(QStringLiteral("centralWidget"));
+		setCentralWidget(central_widget_);
+		status_bar_ = new QStatusBar(this);
+		status_bar_->setObjectName(QStringLiteral("statusBar"));
+		setStatusBar(status_bar_);
+	}
+
+	} /* end of ui namespace */
+
+	int main(int argc, char* argv[]) {
+		QApplication app(argc, argv);
+		ui::MainWindow main_window;
+		main_window.show();
+		return app.exec();
+	}

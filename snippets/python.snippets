@@ -172,7 +172,8 @@ snippet tensorflow feedforward
 			tf.summary.histogram(name='inputs', values=inputs)
 			tf.summary.histogram(name='labels', values=labels)
 			# learning rate
-			self.learning_rate = tf.Variable(learning_rate, name='learning_rate')
+			self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
+				trainable=False)
 			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
 			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
 			# model
@@ -221,6 +222,14 @@ snippet tensorflow feedforward
 			else:
 				self.logger.warning('%s does not exists' % (checkpoint_path))
 
+		def train_batch(self, sess, batch_data, batch_label, keep_prob):
+			_, loss = sess.run([self.train_op, self.loss], feed_dict={
+				self.inputs: batch_data,
+				self.labels: batch_label,
+				self.keep_prob: keep_prob
+			})
+			return loss
+
 		def train(self, sess, data, label,
 				batch_size=1024, output_period=1000,
 				keep_prob=0.8, max_epoch=10000):
@@ -236,11 +245,7 @@ snippet tensorflow feedforward
 				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
 				batch_data = data[offset:offset+batch_size, :]
 				batch_label = label[offset:offset+batch_size, :]
-				_, loss = sess.run([self.train_op, self.loss], feed_dict={
-					self.inputs: batch_data,
-					self.labels: batch_label,
-					self.keep_prob: keep_prob
-				})
+				loss = self.train_batch(sess, batch_data, batch_label, keep_prob)
 				# output
 				if epoch % output_period == 0:
 					feed_dict={
@@ -268,7 +273,7 @@ snippet tensorflow feedforward
 		data = np.random.randn(1024, 10)
 		label = np.zeros(shape=[1024, 3])
 		label[:, 0] = 1.0
-		model = FeedForwardModel(10, 3, model_name='test', saving=False)
+		model = $1(10, 3, model_name='test', saving=False)
 
 		with tf.Session() as sess:
 			model.train(sess, data, label,
@@ -327,7 +332,8 @@ snippet tensorflow convolution
 			tf.summary.image(name='input_images', tensor=inputs)
 			tf.summary.histogram(name='labels', values=labels)
 			# learning rate
-			self.learning_rate = tf.Variable(learning_rate, name='learning_rate')
+			self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
+				trainable=False)
 			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
 			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
 			# model
@@ -460,6 +466,199 @@ snippet tensorflow convolution
 				output_period=10,
 				keep_prob=0.8,
 				max_epoch=100)
+snippet tensorflow recurrent
+	class ${1:RecurrentModel}(object):
+		def __init__(self, input_size, output_size, step_count, batch_size, max_grad,
+				model_name='$1', learning_rate=${2:1e-2}, decay=${3:0.9}, saving=${4:True},
+				trainable_state=${5:False}):
+			self.step_count = step_count
+			# logger
+			logging.basicConfig()
+			self.logger = logging.getLogger(model_name)
+			self.logger.setLevel(logging.INFO)
+			self.logger.info('setting up model...')
+			# model
+			with tf.variable_scope(model_name):
+				self.inputs, self.labels, self.keep_prob, \
+					self.training_outputs, self.outputs, self.loss, self.train_op = \
+					self._build_model(input_size, output_size, step_count, batch_size,
+					max_grad, trainable_state, learning_rate, decay)
+			# checkpoint
+			self.start_epoch = 0
+			self.saving = saving
+			if saving:
+				self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
+				# saver
+				self.logger.info('setting up saver...')
+				self.saver = tf.train.Saver()
+				# summary writer
+				self.logger.info('setting up summary writer...')
+				self.summary_writer = tf.summary.FileWriter(summary_path,
+					tf.get_default_graph())
+			self.merged_summary = tf.summary.merge_all()
+
+		def _prepare_save_dir(self, model_name):
+			index = 0
+			while os.path.isdir(model_name + str(index)):
+				index += 1
+			model_path = model_name + str(index)
+			self.logger.info('creating model directory %s...' % (model_path))
+			os.mkdir(model_path)
+			summary_path = os.path.join(model_path, 'summary')
+			os.mkdir(summary_path)
+			checkpoint_path = os.path.join(model_path, model_name)
+			return checkpoint_path, summary_path
+
+		def _build_model(self, input_size, output_size, step_count, batch_size,
+			max_grad, trainable_state, learning_rate, decay):
+			# inputs
+			inputs = []
+			labels = []
+			for t in range(step_count):
+				inputs.append(tf.placeholder(dtype=tf.float32,
+					shape=[None, input_size]))
+				labels.append(tf.placeholder(dtype=tf.float32,
+					shape=[None, output_size]))
+				tf.summary.histogram(name='inputs%d' % t, values=inputs[-1])
+				tf.summary.histogram(name='labels%d' % t, values=labels[-1])
+			keep_prob = tf.placeholder(dtype=tf.float32, shape=())
+			# learning rate
+			self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
+				trainable=False)
+			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
+			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
+			# model
+			with tf.name_scope('recurrent'):
+				hidden_size = 64
+				training_state = tf.get_variable(name='training_state', dtype=tf.float32,
+					shape=[batch_size, hidden_size], initializer=tf.zeros_initializer(),
+					trainable=trainable_state)
+				state = tf.get_variable(name='state', dtype=tf.float32,
+					shape=[1, hidden_size], initializer=tf.zeros_initializer(),
+					trainable=trainable_state)
+				iw = tf.get_variable(name='iw', shape=[input_size, hidden_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+					stddev=np.sqrt(10.0 / input_size)))
+				ib = tf.get_variable(name='b1', shape=[hidden_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))
+				hw = tf.get_variable(name='hw', shape=[hidden_size, hidden_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+					stddev=np.sqrt(10.0 / hidden_size)))
+				ow = tf.get_variable(name='ow', shape=[hidden_size, output_size],
+					dtype=tf.float32,
+					initializer=tf.random_normal_initializer(
+					stddev=np.sqrt(2.0 / hidden_size)))
+				ob = tf.get_variable(name='ob', shape=[output_size],
+					dtype=tf.float32,
+					initializer=tf.constant_initializer(value=1e-3))${0}
+
+			def forward(state, input):
+				state = tf.nn.relu(tf.matmul(input, iw) + tf.matmul(state, hw) + ib)
+				output = tf.matmul(state, ow) + ob
+				return tf.nn.dropout(state, keep_prob), output
+
+			training_outputs = []
+			outputs = []
+			for t in range(step_count):
+				if t > 0: tf.get_variable_scope().reuse_variables()
+				training_state, training_output = forward(training_state, inputs[t])
+				state, output = forward(state, inputs[t])
+				training_outputs.append(output)
+				outputs.append(output)
+				tf.summary.histogram(name='training_outputs%d' % t,
+					values=training_output)
+				tf.summary.histogram(name='outputs%d' % t,
+					values=output)
+			# loss and optimizer
+			with tf.name_scope('loss'):
+				training_outputs = tf.concat(training_outputs, axis=0)
+				outputs = tf.concat(outputs, axis=0)
+				training_labels = tf.concat(labels, axis=0)
+				loss = tf.reduce_mean(tf.pow(training_outputs - training_labels, 2))
+				tf.summary.scalar(name='loss', tensor=loss)
+			with tf.name_scope('optimizer'):
+				optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+				gvs = optimizer.compute_gradients(loss)
+				clipped_gvs = [(tf.clip_by_norm(g, max_grad), v) for g, v in gvs]
+				train_op = optimizer.apply_gradients(clipped_gvs)
+				return inputs, labels, keep_prob, training_outputs, outputs, loss, train_op
+
+		def load(self, sess, checkpoint_path):
+			if os.path.isfile(checkpoint_path + '.meta') and \
+					os.path.isfile(checkpoint_path + '.index'):
+				self.logger.info('loading last %s checkpoint...' % (checkpoint_path))
+				self.saver.restore(sess, checkpoint_path)
+				self.start_epoch = int(checkpoint_path.split('-')[-1].strip())
+			else:
+				self.logger.warning('%s does not exists' % (checkpoint_path))
+
+		def train_batch(self, sess, batch_data, batch_label, keep_prob):
+			feed_dict = {self.keep_prob: keep_prob}
+			for t in range(self.step_count):
+				feed_dict[self.inputs[t]] = batch_data[:, t, :]
+				feed_dict[self.labels[t]] = batch_label[:, t, :]
+			_, loss, = sess.run([self.train_op, self.loss], feed_dict)
+			return loss
+
+		def train(self, sess, data, label,
+				batch_size=1024, output_period=1000,
+				keep_prob=0.8, max_epoch=10000):
+			# initialize
+			if self.start_epoch == 0:
+				self.logger.info('initializing variables...')
+				sess.run(tf.global_variables_initializer())
+			# training
+			self.logger.info('start training...')
+			last = time.time()
+			for epoch in range(self.start_epoch, self.start_epoch + max_epoch + 1):
+				# prepare batch data
+				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
+				batch_data = data[offset:offset+batch_size, :]
+				batch_label = label[offset:offset+batch_size, :]
+				self.train_batch(sess, batch_data, batch_label, keep_prob)
+				# output
+				if epoch % output_period == 0:
+					feed_dict = {self.keep_prob: 1.0}
+					for t in range(self.step_count):
+						feed_dict[self.inputs[t]] = batch_data[:, t, :]
+						feed_dict[self.labels[t]] = batch_label[:, t, :]
+					ms, loss = sess.run(
+						[self.merged_summary, self.loss], feed_dict)
+					self.logger.info('%d. loss: %f | time used: %f' %
+						(epoch, loss, (time.time() - last)))
+					last = time.time()
+					if self.saving:
+						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
+						self.summary_writer.add_summary(ms, global_step=epoch)
+
+		def predict(self, sess, data):
+			feed_dict = {self.keep_prob: 1.0}
+			for t in range(self.step_count):
+				feed_dict[self.inputs[t]] = data[:, t, :]
+			return sess.run(self.outputs, feed_dict)
+
+
+	def test():
+		max_grad = 100
+		input_size = 16
+		output_size = 16
+		step_count = 8
+		batch_size = 1024
+		mini_batch_size = 256
+		data = np.random.randn(batch_size, step_count, input_size)
+		label = np.random.randn(batch_size, step_count, output_size)
+		model = $1(input_size, output_size, step_count, mini_batch_size,
+			max_grad, model_name='test', saving=False)
+
+		with tf.Session() as sess:
+			model.train(sess, data, label,
+				batch_size=mini_batch_size,
+				output_period=100,
+				keep_prob=0.8,
+				max_epoch=10000)
 ##
 ## ROS
 snippet ros publisher
