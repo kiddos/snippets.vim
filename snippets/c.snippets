@@ -232,43 +232,7 @@ snippet typedef enum
 		${2:/* data */}
 	} ${1:`vim_snippets#Filename('$1_t', 'name')`_t};
 ##
-## Input/Output
-# printf
-snippet pr
-	printf("${1:%s}\n"${2});
-snippet pri
-	printf("${1:%s}\n"${2});
-snippet prin
-	printf("${1:%s}\n"${2});
-snippet print
-	printf("${1:%s}\n"${2});
-snippet printf
-	printf("${1:%s}\n"${2});
-snippet prinf
-	printf("${1:%s}\n"${2});
-# fprintf (again, this isn't as nice as TextMate's version, but it works)
-snippet fpr
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
-snippet fpri
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
-snippet fprin
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
-snippet fprint
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
-snippet fprintf
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
-snippet fprinf
-	fprintf(${1:stderr}, "${2:%s}\n"${3});
 ## Miscellaneous
-# This is kind of convenient
-snippet .
-	[${1}]
-##
-## opengl snippets
-snippet vao
-	GLuint ${1:vertexArray} = 0;
-	glGenVertexArrays(${2:1}, &$1);
-	glBindVertexArray($1);
 ##
 ## template
 snippet declare c
