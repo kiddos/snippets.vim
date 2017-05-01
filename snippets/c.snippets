@@ -176,19 +176,6 @@ snippet fund
 # typedef
 snippet td
 	typedef ${1:int} ${2:MyCustomType};${3}
-# enum
-snippet en
-	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
-		${2:/* enums */}
-	}${3}
-snippet enu
-	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
-		${2:/* enums */}
-	}${3}
-snippet enum
-	enum ${1:`vim_snippets#Filename('$1_t', 'name')`} {
-		${2:/* enums */}
-	}${3}
 # struct
 snippet st
 	struct ${1:`vim_snippets#Filename('$1_t', 'name')`} {
@@ -215,8 +202,6 @@ snippet tds
 	typedef struct ${2:_$1 }{
 		${3:/* data */}
 	} ${1:`vim_snippets#Filename('$1_t', 'name')`};
-snippet enum
-	enum ${1:name} { ${0} };
 # typedef enum
 snippet tde
 	typedef enum {
@@ -244,3 +229,12 @@ snippet declare c
 	} ${1:`Filename('$1')`}_t;
 
 	#endif /* end of include guard: $1 */
+##
+## main
+snippet main basic
+	#include <stdio.h>
+	#include <stdlib.h>
+
+	int main(void) {
+		return 0;
+	}
