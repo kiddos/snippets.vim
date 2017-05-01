@@ -1,0 +1,17 @@
+snippet fragment
+	#version 330 core
+
+	out vec3 color;
+
+	void main() {
+		color = vec3(1, 1, 1);
+	}
+snippet vertex
+	#version 330 core
+
+	layout(location = 0) in vec3 vertex_position_modelspace;
+
+	void main() {
+		gl_Position.xyz = vertex_position_modelspace;
+		gl_Position.w = 1.0;
+	}
