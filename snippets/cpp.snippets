@@ -674,81 +674,201 @@ snippet ros server
 	}
 #
 # sqlite3
-snippet sqlite3 connection object
-	#ifndef SQLITE_CONNECTION_H
-	#define SQLITE_CONNECTION_H
-
+snippet sqlite3 connection
 	#include <sqlite3.h>
+	#include <cassert>
 	#include <iostream>
+	#include <map>
+	#include <sstream>
 	#include <string>
+	#include <tuple>
+	#include <utility>
+	#include <vector>
 
 	namespace sql {
 
-	class ${1:SqliteConnection} {
+	class SqliteConnection {
 	 public:
-		$1();
-		~$1();
+		SqliteConnection();
+		~SqliteConnection();
 		bool Open(const std::string& db_name);
 		void Close();
+		// basic execution
+		bool Exec(const std::string& sql_query, sqlite3_callback callback,
+					void* data);
 		bool Exec(const std::string& sql_query);
+		// transaction
+		bool BeginTransaction();
+		bool Commit();
+		// create table
+		bool CreateTable(const std::string& table_name);
+		template <typename... Args>
+		bool CreateTable(const std::string& table_name,
+						const std::string& column_name, Args... args) {
+			if (ss_.str() != "") ss_ << ", ";
+			ss_ << column_name;
+			return CreateTable(table_name, args...);
+		}
+		// insert
+		bool Insert(const std::string& table_name,
+					const std::vector<std::string>& column_names);
+		template <typename T, typename... Args>
+		bool Insert(const std::string& table_name,
+					const std::vector<std::string>& column_names, T col_entry,
+					Args... args) {
+			if (ss_.str() != "") ss_ << ", ";
+			ss_ << col_entry;
+			return Insert(table_name, column_names, args...);
+		}
+		bool SelectAll(const std::string& table_name,
+						std::vector<std::map<std::string, std::string>>& entries);
+		bool SelectWhere(const std::string& table_name,
+						std::vector<std::map<std::string, std::string>>& entries,
+						const std::string& where_clause);
+		template <typename T>
+		bool Update(const std::string& table_name, const std::string& column_name,
+					T new_value, const std::string& where_clause) {
+			std::stringstream query;
+			query << "UPDATE " << table_name << " set " << column_name << " = "
+				<< new_value << " WHERE " << where_clause << ";";
+			return Exec(query.str());
+		}
+		bool Delete(const std::string& table_name, const std::string& where_clause) {
+			std::stringstream query;
+			query << "DELETE from " << table_name << " WHERE " << where_clause << ";";
+			return Exec(query.str());
+		}
+
+		void set_verbose(bool verbose) { verbose_ = verbose; }
 
 	 private:
+		bool verbose_;
+		std::stringstream ss_;
 		std::string db_name_;
 		sqlite3* db_;
 	};
 
-	$1::SqliteConnection() : db_(nullptr) {}
+	using std::vector;
+	using std::string;
 
-	$1::~$1() {}
+	SqliteConnection::SqliteConnection() : verbose_(false), db_(nullptr) {}
 
-	bool $1::Open(const std::string& db_name) {
-		db_name_ = db_name;
-		int result_code = sqlite3_open(db_name.c_str(), &db_);
-		if (result_code) {
-			std::cerr << "Can't open database: " << sqlite3_errmsg(db_) << '\n';
-			return false;
-		} else {
-			std::cout << "Opened database successfully\n";
-			return true;
-		}
+	SqliteConnection::~SqliteConnection() { Close(); }
+
+	bool SqliteConnection::Exec(const string& sql_query) {
+		return Exec(sql_query, nullptr, nullptr);
 	}
 
-	void $1::Close() {
-		if (db_) {
-			std::cout << "Closing db: " << db_name_;
-			sqlite3_close(db_);
-		}
-	}
-
-	bool SqliteConnection::Exec(const std::string& sql_query,
-								sqlite3_callback callback) {
+	bool SqliteConnection::Exec(const string& sql_query, sqlite3_callback callback,
+								void* data) {
 		char* error_msg = nullptr;
-		int rc = sqlite3_exec(db_, sql_query.c_str(), callback, 0, &error_msg);
+		int rc = sqlite3_exec(db_, sql_query.c_str(), callback, data, &error_msg);
 		if (rc != SQLITE_OK) {
-			std::cerr << "SQL error: " << error_msg << '\n';
+			if (verbose_) {
+				std::cerr << "SQL error: " << error_msg << '\n';
+			}
 			sqlite3_free(error_msg);
 			return false;
-		} else {
-			std::cout << "Table created successfully";
 		}
 		return true;
 	}
 
-	bool SqliteConnection::Exec(const std::string& sql_query) {
-		sqlite3_callback callback = [](void*, int n_cols, char** values,
-										char** column_names) -> int {
-			for (int i = 0; i < n_cols; ++i) {
-			std::cout << column_names[i] << " = " << (values[i] ? values[i] : "NULL")
-						<< '\n';
+	bool SqliteConnection::Open(const string& db_name) {
+		db_name_ = db_name;
+		int result_code = sqlite3_open(db_name.c_str(), &db_);
+		if (result_code) {
+			if (verbose_) {
+				std::cerr << "Can't open database: " << sqlite3_errmsg(db_) << '\n';
 			}
+			return false;
+		}
+		return true;
+	}
+
+	void SqliteConnection::Close() {
+		if (db_) {
+			if (verbose_) {
+				std::cout << "Closing db: " << db_name_;
+			}
+			sqlite3_close(db_);
+			db_ = nullptr;
+		}
+	}
+
+	bool SqliteConnection::BeginTransaction() { return Exec("BEGIN TRANSACTION"); }
+
+	bool SqliteConnection::Commit() { return Exec("COMMIT"); }
+
+	bool SqliteConnection::CreateTable(const string& table_name) {
+		std::string columns = ss_.str();
+		std::stringstream query;
+		query << "CREATE TABLE IF NOT EXISTS " << table_name << "(" << columns
+				<< ");";
+		bool result = Exec(query.str());
+
+		// clear string stream
+		ss_.str("");
+		return result;
+	}
+
+	bool SqliteConnection::Insert(const string& table_name,
+								const vector<string>& column_names) {
+		std::stringstream query;
+		query << "INSERT INTO " << table_name << "(";
+		int num_columns = column_names.size();
+		for (int i = 0; i < num_columns; ++i) {
+			if (i != 0) query << ", ";
+			query << column_names[i];
+		}
+		query << ") VALUES(" << ss_.str() << ");";
+
+		// clear string stream
+		ss_.str("");
+		return Exec(query.str());
+	}
+
+	bool SqliteConnection::SelectAll(const string& table_name,
+									vector<std::map<string, string>>& entries) {
+		auto query_func = [](void* data, int n_cols, char** values,
+							char** column_names) -> int {
+			vector<std::map<string, string>>* data_collection =
+				(vector<std::map<string, string>>*)(data);
+			// create autocaststring vec
+			std::map<string, string> m;
+			for (int i = 0; i < n_cols; ++i) {
+			m[column_names[i]] = values[i];
+			}
+			data_collection->push_back(m);
 			return 0;
 		};
-		return Exec(sql_query, callback);
+
+		std::stringstream query;
+		query << "SELECT * FROM " << table_name << ";";
+		return Exec(query.str(), query_func, &entries);
+	}
+
+	bool SqliteConnection::SelectWhere(const string& table_name,
+									vector<std::map<string, string>>& entries,
+									const string& where_clause) {
+		auto query_func = [](void* data, int n_cols, char** values,
+							char** column_names) -> int {
+			vector<std::map<string, string>>* data_collection =
+				(vector<std::map<string, string>>*)(data);
+			// create autocaststring vec
+			std::map<string, string> m;
+			for (int i = 0; i < n_cols; ++i) {
+			m[column_names[i]] = values[i];
+			}
+			data_collection->push_back(m);
+			return 0;
+		};
+
+		std::stringstream query;
+		query << "SELECT * FROM " << table_name << " WHERE " << where_clause << ";";
+		return Exec(query.str(), query_func, &entries);
 	}
 
 	}  // namespace sql
-
-	#endif /* end of include guard */
 ##
 ## Qt
 snippet qt simple window
