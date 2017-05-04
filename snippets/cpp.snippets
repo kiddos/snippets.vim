@@ -551,15 +551,11 @@ snippet main
 		${0}
 		return 0;
 	}
-snippet main void
-	int main(void) {
-		return 0;
-	}
-snippet main with args
+snippet main args
 	int main(int argc, char* argv[]) {
 		return 0;
 	}
-snippet main with boost program options
+snippet main boost program options
 	#include <boost/program_options.hpp>
 	#include <iostream>
 
@@ -589,6 +585,13 @@ snippet main with boost program options
 		} else {
 			${2:// code...}
 		}
+		return 0;
+	}
+snippet main glog
+	#include <glog/logging.h>
+
+	int main(int argc, char** argv) {
+		google::InitGoogleLogging(argv[0]);
 		return 0;
 	}
 # ROS
