@@ -179,6 +179,38 @@ snippet benchmark case template
 		->RangeMultiplier(${3:2})
 		->Range(1 << 0, 8 << 10);
 ##
+## Boost
+snippet boost current datetime
+	#include <boost/date_time.hpp>
+	#include <sstream>
+	#include <string>
+
+	std::string GetCurrentDate() {
+		boost::gregorian::date current(boost::gregorian::day_clock::local_day());
+		std::stringstream ss;
+		ss << current.year() << "/" << current.month() << "/" << current.day();
+		return ss.str();
+	}
+snippet boost timer
+	boost::timer::cpu_timer timer;
+	${0:// test code here...}
+	std::cout << timer.format() << '\n';
+snippet boost filepath check
+	#include <boost/filesystem.hpp>
+
+	bool FileExists(const std::string& filepath) {
+		boost::filesystem::path p{filepath};
+		try {
+			boost::filesystem::file_status s = status(p);
+			return is_regular_file(s);
+		} catch (boost::filesystem::filesystem_error &e) {
+			std::cerr << e.what() << '\n';
+		}
+		return false;
+	}
+snippet boost scope_ptr
+	boost::scoped_ptr<${1:int}> ${3}{new $1{${2:0}}};
+##
 ## GTest
 snippet gtest
 	#include <gtest/gtest.h>
