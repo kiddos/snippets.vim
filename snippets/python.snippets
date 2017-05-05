@@ -458,7 +458,7 @@ snippet tensorflow convolution
 		data = np.random.randn(256, 32, 32, 3)
 		label = np.zeros(shape=[256, 10])
 		label[:, 0] = 1.0
-		model = ConvolutionModel(32, 32, 3, 10, model_name='test', saving=False)
+		model = $1(32, 32, 3, 10, model_name='test', saving=False)
 
 		with tf.Session() as sess:
 			model.train(sess, data, label,
