@@ -607,6 +607,12 @@ snippet opengl Object
 ## OpenMP
 snippet openmp parallel for
 	#pragma omp parallel for
+##
+## Libtbb
+snippet tbb parallel
+	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
+		${0:// parallel code...}
+	});
 # main
 snippet main
 	int main(void) {
