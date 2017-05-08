@@ -618,12 +618,15 @@ snippet opengl Object
 ## OpenMP
 snippet openmp parallel for
 	#pragma omp parallel for
+snippet openmp macro
+	#define OPENMP() _Pragma("omp parallel for")
 ##
 ## Libtbb
 snippet tbb parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
 		${0:// parallel code...}
 	});
+
 # main
 snippet main
 	int main(void) {
@@ -754,8 +757,8 @@ snippet ros server
 		ros::spin();
 		return 0;
 	}
-#
-# sqlite3
+##
+## sqlite3
 snippet sqlite3 connection
 	#include <sqlite3.h>
 	#include <cassert>
@@ -767,12 +770,12 @@ snippet sqlite3 connection
 	#include <utility>
 	#include <vector>
 
-	namespace sql {
+	namespace ${2:sql} {
 
-	class SqliteConnection {
+	class ${1:SqliteConnection} {
 	 public:
-		SqliteConnection();
-		~SqliteConnection();
+		$1();
+		~$1();
 		bool Open(const std::string& db_name);
 		void Close();
 		// basic execution
@@ -830,18 +833,22 @@ snippet sqlite3 connection
 		sqlite3* db_;
 	};
 
+	}
+
+	namespace $2 {
+
 	using std::vector;
 	using std::string;
 
-	SqliteConnection::SqliteConnection() : verbose_(false), db_(nullptr) {}
+	$1::$1() : verbose_(false), db_(nullptr) {}
 
-	SqliteConnection::~SqliteConnection() { Close(); }
+	$1::~$1() { Close(); }
 
-	bool SqliteConnection::Exec(const string& sql_query) {
+	bool $1::Exec(const string& sql_query) {
 		return Exec(sql_query, nullptr, nullptr);
 	}
 
-	bool SqliteConnection::Exec(const string& sql_query, sqlite3_callback callback,
+	bool $1::Exec(const string& sql_query, sqlite3_callback callback,
 								void* data) {
 		char* error_msg = nullptr;
 		int rc = sqlite3_exec(db_, sql_query.c_str(), callback, data, &error_msg);
@@ -855,7 +862,7 @@ snippet sqlite3 connection
 		return true;
 	}
 
-	bool SqliteConnection::Open(const string& db_name) {
+	bool $1::Open(const string& db_name) {
 		db_name_ = db_name;
 		int result_code = sqlite3_open(db_name.c_str(), &db_);
 		if (result_code) {
@@ -867,7 +874,7 @@ snippet sqlite3 connection
 		return true;
 	}
 
-	void SqliteConnection::Close() {
+	void $1::Close() {
 		if (db_) {
 			if (verbose_) {
 				std::cout << "Closing db: " << db_name_;
@@ -877,11 +884,11 @@ snippet sqlite3 connection
 		}
 	}
 
-	bool SqliteConnection::BeginTransaction() { return Exec("BEGIN TRANSACTION"); }
+	bool $1::BeginTransaction() { return Exec("BEGIN TRANSACTION"); }
 
-	bool SqliteConnection::Commit() { return Exec("COMMIT"); }
+	bool $1::Commit() { return Exec("COMMIT"); }
 
-	bool SqliteConnection::CreateTable(const string& table_name) {
+	bool $1::CreateTable(const string& table_name) {
 		std::string columns = ss_.str();
 		std::stringstream query;
 		query << "CREATE TABLE IF NOT EXISTS " << table_name << "(" << columns
@@ -893,7 +900,7 @@ snippet sqlite3 connection
 		return result;
 	}
 
-	bool SqliteConnection::Insert(const string& table_name,
+	bool $1::Insert(const string& table_name,
 								const vector<string>& column_names) {
 		std::stringstream query;
 		query << "INSERT INTO " << table_name << "(";
@@ -909,7 +916,7 @@ snippet sqlite3 connection
 		return Exec(query.str());
 	}
 
-	bool SqliteConnection::SelectAll(const string& table_name,
+	bool $1::SelectAll(const string& table_name,
 									vector<std::map<string, string>>& entries) {
 		auto query_func = [](void* data, int n_cols, char** values,
 							char** column_names) -> int {
@@ -929,7 +936,7 @@ snippet sqlite3 connection
 		return Exec(query.str(), query_func, &entries);
 	}
 
-	bool SqliteConnection::SelectWhere(const string& table_name,
+	bool $1::SelectWhere(const string& table_name,
 									vector<std::map<string, string>>& entries,
 									const string& where_clause) {
 		auto query_func = [](void* data, int n_cols, char** values,
