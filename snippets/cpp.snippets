@@ -634,6 +634,40 @@ snippet openmp parallel for
 snippet openmp macro
 	#define OPENMP() _Pragma("omp parallel for")
 ##
+## OpenCV
+snippet opencv3 camera
+	#include <opencv2/core.hpp>
+	#include <opencv2/highgui.hpp>
+	#include <opencv2/videoio.hpp>
+
+	class Camera {
+	 public:
+		Camera() : cam_(0) {}
+		Camera(int device) : cam_(device) {}
+
+		void Run() {
+			while (true) {
+				cv::Mat cam_image;
+				cam_.read(cam_image);
+
+				cv::imshow("Camera", cam_image);
+				char key = cv::waitKey(10);
+				if (key == 'q' || key == 'Q' || key == 27) {
+					break;
+				}
+			}
+		}
+
+	 private:
+		cv::VideoCapture cam_;
+	};
+
+	int main(void) {
+		Camera cam;
+		cam.Run();
+		return 0;
+	}
+##
 ## Libtbb
 snippet tbb parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
