@@ -41,6 +41,25 @@ snippet function fast inverse square root
 		x = x * (1.5f - xhalf * x * x);
 		return x;
 	}
+snippet function random init array
+	template <typename T>
+	void RandomInitialize(T* A, int size) {
+		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
+		std::normal_distribution<T> dist(0, ${1:1.0});
+		for (int i = 0; i < size; ++i) {
+			A[i] = dist(gen);
+		}
+	}
+snippet function random init vector
+	template <typename T>
+	void RandomInitialize(std::vector<T>& vec, int size) {
+		vec = std::vector<T>(size);
+		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
+		std::normal_distribution<T> dist(0, ${1:1.0});
+		for (int i = 0; i < size; ++i) {
+			vec[i] = dist(gen);
+		}
+	}
 ## Input/Output
 snippet cout
 	std::cout << ${1} << std::endl;
@@ -363,27 +382,6 @@ snippet meta recursion
 		enum { value = 1 };
 	}
 ##
-## Common Functions
-snippet function random init array
-	template <typename T>
-	void RandomInitialize(T* A, int size) {
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			A[i] = dist(gen);
-		}
-	}
-snippet function random init vector
-	template <typename T>
-	void RandomInitialize(std::vector<T>& vec, int size) {
-		vec = std::vector<T>(size);
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			vec[i] = dist(gen);
-		}
-	}
-##
 ## OpenGL
 snippet opengl Window
 	#include <GL/glew.h>
@@ -640,17 +638,17 @@ snippet opencv3 camera
 	#include <opencv2/highgui.hpp>
 	#include <opencv2/videoio.hpp>
 
-	class Camera {
+	class ${1:Camera} {
 	 public:
-		Camera() : cam_(0) {}
-		Camera(int device) : cam_(device) {}
+		$1() : cam_(0) {}
+		$1(int device) : cam_(device) {}
 
 		void Run() {
 			while (true) {
 				cv::Mat cam_image;
 				cam_.read(cam_image);
 
-				cv::imshow("Camera", cam_image);
+				cv::imshow("$1", cam_image);
 				char key = cv::waitKey(10);
 				if (key == 'q' || key == 'Q' || key == 27) {
 					break;
@@ -663,7 +661,7 @@ snippet opencv3 camera
 	};
 
 	int main(void) {
-		Camera cam;
+		$1 cam;
 		cam.Run();
 		return 0;
 	}
