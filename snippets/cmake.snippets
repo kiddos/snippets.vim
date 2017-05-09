@@ -1,4 +1,6 @@
-snippet init
+##
+## Project
+snippet project
 	cmake_minimum_required(version ${1:2.8})
 	project(${2:ProjectName})
 
@@ -10,9 +12,60 @@ snippet init
 	add_subdirectory(src)
 	enable_testing()
 	add_subdirectory(test)
-snippet glob
-	file(GLOB ${1:SOURCE} *.cpp *.h)
-snippet Ext_url
+##
+## Packages
+snippet package boost
+	## Boost
+	find_package(Boost ${1:1.58.0} REQUIRED COMPONENTS system)
+	if (Boost_FOUND)
+		add_executable(${2:exec} $2.cc)
+		include_directories(${Boost_INCLUDE_DIRS})
+		target_link_libraries($2 ${Boost_LIBRARIES})
+	endif ()
+snippet package opencv3
+	find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc)
+	if (OpenCV_FOUND)
+		add_executable(${1:exec} $1.cc)
+		target_link_libraries($1 ${OpenCV_LIBS})
+	endif ()
+snippet package protobuf
+	find_package(Protobuf ${1:9.0.1} REQUIRED)
+	include_directories(${PROTOBUF_INCLUDE_DIRS})
+
+	if (PROTOBUF_FOUND)
+		include_directories(${CMAKE_CURRENT_BINARY_DIR})
+		PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${2:source.proto})
+		add_executable(${1:source} $1.cc ${PROTO_SRCS} ${PROTO_HDRS})
+		target_link_libraries($1 ${PROTOBUF_LIBRARIES})
+	endif ()
+snippet package swig
+	## SWIG3
+	find_package(SWIG REQUIRED)
+	include(${SWIG_USE_FILE})
+
+	find_package(PythonLibs 2.7 REQUIRED)
+	include_directories(${PYTHON_INCLUDE_PATH})
+	include_directories(${CMAKE_CURRNET_SOURCE_DIR})
+
+	set(CMAKE_SWIG_FLAGS "")
+	set_source_file_properties(module_name.i PROPERTIES CPLUSPLUS ON)
+	swig_add_module(module_name python module_name.i ${SOURCE_FILES})
+	swig_link_libraries(module_name ${PYTHON_LIBRARIES})
+snippet package gtest
+	find_package(GTest REQUIRED)
+	include_directories(${GTEST_INCLUDE_DIRS})
+	set(CMAKE_CXX_STANDARD 11)
+	set(CMAKE_INCLUDE_CURRENT_DIR on)
+
+	if (TARGET ${2:target})
+		set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread $2)
+		add_executable(${1:test_target} $1.cpp)
+		target_link_libraries($1 ${TEST_LIBS})
+		add_test($1 $1)
+	endif ()
+##
+## Expernal project
+snippet external gtest
 	include(ExternalProject)
 	ExternalProject_Add(${1:googletest}
 		URL ${2:http://googletest.googlecode.com/files/gtest-1.7.0.zip}
@@ -24,46 +77,9 @@ snippet Ext_url
 		INSTALL_COMMAND   ""
 		TEST_COMMAND      ""
 	)
-snippet Ext_git
-	include(ExternalProject)
-	ExternalProject_Add(${1:googletest}
-		GIT_REPOSITORY    ${2:https://github.com/google/googletest.git}
-		GIT_TAG           ${3:master}
-		SOURCE_DIR        "${4:${CMAKE_BINARY_DIR}/googletest-src}"
-		BINARY_DIR        "${0:${CMAKE_BINARY_DIR}/googletest-build}"
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND     ""
-		INSTALL_COMMAND   ""
-		TEST_COMMAND      ""
-	)
-snippet test
-	add_test(${1:ATestName} ${0:testCommand --options})
-snippet gtest
-	enable_testing()
-	find_package(GTest REQUIRED)
-	include_directories(${GTEST_INCLUDE_DIRS})
-	set(CMAKE_INCLUDE_CURRENT_DIR on)
-
-	if (TARGET target)
-	set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread target)
-	add_executable(test_target test_src.cpp)
-	target_link_libraries(test_target ${TEST_LIBS})
-	add_test(Test1 test_target)
-	endif ()
-snippet swig
-	find_package(SWIG REQUIRED)
-	include(${SWIG_USE_FILE})
-
-	find_package(PythonLibs 2.7 REQUIRED)
-	include_directories(${PYTHON_INCLUDE_PATH})
-	include_directories(${CMAKE_CURRNET_SOURCE_DIR})
-
-	file(GLOB SOURCE_FILES *.cc *.h)
-	set(CMAKE_SWIG_FLAGS "")
-	set_source_files_properties(${1:module_name}.i PROPERTIES CPLUSPLUS ON)
-	swig_add_module($1 python $1.i ${SOURCE_FILES})
-	swig_link_libraries($1 ${PYTHON_LIBRARIES})
-snippet numpy.i
+##
+## Download
+snippet download numpy.i
 	if (NOT EXISTS ./numpy.i)
 		message("Downloading numpy.i from github.com...")
 		file(DOWNLOAD
