@@ -1123,3 +1123,71 @@ snippet qt simple window
 		main_window.show();
 		return app.exec();
 	}
+##
+## SOCI
+snippet soci create sqlite3
+	#include <soci/soci.h>
+	#include <soci/sqlite3/soci-sqlite3.h>
+	#include <exception>
+	#include <iostream>
+	#include <string>
+
+	using namespace soci;
+	using namespace std;
+
+	int main() {
+		try {
+			session sql(sqlite3, "${1:test.sqlite3}");
+
+			sql << "BEGIN TRANSACTION;";
+			sql << "CREATE TABLE IF NOT EXISTS demo("
+				<< "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+				<< "name TEXT,"
+				<< "age INTEGER);";
+			// insert data
+			for (int i = 0; i < 10000; ++i) {
+				string name = "Bob";
+				string age = std::to_string(i + 1);
+				sql << "INSERT INTO demo(name, age) VALUES(:n, :a);",
+					use(name), use(age);
+			}
+			sql << "COMMIT;";
+		} catch (exception const &e) {
+			cerr << "Error: " << e.what() << '\n';
+		}
+		return 0;
+	}
+snippet soci select sqlite3
+	#include <soci/soci.h>
+	#include <soci/sqlite3/soci-sqlite3.h>
+	#include <exception>
+	#include <iostream>
+	#include <string>
+
+	using namespace soci;
+	using namespace std;
+
+	int main() {
+		try {
+			session sql(sqlite3, "${1:test.sqlite3}");
+
+			int count = 0;
+			sql << "SELECT COUNT(*) FROM demo;", into(count);
+			cout << count << " entries\n";
+
+			std::vector<string> names(10000);
+			std::vector<indicator> indicators;
+
+			sql << "SELECT name FROM demo;", into(names, indicators);
+
+			int num_query = names.size();
+			for (int i = 0; i < num_query; ++i) {
+				if (indicators[i] == i_ok) {
+					cout << "name: " << names[i] << '\n';
+				}
+			}
+		} catch (exception const &e) {
+			cerr << "Error: " << e.what() << '\n';
+		}
+		return 0;
+	}
