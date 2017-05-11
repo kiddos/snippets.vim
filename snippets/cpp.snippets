@@ -1191,3 +1191,101 @@ snippet soci select sqlite3
 		}
 		return 0;
 	}
+##
+## ceres solver
+snippet ceres autodiff
+	#include <ceres/ceres.h>
+
+	using ceres::AutoDiffCostFunction;
+	using ceres::CostFunction;
+	using ceres::Problem;
+	using ceres::Solver;
+	using ceres::Solve;
+
+	class CostFunctor {
+	 public:
+		CostFunctor(double k, int size) : k_(k), size_(size) {}
+
+		template <typename T>
+		bool operator()(const T* const x, T* err) const {
+			err[0] = T(0);
+			for (int i = 0; i < size_; ++i) {
+				err[0] += (T(k_) - x[i]);
+			}
+			return true;
+		}
+
+	 private:
+		double k_;
+		int size_;
+	};
+
+	template <typename T, int SIZE>
+	void Solve(T* x, T target) {
+		// setup problem
+		Problem problem;
+		CostFunction* cost_function =
+			new AutoDiffCostFunction<CostFunctor, 1, SIZE>(
+				new CostFunctor(target, SIZE));
+		problem.AddResidualBlock(cost_function, NULL, x);
+
+		// Run the solver!
+		Solver::Options options;
+		options.linear_solver_type = ceres::DENSE_QR;
+		// options.minimizer_progress_to_stdout = true;
+		Solver::Summary summary;
+		Solve(options, &problem, &summary);
+
+		// std::cout << summary.BriefReport() << "\n";
+		// for (int i = 0; i < SIZE; ++i) {
+		//   std::cout << "x[" << i << "] = " << x[i] << '\n';
+		// }
+	}
+snippet ceres numeric
+	#include <ceres/ceres.h>
+
+	using ceres::NumericDiffCostFunction;
+	using ceres::CostFunction;
+	using ceres::Problem;
+	using ceres::Solver;
+	using ceres::Solve;
+
+	class CostFunctor {
+	 public:
+		CostFunctor(double k, int size) : k_(k), size_(size) {}
+
+		template <typename T>
+		bool operator()(const T* const x, T* err) const {
+			err[0] = T(0);
+			for (int i = 0; i < size_; ++i) {
+				err[0] += (T(k_) - x[i]);
+			}
+			return true;
+		}
+
+	 private:
+		double k_;
+		int size_;
+	};
+
+	template <typename T, int SIZE>
+	void Solve(T* x, T target) {
+		// setup problem
+		Problem problem;
+		CostFunction* cost_function =
+			new NumericDiffCostFunction<CostFunctor, ceres::CENTRAL, 1, SIZE>(
+				new CostFunctor(target, SIZE));
+		problem.AddResidualBlock(cost_function, NULL, x);
+
+		// Run the solver!
+		Solver::Options options;
+		options.linear_solver_type = ceres::DENSE_QR;
+		// options.minimizer_progress_to_stdout = true;
+		Solver::Summary summary;
+		Solve(options, &problem, &summary);
+
+		// std::cout << summary.BriefReport() << "\n";
+		// for (int i = 0; i < SIZE; ++i) {
+		//   std::cout << "x[" << i << "] = " << x[i] << '\n';
+		// }
+	}
