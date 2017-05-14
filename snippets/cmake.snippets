@@ -64,13 +64,60 @@ snippet package gtest
 		add_test($1 $1)
 	endif ()
 snippet package pcl
-	find_package(PCL REQUIRED COMPONENTS common io)
+	find_package(PCL REQUIRED)
 	if (PCL_FOUND)
 		include_directories(${PCL_INCLUDE_DIRS})
 		link_directories(${PCL_LIBRARY_DIRS})
 		add_definitions(${PCL_DEFINITIONS})
+
 		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
+		target_link_libraries($1 ${PCL_LIBRARIES})
+	endif ()
+snippet package blas
+	find_package(BLAS REQUIRED)
+	if (BLAS_FOUND)
+		add_executable(${1:exec}  $1.cc)
+		target_link_libraries($1 ${BLAS_LIBRARIES})
+	endif ()
+snippet package eigen
+	find_package(Eigen3 REQUIRED)
+		if (Eigen3_FOUND)
+		include_directories(${EIGEN3_INCLUDE_DIR})
+
+		add_executable(${1:exec}  $1.cc)
+	endif ()
+snippet package qtwidget
+	find_package(Qt5Widgets)
+	if (Qt5Widgets_FOUND)
+		message(STATUS "QtWidget Version: ${Qt5Widgets_VERSION}")
+
+		add_executable(${1:exec}  $1.cc)
+		target_link_libraries($1 Qt5::Widgets)
+	endif ()
+snippet package opengl
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
+	if (OPENGL_FOUND AND OPENGL_GLU_FOUND AND GLEW_FOUND)
+		include_directories(${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+
+		add_executable(${1:exec}  $1.cc)
+		target_link_libraries($1 ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+	endif ()
+snippet package armadillo
+	find_package(Armadillo)
+	if (ARMADILLO_FOUND)
+		include_directories(${ARMADILLO_INCLUDE_DIRS})
+		message(STATUS "Armadillo Library Version: ${ARMADILLO_VERSION_STRING}")
+
+		add_executable(${1:exec}  $1.cc)
+		target_link_libraries($1 ${ARMADILLO_LIBRARIES})
+	endif ()
+snippet library benchmark
+	find_library(BENCHMARK_LIBRARIES benchmark)
+	if (BENCHMARK_LIBRARIES)
+		message(STATUS "Using Google Benchmark ${BENCHMARK_LIBRARIES}")
+		add_executable(${1:exec}  $1.cc)
+		target_link_libraries($1 ${BENCHMARK_LIBRARIES})
 	endif ()
 ##
 ## Expernal project
@@ -90,7 +137,7 @@ snippet external gtest
 ## Download
 snippet download numpy.i
 	if (NOT EXISTS ./numpy.i)
-		message("Downloading numpy.i from github.com...")
+		message(STATUS "Downloading numpy.i from github.com...")
 		file(DOWNLOAD
 			https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i
 			./numpy.i EXPECTED_MD5 7ace9cd48149759e03624dae78cf2216 SHOW_PROGRESS)
