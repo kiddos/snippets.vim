@@ -1,6 +1,7 @@
 ## Unicode Symbols
 snippet unicode snowman
 	u"\u2603";
+##
 ## header include guard
 snippet once
 	#ifndef ${1:`toupper(vim_snippets#Filename('$1_H', 'UNTITLED_H'))`}
@@ -9,7 +10,7 @@ snippet once
 	${0}
 
 	#endif /* end of include guard: $1 */
-snippet include standard io
+snippet include
 	#include <iostream>
 	#include <iomanip>
 
@@ -720,6 +721,17 @@ snippet main glog
 
 	int main(int argc, char** argv) {
 		google::InitGoogleLogging(argv[0]);
+		return 0;
+	}
+snippet main basic
+	#include <iostream>
+	#include <iomanip>
+
+	using std::cout;
+	using std::cin;
+
+	int main(void) {
+		${0}
 		return 0;
 	}
 # ROS
