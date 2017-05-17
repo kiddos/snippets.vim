@@ -180,7 +180,7 @@ snippet benchmark
 								int64_t(state.range(0)));
 	}
 
-	BENCHMARK(${1:BM_Function});
+	BENCHMARK(${1:BM_Function})
 		->Unit(${2:benchmark::kMillisecond})
 		->RangeMultiplier(${3:2})
 		->Range(8, 8 << 10);
