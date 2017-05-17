@@ -254,6 +254,34 @@ snippet gtest test case
 	TEST(${1:TestName}, ${2:Description}) {
 		${0:// test code...}
 	}
+snippet gtest template
+	template <typename T>
+	class ${1:TestName} : public ::testing::Test {
+	 public:
+		void ${2:TestCast}() {
+			${3:// test code...}
+		}
+	};
+
+	typedef ::testing::Types<${1:int, float, double}>, complex<double>>
+		TestTypes;
+	TYPED_TEST_CASE($1, TestTypes);
+
+	TYPED_TEST($1, $2) {
+		this->$2();
+	}
+snippet expect equal
+	EXPECT_EQ(${1:v1}, ${2:v2})
+snippet expect not equal
+	EXPECT_NE(${1:v1}, ${2:v2})
+snippet expect less than
+	EXPECT_LT(${1:v1}, ${2:v2})
+snippet expect less or equal
+	EXPECT_LE(${1:v1}, ${2:v2})
+snippet expect greater than
+	EXPECT_GT(${1:v1}, ${2:v2})
+snippet expect greater equal
+	EXPECT_GE(${1:v1}, ${2:v2})
 ##
 ## Class
 snippet class
