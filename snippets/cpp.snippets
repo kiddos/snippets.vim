@@ -1,6 +1,50 @@
 ## Unicode Symbols
 snippet unicode snowman
-	u"\u2603";
+	u"\u2603"
+snippet unicode radioactive
+	u"\u2622"
+snippet unicode biohazard
+	u"\u2623"
+snippet unicode skull
+	u"\u2620"
+snippet unicode warning
+	u"\u26A0"
+snippet unicode peace
+	u"\u262E"
+snippet unicode black star
+	u"\u2605"
+snippet unicode white star
+	u"\u2606"
+snippet unicode yin yang
+	u"\u262F"
+snippet unicode black telephone
+	u"\u260E"
+snippet unicode white telephone
+	u"\u260F"
+snippet unicode white chess king
+	u"\u2654"
+snippet unicode white chess queen
+	u"\u2655"
+snippet unicode white chess rook
+	u"\u2656"
+snippet unicode white chess bishop
+	u"\u2657"
+snippet unicode white chess knight
+	u"\u2658"
+snippet unicode white chess pong
+	u"\u2659"
+snippet unicode black chess king
+	u"\u265A"
+snippet unicode black chess queen
+	u"\u265B"
+snippet unicode black chess rook
+	u"\u265C"
+snippet unicode black chess bishop
+	u"\u265D"
+snippet unicode black chess knight
+	u"\u265E"
+snippet unicode black chess pong
+	u"\u265F"
 ##
 ## header include guard
 snippet once
@@ -242,6 +286,20 @@ snippet boost unique_ptr
 	boost::unique_ptr<${1:int}> ${2:ptr}{new $1${0}};
 snippet boost scope_ptr
 	boost::scoped_ptr<${1:int}> ${2:ptr}{new $1${0}};
+snippet boost signal
+	struct ${1:Functor} {
+		void operator()() const {
+			${0:// signal code}
+		}
+	};
+
+	boost::signals2::signal<void()> sig;
+	$1 ${2:`tolower($1)`};
+
+	// Connect a slot
+	sig.connect($2);
+	// Call all of the slots
+	sig();
 ##
 ## GTest
 snippet gtest
