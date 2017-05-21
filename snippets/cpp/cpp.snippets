@@ -165,52 +165,6 @@ snippet static_if
 	}
 
 	#endif /* end of include guard: STATIC_IF_H */
-## Benchmark
-snippet benchmark
-	#include <benchmark/benchmark.h>
-
-	static void $1(benchmark::State& state) {
-		int size = state.range();
-		while (state.KeepRunning()) {
-			${0:// test code ...}
-		}
-		state.SetBytesProcessed(int64_t(state.iterations()) *
-								int64_t(state.range(0)));
-	}
-
-	BENCHMARK(${1:BM_Function})
-		->Unit(${2:benchmark::kMillisecond})
-		->RangeMultiplier(${3:2})
-		->Range(8, 8 << 10);
-
-	BENCHMARK_MAIN();
-snippet benchmark case basic
-	static void $1(benchmark::State& state) {
-		while (state.KeepRunning()) {
-			${0:// test code...}
-		}
-		state.SetBytesProcessed(int64_t(state.iterations()) *
-								int64_t(state.range(0)));
-	}
-
-	BENCHMARK(${1:BM_Function})
-		->Unit(${2:benchmark::kMillisecond})
-		->RangeMultiplier(${3:2})
-		->Range(8, 8 << 10);
-snippet benchmark case template
-	template <typename T>
-	void $1(benchmark::State& state) {
-		while (state.KeepRunning()) {
-			${0:// test code...}
-		}
-		state.SetBytesProcessed(int64_t(state.iterations()) *
-								int64_t(state.range(0)));
-	}
-
-	BENCHMARK_TEMPLATE(${1:BM_Template}, int)
-		->Unit(${2:benchmark::kMillisecond})
-		->RangeMultiplier(${3:2})
-		->Range(1 << 0, 8 << 10);
 ##
 ## Class
 snippet class
