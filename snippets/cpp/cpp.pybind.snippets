@@ -1,20 +1,34 @@
+snippet pybind
+	#include <pybind11/pybind11.h>
+
+	namespace py = pybind11;
+
+	PYBIND11_PLUGIN($1) {
+		py::module m("${1:module_name}", "${2:docstring}");
+		return m.ptr();
+	}
 snippet pybind include
 	#include <pybind11/pybind11.h>
 
 	namespace py = pybind11;
+snippet pybind plugin
+	PYBIND11_PLUGIN($1) {
+		py::module m("${1:module_name}", "${2:docstring}");
+		return m.ptr();
+	}
 snippet pybind function
-	PYBIND11_PLUGIN($1) {
-		py::module m("${1:module_name}", "docstring");
-		m.def("${2:func}", &$2, "docstring");
-		return m.ptr();
-	}
+	m.def("${1:func}", &$1, "${2:docstring}");
 snippet pybind object
-	PYBIND11_PLUGIN($1) {
-		py::module m("${1:module_name}", "docstring");
-
-		py::class_<${2:Object}>(m, "$2")
-			.def(py::init())
-			// .def(py::init<${4:const std::string &}>())
-			.def("${2:Function}", &$2::$2);
-		return m.ptr();
-	}
+	py::class_<${1:Object}>(m, "$2")
+		.def(py::init())
+		// .def(py::init<const std::string&>())
+		.def("${2:Function}", &$1::$2, "docstring");
+snippet pybind exception
+	py::exception<${1:ExceptionClass}> except(m, "$1");
+	py::register_exception_translator([](std::exception_ptr p) {
+		try {
+			if (p) std::rethrow_exception(p);
+		} catch (const $1& e) {
+			PyErr_SetString(PyExc_RuntimeError, e.what());
+		}
+	});
