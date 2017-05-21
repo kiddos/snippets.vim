@@ -15,13 +15,14 @@ snippet gtest template
 		void ${2:TestCast}() {
 			${3:// test code...}
 		}
+	 int size_;
 	};
 
-	typedef ::testing::Types<${1:int, float, double}>, complex<double>>
-		TestTypes;
+	typedef ::testing::Types<${1:int, float, double}>> TestTypes;
 	TYPED_TEST_CASE($1, TestTypes);
 
 	TYPED_TEST($1, $2) {
+		this->size_ = 1;
 		this->$2();
 	}
 snippet expect equal
