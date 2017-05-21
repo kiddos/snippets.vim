@@ -1,0 +1,43 @@
+snippet boost current datetime
+	boost::gregorian::date current(boost::gregorian::day_clock::local_day());
+	std::stringstream ss;
+	ss << current.year() << "/" << current.month() << "/" << current.day();
+	${0:std::string current_time = ss.str();}
+snippet boost timer
+	boost::timer::cpu_timer timer;
+	${0:// test code here...}
+	std::cout << timer.format() << '\n';
+snippet boost filepath check
+	boost::filesystem::path p{filepath};
+	try {
+		boost::filesystem::file_status s = status(p);
+		if (is_regular_file(s)) {
+			${0:// code here...}
+		} else {
+			${2:throw std::exception();}
+		}
+	} catch (boost::filesystem::filesystem_error &e) {
+		${1:std::cerr << e.what() << '\n';}
+	}
+snippet boost shared_ptr
+	boost::shared_ptr<${1:int}> ${2:ptr}{new $1${0}};
+snippet boost unique_ptr
+	boost::unique_ptr<${1:int}> ${2:ptr}{new $1${0}};
+snippet boost scope_ptr
+	boost::scoped_ptr<${1:int}> ${2:ptr}{new $1${0}};
+snippet boost signal
+	struct ${1:Functor} {
+		void operator()() const {
+			${0:// signal code}
+		}
+	};
+
+	boost::signals2::signal<void()> sig;
+	$1 ${2:`tolower($1)`};
+
+	// Connect a slot
+	sig.connect($2);
+	// Call all of the slots
+	sig();
+snippet boost lexical cast
+	${1:std::string} ${2:s} = boost::lexical_cast<$1>(${3:0});
