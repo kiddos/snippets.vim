@@ -1,0 +1,26 @@
+snippet ros
+	var ros = new ROSLIB.Ros({
+		url: 'ws://localhost:9090'
+	});
+
+	ros.on('connection', function() {
+		${0:// code ...}
+	});
+
+	ros.on('error', function() {
+		${1:// error ...}
+	});
+snippet ros topic
+	var topic = new ROSLIB.Topic({
+		ros: ros,
+		name: '${1:/topic}',
+		messageType: '${2:std_msgs/String}'
+	});
+
+	topic.subscribe(function(msg) {
+		${0:// code ...}
+	});
+
+	topic.publish(new ROSLIB.Message({
+		${3:data: 'text'}
+	}));
