@@ -72,10 +72,10 @@ snippet package swig
 	endif ()
 snippet package gtest
 	find_package(GTest)
-	if (GTest_FOUND TARGET ${2:target})
+	if (GTEST_FOUND)
 		include_directories(${GTEST_INCLUDE_DIRS})
 		link_libraries(${GTEST_BOTH_LIBRARIES})
-		set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread $2)
+		set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread)
 	endif ()
 snippet package pcl
 	find_package(PCL)
