@@ -7,18 +7,6 @@ snippet boost timer
 	boost::timer::cpu_timer timer;
 	${0:// test code here...}
 	std::cout << timer.format() << '\n';
-snippet boost filepath check
-	boost::filesystem::path p{filepath};
-	try {
-		boost::filesystem::file_status s = status(p);
-		if (is_regular_file(s)) {
-			${0:// code here...}
-		} else {
-			${2:throw std::exception();}
-		}
-	} catch (boost::filesystem::filesystem_error &e) {
-		${1:std::cerr << e.what() << '\n';}
-	}
 snippet boost shared_ptr
 	boost::shared_ptr<${1:int}> ${2:ptr}{new $1${0}};
 snippet boost unique_ptr
@@ -88,3 +76,57 @@ snippet boost asio high resolution async timer
 	$1.async_wait([](const boost::system::error_code&) {
 		${0:// code ...}
 	});
+##
+## bind
+snippet boost bind
+	boost::bind(${1:funcion}, ${2:_1});
+##
+## mpi
+snippet boost mpi
+	mpi::environment env;
+	mpi::communicator world;
+	int r = world.rank();
+snippet boost mpi sync send
+	world.send(1, 0, ${1:msg});
+snippet boost mpi sync recv
+	world.recv(1, 1, ${1:msg});
+snippet boost mpi async send
+	boost::mpi::request req = world.isend(1, 0, ${1:msg});
+	boost::mpi::wait_all(req, req + 1);
+snippet boost mpi async recv
+	boost::mpi::request req = world.irecv(1, 1, ${1:msg});
+	boost::mpi::wait_all(req, req + 1);
+##
+## enable_shared_from_this
+snippet boost enabled_shared_from_this
+	class ${1:Object} : public boost::enable_shared_from_this<$1> {
+	 public:
+		$1() {}
+		boost::shared_ptr<$1> self() { return shared_from_this(); }
+	};
+##
+## file system
+snippet boost filesystem file_size
+	uintmax_t filesize = boost::filesystem::file_size(argv[1]);
+snippet boost filesystem file_exists
+	boost::filesystem::path p{${1:filepath}};
+	if (is_regular_file(p)) {
+		${0:// code here...}
+	} else {
+		${2:throw std::exception();}
+	}
+snippet boost filesystem directory_exists
+	boost::filesystem::path p{${1:filepath};
+	if (is_directory(p)) {
+		${0:// code here...}
+	} else {
+		${2:throw std::exception();}
+	}
+snippet boost filesystem iterate directory
+	boost::filesystem::path p{${1:path};
+	if (boost::filesystem::is_directory(p)) {
+		for (boost::filesystem::directory_entry& x :
+				boost::filesystem::directory_iterator(p))
+			${0:// code ...}
+		}
+	}
