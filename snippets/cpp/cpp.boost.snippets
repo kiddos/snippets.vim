@@ -44,3 +44,47 @@ snippet boost signals2 signal
 	boost::signals2::signal<void()> ${2:sig};
 	$2.connect($1());
 	$2();
+##
+## asio
+snippet boost asio
+	boost::asio::io_service io_service;
+snippet boost asio deadline sync timer
+	boost::asio::deadline_timer ${1:timer}(io_service);
+	$1.expires_from_now(boost::posix_time::seconds(1));
+	$1.wait();
+snippet boost asio system sync timer
+	boost::asio::system_timer ${1:timer}(io_service);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.wait();
+snippet boost asio steady sync timer
+	boost::asio::steady_timer ${1:timer}(io_service);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.wait();
+snippet boost asio high resolution sync timer
+	boost::asio::high_resolution_timer ${1:timer}(io_service);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.wait();
+snippet boost asio deadline async timer
+	boost::asio::deadline_timer ${1:timer}(io);
+	$1.expires_from_now(boost::posix_time::seconds(1));
+	$1.async_wait([](const boost::system::error_code&) {
+		${0:// code ...}
+	});
+snippet boost asio system async timer
+	boost::asio::system_timer ${1:timer}(io);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.async_wait([](const boost::system::error_code&) {
+		${0:// code ...}
+	});
+snippet boost asio steady async timer
+	boost::asio::steady_timer ${1:timer}(io);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.async_wait([](const boost::system::error_code&) {
+		${0:// code ...}
+	});
+snippet boost asio high resolution async timer
+	boost::asio::high_resolution_timer ${1:timer}(io);
+	$1.expires_from_now(std::chrono::seconds(1));
+	$1.async_wait([](const boost::system::error_code&) {
+		${0:// code ...}
+	});
