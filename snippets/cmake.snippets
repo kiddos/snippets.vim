@@ -1,3 +1,16 @@
+snippet root
+	cmake_minimum_required(VERSION ${1:2.8})
+
+	project(boost_tutorial)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+	set(CMAKE_CXX_STANDARD ${2:11})
+	set(CMAKE_INCLUDE_CURRENT_DIR on)
+
+	enable_testing()
+	add_subdirectory(src)
+	add_subdirectory(test)
 ##
 ## Project
 snippet project
@@ -16,104 +29,94 @@ snippet project
 ## Packages
 snippet package boost
 	## Boost
-	find_package(Boost ${1:1.58.0} REQUIRED COMPONENTS system)
+	find_package(Boost ${1:1.58.0} COMPONENTS ${2:system})
 	if (Boost_FOUND)
-		add_executable(${2:exec} $2.cc)
 		include_directories(${Boost_INCLUDE_DIRS})
-		target_link_libraries($2 ${Boost_LIBRARIES})
+		link_libraries(${Boost_LIBRARIES})
+	endif ()
+snippet package opencv2
+	find_package(OpenCV ${1:2.4} EXACT COMPONENTS ${2:core highgui imgproc})
+	if (OpenCV_FOUND)
+		message(STATUS "using OpenCV 2.4")
+		link_libraries(${OpenCV_LIBS})
 	endif ()
 snippet package opencv3
-	find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc)
+	find_package(OpenCV ${1:3.0} COMPONENTS ${2:core highgui imgproc})
 	if (OpenCV_FOUND)
-		add_executable(${1:exec} $1.cc)
-		target_link_libraries($1 ${OpenCV_LIBS})
+		message(STATUS "using OpenCV")
+		link_libraries(${OpenCV_LIBS})
 	endif ()
 snippet package protobuf
-	find_package(Protobuf ${1:9.0.1} REQUIRED)
-	include_directories(${PROTOBUF_INCLUDE_DIRS})
-
+	find_package(Protobuf ${1:9.0.1})
 	if (PROTOBUF_FOUND)
+		include_directories(${PROTOBUF_INCLUDE_DIRS})
 		include_directories(${CMAKE_CURRENT_BINARY_DIR})
 		PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${2:source.proto})
-		add_executable(${1:source} $1.cc ${PROTO_SRCS} ${PROTO_HDRS})
-		target_link_libraries($1 ${PROTOBUF_LIBRARIES})
+		link_libraries(${PROTOBUF_LIBRARIES})
 	endif ()
 snippet package swig
 	## SWIG3
-	find_package(SWIG REQUIRED)
-	include(${SWIG_USE_FILE})
+	find_package(SWIG)
+	find_package(PythonLibs ${1:2.7} EXACT)
 
-	find_package(PythonLibs 2.7 REQUIRED)
-	include_directories(${PYTHON_INCLUDE_PATH})
-	include_directories(${CMAKE_CURRNET_SOURCE_DIR})
+	if (SWIG_FOUND AND PYTHONLIBS_FOUND)
+		message(STATUS "Using PythonLibs ${PYTHONLIBS_VERSION_STRING}")
+		include(${SWIG_USE_FILE})
+		include_directories(${PYTHON_INCLUDE_DIR})
+		include_directories(${CMAKE_CURRNET_SOURCE_DIR})
 
-	set(CMAKE_SWIG_FLAGS "")
-	set_source_file_properties(module_name.i PROPERTIES CPLUSPLUS ON)
-	swig_add_module(module_name python module_name.i ${SOURCE_FILES})
-	swig_link_libraries(module_name ${PYTHON_LIBRARIES})
+		set(CMAKE_SWIG_FLAGS "")
+		set_source_file_properties(${2:module_name}.i PROPERTIES CPLUSPLUS ON)
+		swig_add_module($2 python $2.i ${SOURCE_FILES})
+		swig_link_libraries($2 ${PYTHON_LIBRARY})
+	endif ()
 snippet package gtest
-	find_package(GTest REQUIRED)
-	include_directories(${GTEST_INCLUDE_DIRS})
-	set(CMAKE_CXX_STANDARD 11)
-	set(CMAKE_INCLUDE_CURRENT_DIR on)
-
-	if (TARGET ${2:target})
+	find_package(GTest)
+	if (GTest_FOUND TARGET ${2:target})
+		include_directories(${GTEST_INCLUDE_DIRS})
+		link_libraries(${GTEST_BOTH_LIBRARIES})
 		set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread $2)
-		add_executable(${1:test_target} $1.cpp)
-		target_link_libraries($1 ${TEST_LIBS})
-		add_test($1 $1)
 	endif ()
 snippet package pcl
-	find_package(PCL REQUIRED)
+	find_package(PCL)
 	if (PCL_FOUND)
 		include_directories(${PCL_INCLUDE_DIRS})
 		link_directories(${PCL_LIBRARY_DIRS})
+		link_libraries($1 ${PCL_LIBRARIES})
 		add_definitions(${PCL_DEFINITIONS})
-
-		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 ${PCL_LIBRARIES})
 	endif ()
 snippet package blas
 	find_package(BLAS REQUIRED)
 	if (BLAS_FOUND)
-		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 ${BLAS_LIBRARIES})
+		link_libraries(${BLAS_LIBRARIES})
 	endif ()
 snippet package eigen
 	find_package(Eigen3 REQUIRED)
 		if (Eigen3_FOUND)
 		include_directories(${EIGEN3_INCLUDE_DIR})
-
-		add_executable(${1:exec}  $1.cc)
 	endif ()
 snippet package qtwidget
 	find_package(Qt5Widgets)
 	if (Qt5Widgets_FOUND)
 		message(STATUS "QtWidget Version: ${Qt5Widgets_VERSION}")
-
-		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 Qt5::Widgets)
+		link_libraries($1 Qt5::Widgets)
 	endif ()
 snippet package opengl
-	find_package(OpenGL REQUIRED)
-	find_package(GLEW REQUIRED)
+	find_package(OpenGL)
+	find_package(GLEW)
 	if (OPENGL_FOUND AND OPENGL_GLU_FOUND AND GLEW_FOUND)
 		include_directories(${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
-
-		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+		link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 	endif ()
 snippet package armadillo
 	find_package(Armadillo)
 	if (ARMADILLO_FOUND)
 		include_directories(${ARMADILLO_INCLUDE_DIRS})
 		message(STATUS "Armadillo Library Version: ${ARMADILLO_VERSION_STRING}")
-
-		add_executable(${1:exec}  $1.cc)
-		target_link_libraries($1 ${ARMADILLO_LIBRARIES})
+		link_libraries(${ARMADILLO_LIBRARIES})
 	endif ()
 snippet package pybind11
-	find_package(pybind11 REQUIRED)
+	find_package(pybind11)
 	set(PYBIND11_CPP_STANDARD -std=c++11)
 
 	if (PYTHONLIBS_FOUND)
@@ -122,6 +125,12 @@ snippet package pybind11
 		endif ()
 		pybind11_add_module(example2 test_pybind/bind.cc)
 	endif ()
+snippet package mpi
+	find_package(MPI)
+	if (MPI_FOUND)
+		include_directories(${MPI_INCLUDE_PATH})
+		link_libraries(${MPI_LIBRARIES})
+	endif ()
 snippet library benchmark
 	find_library(BENCHMARK_LIBRARIES benchmark)
 	if (BENCHMARK_LIBRARIES)
@@ -129,6 +138,12 @@ snippet library benchmark
 		add_executable(${1:exec}  $1.cc)
 		target_link_libraries($1 ${BENCHMARK_LIBRARIES})
 	endif ()
+##
+## target
+snippet add test
+	add_executable(${1:test_target} $1.cc)
+	target_link_libraries($1 ${TEST_LIBS})
+	add_test($1 $1)
 ##
 ## Expernal project
 snippet external gtest
