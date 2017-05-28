@@ -149,3 +149,7 @@ snippet boost log file
 								sinks::file::rotation_at_time_point(0, 0, 0),
 							keywords::format = "[%TimeStamp%]: %Message%");
 	${0}
+##
+## format
+snippet boost format
+	boost::format("%1%") % "${1:string}"
