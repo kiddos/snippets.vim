@@ -127,7 +127,8 @@ snippet class Gym Environment
 snippet tensorflow feedforward
 	class ${1:FeedForwardModel}(object):
 		def __init__(self, input_size, output_size,
-				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
+					model_name='$1',
+					learning_rate=${2:1e-3}, decay=${3:0.9}, saving=${4:True}):
 			# logger
 			logging.basicConfig()
 			self.logger = logging.getLogger(model_name)
@@ -149,7 +150,7 @@ snippet tensorflow feedforward
 				# summary writer
 				self.logger.info('setting up summary writer...')
 				self.summary_writer = tf.summary.FileWriter(summary_path,
-					tf.get_default_graph())
+															tf.get_default_graph())
 			self.merged_summary = tf.summary.merge_all()
 
 		def _prepare_save_dir(self, model_name):
@@ -173,29 +174,30 @@ snippet tensorflow feedforward
 			tf.summary.histogram(name='labels', values=labels)
 			# learning rate
 			self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
-				trainable=False)
+											trainable=False)
 			self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
 			tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
 			# model
 			with tf.name_scope('hidden1'):
-				hidden_size = 256
-				w = tf.get_variable(name='w1', shape=[input_size, hidden_size],
-					dtype=tf.float32,
-					initializer=tf.random_normal_initializer(
-						stddev=np.sqrt(2.0 / input_size)))
-				b = tf.get_variable(name='b1', shape=[hidden_size],
-					dtype=tf.float32,
-					initializer=tf.constant_initializer(value=1e-3))
+				h1_size = 256
+				w = tf.get_variable(name='w1', shape=[input_size, h1_size],
+									dtype=tf.float32,
+									initializer=tf.random_normal_initializer(
+					stddev=np.sqrt(2.0 / input_size)))
+				b = tf.get_variable(name='b1', shape=[h1_size],
+									dtype=tf.float32,
+									initializer=tf.constant_initializer(value=1e-3))
 				h = tf.nn.relu(tf.matmul(inputs, w) + b)
 				h = tf.nn.dropout(h, keep_prob)
+			${0}
 			with tf.name_scope('output'):
-				w = tf.get_variable(name='ow', shape=[hidden_size, output_size],
-					dtype=tf.float32,
-					initializer=tf.random_normal_initializer(
-						stddev=np.sqrt(2.0 / hidden_size)))
+				w = tf.get_variable(name='ow', shape=[h1_size, output_size],
+									dtype=tf.float32,
+									initializer=tf.random_normal_initializer(
+					stddev=np.sqrt(2.0 / h1_size)))
 				b = tf.get_variable(name='ob', shape=[output_size],
-					dtype=tf.float32,
-					initializer=tf.constant_initializer(value=1e-3))
+									dtype=tf.float32,
+									initializer=tf.constant_initializer(value=1e-3))
 				logits = tf.matmul(h, w) + b
 				outputs = tf.nn.softmax(logits)
 				tf.summary.histogram(name='outputs', values=outputs)
@@ -231,8 +233,9 @@ snippet tensorflow feedforward
 			return loss
 
 		def train(self, sess, data, label,
-				batch_size=1024, output_period=1000,
-				keep_prob=0.8, max_epoch=10000):
+					batch_size=256, output_period=1000,
+					keep_prob=0.8, max_epoch=10000,
+					decay_epoch=1000):
 			# initialize
 			if self.start_epoch == 0:
 				self.logger.info('initializing variables...')
@@ -243,12 +246,12 @@ snippet tensorflow feedforward
 			for epoch in range(self.start_epoch, self.start_epoch + max_epoch + 1):
 				# prepare batch data
 				offset = (epoch * batch_size) % (data.shape[0] - batch_size + 1)
-				batch_data = data[offset:offset+batch_size, :]
-				batch_label = label[offset:offset+batch_size, :]
+				batch_data = data[offset:offset + batch_size, :]
+				batch_label = label[offset:offset + batch_size, :]
 				loss = self.train_batch(sess, batch_data, batch_label, keep_prob)
 				# output
 				if epoch % output_period == 0:
-					feed_dict={
+					feed_dict = {
 						self.inputs: batch_data,
 						self.labels: batch_label,
 						self.keep_prob: 1.0
@@ -256,11 +259,15 @@ snippet tensorflow feedforward
 					ms, loss, accuracy = sess.run(
 						[self.merged_summary, self.loss, self.accuracy], feed_dict)
 					self.logger.info('%d. loss: %f | accuracy: %f | time used: %f' %
-						(epoch, loss, accuracy, (time.time() - last)))
+									(epoch, loss, accuracy, (time.time() - last)))
 					last = time.time()
+					# save
 					if self.saving:
 						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
 						self.summary_writer.add_summary(ms, global_step=epoch)
+				# learning rate decay
+				if epoch % decay_epoch == 0 and epoch != 0:
+					sess.run(self.decay_lr)
 
 		def predict(self, sess, data):
 			return sess.run(self.outputs, feed_dict={
@@ -270,21 +277,29 @@ snippet tensorflow feedforward
 
 
 	def test():
-		data = np.random.randn(1024, 10)
-		label = np.zeros(shape=[1024, 3])
+		input_size = 16
+		output_size = 16
+
+		# prepare fake data
+		test_batch_size = 1024
+		data = np.random.randn(test_batch_size, input_size)
+		label = np.zeros(shape=[test_batch_size, output_size])
 		label[:, 0] = 1.0
-		model = $1(10, 3, model_name='test', saving=False)
+
+		model = $1(input_size, output_size,
+			model_name='test', saving=False)
 
 		with tf.Session() as sess:
 			model.train(sess, data, label,
-				batch_size=256,
-				output_period=10,
-				keep_prob=0.8,
-				max_epoch=100)
+						batch_size=256,
+						output_period=10,
+						keep_prob=0.8,
+						max_epoch=100)
 snippet tensorflow convolution
 	class ${1:ConvolutionModel}(object):
 		def __init__(self, input_width, input_height, input_channel, output_size,
-				model_name='$1', learning_rate=${2:1e-3}, decay=0.9, saving=True):
+				model_name='$1',
+				learning_rate=${2:1e-3}, decay=${3:0.9}, saving=${4:True}):
 			# logger
 			logging.basicConfig()
 			self.logger = logging.getLogger(model_name)
@@ -377,6 +392,7 @@ snippet tensorflow convolution
 					dtype=tf.float32,
 					initializer=tf.constant_initializer(value=1e-3))
 				h = tf.nn.relu(tf.matmul(tf.reshape(h, [-1, connect_size]), w) + b)
+			${0}
 			with tf.name_scope('output'):
 				w = tf.get_variable(name='ow', shape=[h3_size, output_size],
 					dtype=tf.float32,
@@ -413,7 +429,8 @@ snippet tensorflow convolution
 
 		def train(self, sess, data, label,
 				batch_size=1024, output_period=1000,
-				keep_prob=0.8, max_epoch=10000):
+				keep_prob=0.8, max_epoch=10000,
+				decay_epoch=1000):
 			# initialize
 			if self.start_epoch == 0:
 				self.logger.info('initializing variables...')
@@ -446,6 +463,9 @@ snippet tensorflow convolution
 					if self.saving:
 						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
 						self.summary_writer.add_summary(ms, global_step=epoch)
+				# decay learning rate
+				if epoch % decay_epoch == 0 and epoch != 0:
+					sess.run(self.decay_lr)
 
 		def predict(self, sess, data):
 			return sess.run(self.outputs, feed_dict={
@@ -468,8 +488,10 @@ snippet tensorflow convolution
 				max_epoch=100)
 snippet tensorflow recurrent
 	class ${1:RecurrentModel}(object):
-		def __init__(self, input_size, output_size, step_count, batch_size, max_grad,
-				model_name='$1', learning_rate=${2:1e-2}, decay=${3:0.9}, saving=${4:True},
+		def __init__(self, input_size, output_size,
+				step_count, batch_size, max_grad,
+				model_name='$1',
+				learning_rate=${2:1e-2}, decay=${3:0.9}, saving=${4:True},
 				trainable_state=${5:False}):
 			self.step_count = step_count
 			# logger
@@ -553,7 +575,8 @@ snippet tensorflow recurrent
 					stddev=np.sqrt(2.0 / hidden_size)))
 				ob = tf.get_variable(name='ob', shape=[output_size],
 					dtype=tf.float32,
-					initializer=tf.constant_initializer(value=1e-3))${0}
+					initializer=tf.constant_initializer(value=1e-3))
+			${0}
 
 			def forward(state, input):
 				state = tf.nn.relu(tf.matmul(input, iw) + tf.matmul(state, hw) + ib)
@@ -605,7 +628,8 @@ snippet tensorflow recurrent
 
 		def train(self, sess, data, label,
 				batch_size=1024, output_period=1000,
-				keep_prob=0.8, max_epoch=10000):
+				keep_prob=0.8, max_epoch=10000,
+				decay_epoch=1000):
 			# initialize
 			if self.start_epoch == 0:
 				self.logger.info('initializing variables...')
@@ -633,6 +657,10 @@ snippet tensorflow recurrent
 					if self.saving:
 						self.saver.save(sess, self.checkpoint_path, global_step=epoch)
 						self.summary_writer.add_summary(ms, global_step=epoch)
+				# decay learning rate
+				if epoch % decay_epoch == 0 and epoch != 0:
+					sess.run(self.decay_lr)
+
 
 		def predict(self, sess, data):
 			feed_dict = {self.keep_prob: 1.0}
@@ -648,8 +676,11 @@ snippet tensorflow recurrent
 		step_count = 8
 		batch_size = 1024
 		mini_batch_size = 256
+
+		# prepare fake data
 		data = np.random.randn(batch_size, step_count, input_size)
 		label = np.random.randn(batch_size, step_count, output_size)
+
 		model = $1(input_size, output_size, step_count, mini_batch_size,
 			max_grad, model_name='test', saving=False)
 
