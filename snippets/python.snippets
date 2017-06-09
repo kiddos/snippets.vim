@@ -142,11 +142,11 @@ snippet tensorflow feedforward
 			# checkpoint
 			self.start_epoch = 0
 			self.saving = saving
+			self.saver = tf.train.Saver()
 			if saving:
 				self.checkpoint_path, summary_path = self._prepare_save_dir(model_name)
 				# saver
 				self.logger.info('setting up saver...')
-				self.saver = tf.train.Saver()
 				# summary writer
 				self.logger.info('setting up summary writer...')
 				self.summary_writer = tf.summary.FileWriter(summary_path,
@@ -167,8 +167,10 @@ snippet tensorflow feedforward
 
 		def _build_model(self, input_size, output_size, learning_rate, decay):
 			# inputs
-			inputs = tf.placeholder(dtype=tf.float32, shape=[None, input_size])
-			labels = tf.placeholder(dtype=tf.float32, shape=[None, output_size])
+			inputs = tf.placeholder(dtype=tf.float32, shape=[None, input_size],
+				name='inputs')
+			labels = tf.placeholder(dtype=tf.float32, shape=[None, output_size],
+				name='labels')
 			keep_prob = tf.placeholder(dtype=tf.float32, shape=())
 			tf.summary.histogram(name='inputs', values=inputs)
 			tf.summary.histogram(name='labels', values=labels)
@@ -690,6 +692,38 @@ snippet tensorflow recurrent
 				output_period=100,
 				keep_prob=0.8,
 				max_epoch=10000)
+snippet tf layer feedforward
+	with tf.name_scope('${1:fc1}'):
+		$1_size = ${2:256}
+		w = tf.get_variable(name='$1_w', shape=[${3:input_size}, $1_size],
+			dtype=tf.float32,
+			initializer=tf.random_normal_initializer(
+				stddev=np.sqrt(2.0 / $3)))
+		b = tf.get_variable(name='$1_b', shape=[$1_size],
+			dtype=tf.float32,
+			initializer=tf.constant_initializer(value=1e-3))
+		h = tf.nn.relu(tf.matmul(${4:inputs}, w) + b)
+		h = tf.nn.dropout(h, keep_prob)
+snippet tf layer convolution
+	with tf.name_scope('${1:conv1}'):
+		$1_size = ${2:32}
+		w = tf.get_variable(name='$1_w',
+			shape=[${3:5}, $3, ${4:input_channel}, $1_size],
+			dtype=tf.float32,
+			initializer=tf.random_normal_initializer(stddev=${5:0.01}))
+		b = tf.get_variable(name='$1_b', shape=[$1_size],
+			dtype=tf.float32,
+			initializer=tf.constant_initializer(value=1e-3))
+		h = tf.nn.relu(tf.nn.conv2d(${6:inputs}, w, strides=[1, 1, 1, 1],
+			padding='SAME') + b)
+		h = tf.nn.max_pool(h, strides=[1, 2, 2, 1], ksize=[1, 2, 2, 1],
+			padding='SAME')
+		h = tf.nn.dropout(h, keep_prob)
+snippet tf learning rate
+	self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
+		trainable=False)
+	self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
+	tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
 ##
 ## ROS
 snippet ros publisher
