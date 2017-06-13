@@ -76,6 +76,23 @@ snippet kwargs
 	**kwargs${1:,}${0}
 snippet akw
 	*args, **kwargs${1:,}${0}
+snippet logger
+	logging.basicConfig()
+	logger = logging.getLogger(${1:__name__})
+	logger.setLevel(logging.${2:INFO})
+	${0}
+# sqlite3
+snippet sqlite3 connection
+	connection = sqlite3.connect(${1:path})
+	cursor = connection.cursor()
+	${0}
+	connection.commit()
+	connection.close()
+# argument parser
+snippet argparse
+	parser = ArgumentParser()
+	${0}
+	args = parser.parse_args()
 ## defined classes template
 snippet class Unit Test
 	class TestName(unittest.TestCase):
