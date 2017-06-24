@@ -118,3 +118,12 @@ snippet glfw example simple
 		glfwTerminate();
 		return 0;
 	}
+##
+## glm
+snippet glm include
+	#include <glm/mat4x4.hpp>
+snippet glm projection
+	glm::mat4 ${1:projection} = glm::perspective(glm::radians(${2:45.0f}),
+		${3:4.0f / 3.0f}, ${4:0.1f}, ${5:100.f});
+snippet glm translate
+	glm::mat4 ${1:translate} = glm::translate(${2:-1.0f}, ${3:0.0f}, ${4:0.0f});$0
