@@ -20,7 +20,7 @@ snippet glfw hints
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, ${2:3});
 snippet glfw window
 	// glfw window
-	GLFWwindow* ${1:window} = glfwCreateWindow(${2:1280}, ${3:1080}, "${4:Title}", nullptr, nullptr);
+	GLFWwindow* ${1:window} = glfwCreateWindow(${2:640}, ${3:480}, "${4:Title}", nullptr, nullptr);
 	if (!window) {
 		std::cerr << "ERROR: ${5:Failt to open GLFW window}\n";
 	}
