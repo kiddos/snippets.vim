@@ -1,27 +1,39 @@
 extends cpp
 
-snippet global
-	__global__ ${1:void} ${2:kernel_name}(${3}) {
+snippet cuda include
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
+	#include <cassert>
+	${0}
+snippet cuda kernel
+	extern "C" __global__ ${1:void} ${2:kernel_name}(${3}) {
 		${4:// kernel code...}
 	}
-snippet shared
+snippet cuda assert error
+	cudaError_t error = cudaDeviceSynchronize();
+	if (error == cudaErrorAssert) {
+		std::cerr << "ERROR: ${1:Device assert failed} | " << cudaGetErrorString(error)
+				<< '\n';
+		${0}
+	}
+snippet cuda shared
 	__shared__ ${1:double} tdata[1024];${2}
-snippet eshared
+snippet cuda shared external
 	extern __shared__ ${1:double} tdata[];${2}
-snippet device
+snippet cuda function device
 	__device__ ${1:void} ${2:kernel_name}(${3}) {
 		${4:// kernel code...}
 	}
-snippet host
+snippet cuda function host
 	__host__ ${1:void} ${2:host_function}(${3}) {
 		${4:// host code...}
 	}
-snippet sync
+snippet cuda sync threads
 	__syncthreads();
-	${1}
-snippet thr
+	${0}
+snippet cuda index block
 	threadIdx.${1:x}
-snippet blc
+snippet cuda index thread
 	blockIdx.${1:x}
 snippet cuda check
 	int num_devices = 0;
@@ -30,33 +42,44 @@ snippet cuda check
 		${1:// error message}
 		return -1;
 	}
-snippet cuda info
-	int num_devices = 0;
-	cudaGetDeviceCount(&num_devices);
-	for (int i = 0; i < num_devices; ++i) {
+snippet cuda device info
+	int device_count = 0;
+	cudaGetDeviceCount(&device_count);
+	if (device_count == 0) {
+		std::cerr << "ERROR: no cuda device found\n";
+		${0}
+	}
+	for (int i = 0; i < device_count; ++i) {
 		cudaDeviceProp prop;
 		cudaGetDeviceProperties(&prop, i);
-		printf("Device Number: %d\n", i);
-		printf("  Device name: %s\n", prop.name);
-		printf("  Memory Clock Rate (KHz): %d\n",
-			prop.memoryClockRate);
-		printf("  Memory Bus Width (bits): %d\n",
-			prop.memoryBusWidth);
-		printf("  Peak Memory Bandwidth (GB/s): %f\n\n",
-			2.0*prop.memoryClockRate*(prop.memoryBusWidth/8)/1.0e6);
+		std::cout << "Device number: " << i << '\n'
+				<< "\tDevice name: " << prop.name << '\n'
+				<< "\tMemory Clock Rate (KHz): " << prop.memoryClockRate << '\n'
+				<< "\tMemory Bus Width (bits): " << prop.memoryBusWidth << '\n'
+				<< "\tPeak Memory Bandwidth (GB/s): "
+				<< 2.0 * prop.memoryClockRate * (prop.memoryBusWidth / 8) / 1.0e6
+				<< '\n';
 	}
 snippet cuda timer
-	cudaEvent_t start, end;
-	cudaEventCreate(&start);
-	cudaEventCreate(&end);
+	cudaEvent_t ${1:start}, ${2:end};
+	cudaEventCreate(&$1);
+	cudaEventCreate(&$2);
 
-	cudaEventRecord(start, 0);
-	${1:// kernel to time}
-	cudaEventRecord(end, 0);
-	cudaEventSynchronize(end);
-	float elapsed_time = 0;
-	cudaEventElapsedTime(&elapsed_time, start, end);
-snippet malloc
-	cudaMalloc(${1:&d_data}, ${2:sizeof(h_data[0]) * datasize});${3}
-snippet free
-	cudaFree(${1:0});${2}
+	cudaEventRecord($1, 0);
+	${0:// kernel to time}
+	cudaEventRecord($2, 0);
+	cudaEventSynchronize($2);
+	float ${3:elapsed_time} = 0;
+	cudaEventElapsedTime(&$3, $1, $2);
+snippet cuda malloc
+	cudaMalloc(${1:&d_data}, sizeof(${2:float}) * ${3:1});${0}
+snippet cuda free
+	cudaFree(${1:nullptr});${0}
+snippet cuda check macro
+	void ${1:CudaErrorHandle}(cudaError_t error) {
+		if (error != cudaSuccess) {
+			${0:throw new std::exception();}
+		}
+	}
+
+	#define ${2:CUDA_EXCEPTION_IF_ERROR}(err) $1(err);
