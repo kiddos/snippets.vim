@@ -27,6 +27,9 @@ snippet glfw window
 	// set current context
 	glfwMakeContextCurrent($1);
 
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window_, GLFW_STICKY_KEYS, GL_TRUE);
+
 	${0}
 	glfwDestroyWindow($1);
 snippet glfw mainloop
@@ -60,3 +63,58 @@ snippet glfw keyevent
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 	});
+snippet glfw example simple
+	#include <GLFW/glfw3.h>
+	#include <iostream>
+
+	int main(void) {
+		if (!glfwInit()) {
+			std::cerr << "ERROR: Fail to initialize glfw\n";
+		}
+
+		glfwSetErrorCallback([](int error, const char* desc) {
+			std::cerr << "error code: " << error << " | " << desc << '\n';
+		});
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		GLFWwindow* window = glfwCreateWindow(640, 480, "Title", nullptr, nullptr);
+		if (!window) {
+			std::cerr << "ERROR: Failt to open GLFW window\n";
+		}
+		glfwMakeContextCurrent(window);
+
+		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode,
+			int action, int mods) {
+			if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+				glfwSetWindowShouldClose(window, GL_TRUE);
+			}
+		});
+
+		// main loop
+		while (!glfwWindowShouldClose(window)) {
+			// get time
+			double start_time = glfwGetTime();
+
+			// get view port
+			int width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+			glViewport(0, 0, width, height);
+
+
+			// clear buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+			// if application needs to render after
+			// input has been received
+			// glfwWaitEvents();
+			double passed  = glfwGetTime() - start_time;
+			std::cout << "\rfps: " << 1.0 / passed << std::flush;
+		}
+
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		return 0;
+	}
