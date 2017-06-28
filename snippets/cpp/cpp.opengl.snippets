@@ -118,6 +118,79 @@ snippet glfw example simple
 		glfwTerminate();
 		return 0;
 	}
+snippet glfw example class
+	class GLWindow {
+	 public:
+		GLWindow();
+		~GLWindow();
+		bool Init();
+		void MainLoop();
+
+	 private:
+		GLFWwindow* window_;
+	};
+
+	GLWindow::GLWindow() : window_(nullptr) {}
+
+	bool GLWindow::Init() {
+		// init glfw
+		if (!glfwInit()) {
+			std::cerr << "ERROR: Fail to initialize glfw\n";
+			return false;
+		}
+
+		// create window
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		window_ = glfwCreateWindow(640, 480, "Window", NULL, NULL);
+		if (!window_) {
+			glfwTerminate();
+			return false;
+		}
+
+		// make current window context current
+		glfwMakeContextCurrent(window_);
+	}
+
+	void GLWindow::MainLoop() {
+		while (!glfwWindowShouldClose(window_)) {
+			// clear color
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// render here...
+
+			// swap buffer
+			glfwSwapBuffers(window_);
+			// event poll
+			glfwPollEvents();
+		}
+	}
+
+	GLWindow::~GLWindow() {
+		if (window_) {
+			glfwDestroyWindow(window_);
+		}
+		glfwTerminate();
+	}
+##
+## glut
+snippet glut include
+	#include <GL/freeglut.h>
+snippet glut function render
+	static void Render() {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glutSwapBuffers();
+	}
+snippet glut init
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowSize(${1:1024}, ${2:768});
+	glutInitWindowPosition(${3:0}, ${4:0});
+	glutCreateWindow("${5:Title}");
+
+	glutDisplayFunc(${6:Render});
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glutMainLoop();
 ##
 ## glm
 snippet glm include
