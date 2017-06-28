@@ -153,3 +153,26 @@ snippet boost log file
 ## format
 snippet boost format
 	boost::format("%1%") % "${1:string}"
+## program options
+snippet boost program options init
+	using namespace boost::program_options;
+	options_description desc("${1:Description}");
+	desc.add_options()("help,h", "${2:help messages}");
+
+	variables_map vmap;
+	store(popt::parse_command_line(argc, argv, desc), vmap);
+	notify(vmap);
+
+	if (vmap.count("help")) {
+		std::cout << desc << "\n";
+		return 0;
+	}
+	${0}
+snippet boost program options add
+	desc.add_options()("${1:option_name}",
+		value<${2:int}>()->default_value(${3:0}), "${4:option help}");
+
+	if (vmap.count("$1")) {
+		$2 $1 = vmap["$1"].as<$2>();
+		${0:// code here...}
+	}
