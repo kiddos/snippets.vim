@@ -51,6 +51,11 @@ snippet pprint
 snippet logging
 	import logging
 	logger = logging.getLogger(${0:__name__})
+snippet logger
+	logging.basicConfig()
+	logger = logging.getLogger(${1:__name__})
+	logger.setLevel(${2:logging.INFO})
+	${0}
 # conflict with lambda=ld, therefor we change into Logger.debuG
 snippet epydoc
 	"""${1:Description}
