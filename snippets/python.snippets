@@ -81,11 +81,6 @@ snippet kwargs
 	**kwargs${1:,}${0}
 snippet akw
 	*args, **kwargs${1:,}${0}
-snippet logger
-	logging.basicConfig()
-	logger = logging.getLogger(${1:__name__})
-	logger.setLevel(logging.${2:INFO})
-	${0}
 # sqlite3
 snippet sqlite3 connection
 	connection = sqlite3.connect(${1:path})
