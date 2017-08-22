@@ -4,6 +4,8 @@ snippet gtest
 	TEST(${1:TestName}, ${2:Description}) {
 		${0:// test code...}
 	}
+snippet gtest include
+	#include <gtest/gtest.h>
 snippet gtest test case
 	TEST(${1:TestName}, ${2:Description}) {
 		${0:// test code...}
@@ -18,12 +20,35 @@ snippet gtest template
 	 int size_;
 	};
 
-	typedef ::testing::Types<${1:int, float, double}>> TestTypes;
+	typedef ::testing::Types<${1:float, double}> TestTypes;
 	TYPED_TEST_CASE($1, TestTypes);
 
 	TYPED_TEST($1, $2) {
 		this->size_ = 1;
 		this->$2();
+	}
+snippet gtest fixture
+	class ${1:FixtureTest} : public ::testing::Test {
+	 protected:
+		$1() {}
+		~$1() {}
+
+		void SetUp() override {
+			${2:// setup}
+		}
+
+		void TearDown() override {
+			${3:// delete}
+		}
+	};
+
+	TEST_F($1, ${4:TestName}) {
+		${0:// test code ...}
+	}
+snippet gtest main
+	int main(int argc, char **argv) {
+		::testing::InitGoogleTest(&argc, argv);
+		return RUN_ALL_TESTS();
 	}
 snippet expect equal
 	EXPECT_EQ(${1:v1}, ${2:v2})
@@ -37,3 +62,15 @@ snippet expect greater than
 	EXPECT_GT(${1:v1}, ${2:v2})
 snippet expect greater equal
 	EXPECT_GE(${1:v1}, ${2:v2})
+snippet assert equal
+	ASSERT_EQ(${1:v1}, ${2:v2})
+snippet assert not equal
+	ASSERT_NE(${1:v1}, ${2:v2})
+snippet assert less than
+	ASSERT_LT(${1:v1}, ${2:v2})
+snippet assert less or equal
+	ASSERT_LE(${1:v1}, ${2:v2})
+snippet assert greater than
+	ASSERT_GT(${1:v1}, ${2:v2})
+snippet assert greater equal
+	ASSERT_GE(${1:v1}, ${2:v2})
