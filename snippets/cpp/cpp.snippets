@@ -371,17 +371,6 @@ snippet opengl Window
 		} while (!glfwWindowShouldClose(window_));
 	}
 snippet opengl Object
-	#ifndef ${3:`toupper(Filename('$1'))`}_H
-	#define $3_H
-
-	#include <GL/glew.h>
-	#include <string>
-	#include <fstream>
-	#include <iostream>
-	#include <sstream>
-
-	namespace ${4:gl} {
-
 	class ${1:OpenGLObject} {
 	 public:
 		$1();
@@ -534,10 +523,6 @@ snippet opengl Object
 			return false;
 		}
 	}
-
-	} /* end of $2 namespace */
-
-	#endif /* end of include guard: $3_H */
 ##
 ## OpenMP
 snippet openmp parallel for
