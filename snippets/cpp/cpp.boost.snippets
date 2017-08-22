@@ -160,7 +160,7 @@ snippet boost program options init
 	desc.add_options()("help,h", "${2:help messages}");
 
 	variables_map vmap;
-	store(popt::parse_command_line(argc, argv, desc), vmap);
+	store(parse_command_line(argc, argv, desc), vmap);
 	notify(vmap);
 
 	if (vmap.count("help")) {
