@@ -171,13 +171,21 @@ snippet class
 	class ${1:`Filename('$1')`} {
 	 public:
 		$1();
+		$1(const $1& ${2:`tolower('$1')`});
+		$1& operator=(const $1& $2);
 		~$1();
 
-	private:
+	 private:
 		${0:/* fields */}
 	};
 
 	$1::$1() {}
+
+	$1::$1(const $1& $2) {}
+
+	$1& $1::operator=(const $1& $2) {
+		return *this;
+	}
 
 	$1::~$1() {}
 snippet class basic
@@ -186,9 +194,9 @@ snippet class basic
 		$1();
 		$1(const $1& ${2:`tolower('$1')`});
 		$1($1&& $2);
-		~$1();
 		$1& operator=(const $1& $2);
-		$1& operator=($1&& $2);
+		$1&& operator=($1&& $2);
+		~$1();
 
 	 private:
 		${0:/* fields */}
@@ -204,7 +212,7 @@ snippet class basic
 		return *this;
 	}
 
-	$1& $1::operator=($1&& $2) {
+	$1&& $1::operator=($1&& $2) {
 		return *this;
 	}
 
@@ -250,14 +258,14 @@ snippet class exception
 
 	class ${1:Exception} : public std::exception {
 	 public:
-		$1() : msg_("$1") {}
+		$1() : msg_("Exception occur") {}
 		explicit $1(const char* msg)
-			: msg_(std::string("$1: ") + msg) {}
+			: msg_(msg) {}
 		explicit $1(const std::string& msg)
-			: msg_(std::string("CustomException: ") + msg) {}
+			: msg_(msg) {}
 		virtual ~$1() {}
 		virtual const char* what() const noexcept {
-			return msg_.c_str();
+			return std::string("$1: ") + msg_.c_str();
 		}
 
 	 protected:
