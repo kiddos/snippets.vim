@@ -1,0 +1,35 @@
+snippet travis
+	sudo: required
+	dist: trusty
+
+	install:
+		- sudo apt-get --yes install libboost-all-dev
+
+	script:
+		- mkdir build
+		- cd build
+		- cmake ..
+		- make -j8
+		- make test
+snippet travis before_install
+	before_install:
+		- sudo apt-get -qq update
+		- sudo apt-get install -y libboost-all-dev
+snippet travis latest gcc
+	- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+	- sudo apt-get update -q
+	- sudo apt-get install gcc-4.8 -y
+snippet travis apt addon
+	addons:
+		apt:
+			sources:
+				- sourceline: 'ppa:ubuntu-toolchain-r/test'
+				- sourceline: 'deb https://packagecloud.io/chef/stable/ubuntu/precise main'
+				- ubuntu-toolchain-r-test
+			key_url: 'https://packagecloud.io/gpg.key'
+		packages:
+			- cmake
+			- time
+			- gcc-4.8
+			- g++-4.8
+
