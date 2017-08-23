@@ -90,8 +90,14 @@ snippet package eigen
 snippet package qtwidget
 	find_package(Qt5Widgets)
 	if (Qt5Widgets_FOUND)
-		message(STATUS "QtWidget Version: ${Qt5Widgets_VERSION}")
-		link_libraries($1 Qt5::Widgets)
+		set(CMAKE_INCLUDE_CURRENT_DIR ON)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+		get_target_property(QtWidget_location Qt5::Widgets LOCATION)
+
+		message(STATUS "QtWidget Version: ${Qt5Widgets_VERSION} at ${QtWidget_location}")
+
+		link_libraries(Qt5::Widgets)
 	endif ()
 snippet package opengl
 	find_package(OpenGL)
