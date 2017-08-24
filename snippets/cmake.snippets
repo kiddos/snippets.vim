@@ -98,6 +98,20 @@ snippet package qtwidget
 		message(STATUS "QtWidget Version: ${Qt5Widgets_VERSION} at ${QtWidget_location}")
 
 		link_libraries(Qt5::Widgets)
+
+		qt5_wrap_ui(${2:MAIN_WINDOW_HEADER} ${1:main_window.ui})
+	endif ()
+snippet package qtcustomplot
+	find_package(QCustomPlot)
+	find_package(Qt5PrintSupport)
+	if (Qt5PrintSupport_FOUND AND QCustomPlot_FOUND)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+
+		get_target_property(QtPrintSupport_location Qt5::PrintSupport LOCATION)
+		message(STATUS "QtPrintSupport Version: ${Qt5PrintSupport_VERSION} at ${QtPrintSupport_location}")
+
+		link_libraries(Qt5::PrintSupport ${QCustomPlot_LIBRARIES})
 	endif ()
 snippet package qtopengl
 	find_package(Qt5OpenGL)
@@ -172,6 +186,8 @@ snippet package mpi
 		include_directories(${MPI_INCLUDE_PATH})
 		link_libraries(${MPI_LIBRARIES})
 	endif ()
+##
+## Libraries
 snippet library benchmark
 	find_library(BENCHMARK_LIBRARIES benchmark)
 	if (BENCHMARK_LIBRARIES)
@@ -185,6 +201,15 @@ snippet library glfw
 		set(GLFW_FOUND TRUE)
 		message(STATUS "GLFW found ${GLFW_LIBRARIES}")
 		link_libraries(${GLFW_LIBRARIES})
+	endif ()
+snippet library grpc
+	find_library(GRPC_LIBRARY grpc)
+	find_library(GRPCXX_LIBRARY grpc++)
+	if (GRPC_LIBRARY AND GRPCXX_LIBRARY)
+		set(GRPC_FOUND)
+		message(STATUS "grpc found ${GRPC_LIBRARY} ${GRPCXX_LIBRARY}")
+		link_libraries(${GRPC_LIBRARY})
+		link_libraries(${GRPCXX_LIBRARY})
 	endif ()
 ##
 ## target
