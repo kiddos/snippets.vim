@@ -99,12 +99,55 @@ snippet package qtwidget
 
 		link_libraries(Qt5::Widgets)
 	endif ()
+snippet package qtopengl
+	find_package(Qt5OpenGL)
+	if (Qt5OpenGL_FOUND)
+		set(CMAKE_INCLUDE_CURRENT_DIR ON)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+		get_target_property(QtOpenGL_location Qt5::OpenGL LOCATION)
+
+		message(STATUS "QtOpenGL Version: ${Qt5OpenGL_VERSION} at ${QtWOpenGL_location}")
+
+		link_libraries(Qt5::OpenGL)
+	endif ()
+snippet package qtcore
+	find_package(Qt5Core)
+	if (Qt5Core_FOUND)
+		set(CMAKE_INCLUDE_CURRENT_DIR ON)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+
+		message(STATUS "QtCore Version: ${Qt5Core_VERSION} at ${QtCoreL_location}")
+
+		link_libraries(Qt5::Core)
+	endif ()
+snippet package qtquick
+	find_package(Qt5Quick)
+	if (Qt5Quick_FOUND)
+		set(CMAKE_INCLUDE_CURRENT_DIR ON)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+		get_target_property(QtQuick_location Qt5::Quick LOCATION)
+
+		message(STATUS "QtCore Version: ${Qt5Core_VERSION} at ${QtCoreL_location}")
+
+		link_libraries(Qt5::Core)
+	endif ()
 snippet package opengl
 	find_package(OpenGL)
 	find_package(GLEW)
 	if (OPENGL_FOUND AND OPENGL_GLU_FOUND AND GLEW_FOUND)
 		include_directories(${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 		link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+	endif ()
+snippet package glut
+	find_package(GLUT)
+	if (GLUT_FOUND)
+		message(STATUS "GLUT found ${GLUT_LIBRARIES}")
+		include_directories(${GLUT_INCLUDE_DIR})
+		link_libraries(${GLUT_LIBRARIES})
 	endif ()
 snippet package armadillo
 	find_package(Armadillo)
@@ -135,6 +178,13 @@ snippet library benchmark
 		message(STATUS "Using Google Benchmark ${BENCHMARK_LIBRARIES}")
 		add_executable(${1:exec}  $1.cc)
 		target_link_libraries($1 ${BENCHMARK_LIBRARIES})
+	endif ()
+snippet library glfw
+	find_library(GLFW_LIBRARIES glfw)
+	if (GLFW_LIBRARIES)
+		set(GLFW_FOUND TRUE)
+		message(STATUS "GLFW found ${GLFW_LIBRARIES}")
+		link_libraries(${GLFW_LIBRARIES})
 	endif ()
 ##
 ## target
