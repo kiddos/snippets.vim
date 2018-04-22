@@ -172,27 +172,6 @@ snippet class
 	 public:
 		$1();
 		$1(const $1& ${2:`tolower('$1')`});
-		$1& operator=(const $1& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-
-	$1::$1() {}
-
-	$1::$1(const $1& $2) {}
-
-	$1& $1::operator=(const $1& $2) {
-		return *this;
-	}
-
-	$1::~$1() {}
-snippet class basic
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
 		$1($1&& $2);
 		$1& operator=(const $1& $2);
 		$1&& operator=($1&& $2);
@@ -217,7 +196,7 @@ snippet class basic
 	}
 
 	$1::~$1() {}
-snippet class template
+snippet TemplateClass
 	template <typename T>
 	class ${1:`Filename('$1')`} {
 	 public:
@@ -253,7 +232,7 @@ snippet class template
 
 	template <typename T>
 	$1<T>::~$1() {}
-snippet class exception
+snippet ExceptionClass
 	#include <exception>
 
 	class ${1:Exception} : public std::exception {
@@ -273,16 +252,16 @@ snippet class exception
 	};
 ##
 ## Meta Programming
-snippet meta value
+snippet MetaValue
 	struct ${1:ValueHolder} {
 		enum { value = ${0:0} };
 	}
-snippet meta function
+snippet MetaFunction
 	template <int ${2:A}, int ${3:B}>
 	struct ${1:Add} {
 		enum { result = $2 ${4:+} $3  };
 	}
-snippet meta branch
+snippet MetaBranch
 	template <typename ${2:T1}, typename ${3:T2}>
 	struct ${1:SameType} {
 		enum { result = 0 };
@@ -292,7 +271,7 @@ snippet meta branch
 	struct $1<T, T> {
 		enum { result = 1 };
 	}
-snippet meta recursion
+snippet MetaRecursion
 	template <unsigned long N>
 	struct ${1:Factorial} {
 		enum { value = N * $1<N-1>::value };
@@ -579,16 +558,16 @@ snippet tbb parallel
 	});
 
 # main
-snippet main
+snippet Main
 	int main(void) {
 		${0}
 		return 0;
 	}
-snippet main args
+snippet MainArgs
 	int main(int argc, char* argv[]) {
 		return 0;
 	}
-snippet main boost program options
+snippet MainBoostProgramOptions
 	#include <boost/program_options.hpp>
 	#include <iostream>
 
@@ -620,24 +599,17 @@ snippet main boost program options
 		}
 		return 0;
 	}
-snippet main glog
+snippet MainGlog
 	#include <glog/logging.h>
 
 	int main(int argc, char** argv) {
 		google::InitGoogleLogging(argv[0]);
+		google::LogToStderr();
 		return 0;
 	}
-snippet main basic
-	#include <iostream>
-	#include <iomanip>
-
-	using std::cout;
-	using std::cin;
-
-	int main(void) {
-		${0}
-		return 0;
-	}
+snippet Glog
+	google::InitGoogleLogging(argv[0]);
+	google::LogToStderr();
 ##
 ## sqlite3
 snippet sqlite3 connection
