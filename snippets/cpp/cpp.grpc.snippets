@@ -1,0 +1,96 @@
+snippet GRPCInclude
+	#include <memory>
+	#include <thread>
+
+	#include <grpc/grpc.h>
+	#include <grpc++/channel.h>
+	#include <grpc++/client_context.h>
+	#include <grpc++/create_channel.h>
+	#include <grpc++/security/credentials.h>
+snippet GRPCClientClass
+	class ${1:Client} {
+	 public:
+		$1();
+
+	 private:
+		std::shared_ptr<Channel> channel_;
+		std::unique_ptr<${2:Service}::Stub> stub_;
+	};
+
+	$1::$1(std::shared_ptr<Channel> channel)
+			: channel_(grpc::CreateChannel("localhost:50051",
+						grpc::InsecureChannelCredentials())),
+				stub_($2::NewStub(channel)) {}
+snippet GRPCSimpleCall
+	${1:Request} request;
+	${2:Response} response;
+	grpc::ClientContext context;
+	grpc::Status status = stub_->${3:Call}(&context, request, &response);
+	if (!status.ok()) {
+		// success
+	} else {
+		// failed
+	}
+snippet GRPCStreamReaderCall
+	${1:Request} request;
+	${2:Response} response;
+	grpc::ClientContext context;
+
+	std::unique_ptr<grpc::ClientReader<$2>> reader(
+		stub_->${3:Call}(&context, request));
+	while (reader->Read(&response)) {
+		// process response
+	}
+	grpc::Status status = reader->Finish();
+	if (status.ok()) {
+		// success
+	} else {
+		// fail
+	}
+snippet GRPCStreamWriterCall
+	${1:Request} request;
+	${2:Response} response;
+	grpc::ClientContext context;
+
+	std::unique_ptr<grpc::ClientWriter<$1>> writer(
+		stub_->RecordRoute(&context, &response));
+
+	bool running = true;
+	while (running) {
+	  if (!writer->Write(request)) {
+		// broken stream
+		break;
+	  }
+	}
+	writer->WritesDone();
+	grpc::Status status = writer->Finish();
+	if (status.ok()) {
+		// success
+	} else {
+		// failed
+	}
+snippet GRPCStreamReaderWriter
+	grpc::ClientContext context;
+
+	std::shared_ptr<grpc::ClientReaderWriter<${1:Request}, ${2:Response}> > stream(
+		stub_->${3:Call}(&context));
+
+	std::thread writer([stream]() {
+		while (true) {
+			$1 request;
+			stream->Write(request);
+		}
+		stream->WritesDone();
+	});
+
+	$2 response;
+	while (stream->Read(&response)) {
+	}
+	writer.join();
+
+	Status status = stream->Finish();
+	if (!status.ok()) {
+		// success
+	} else {
+		// failed
+	}
