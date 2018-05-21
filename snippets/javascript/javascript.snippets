@@ -86,3 +86,10 @@ snippet print
 	console.log('${1:message}');
 snippet jshint
 	/* jshint node: true */
+snippet video
+	if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+		navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+			video.src = window.URL.createObjectURL(stream);
+			video.play();
+		});
+	}
