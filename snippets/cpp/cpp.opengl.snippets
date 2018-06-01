@@ -1,8 +1,8 @@
 ## glfw
-snippet glfw include
+snippet glfw_include
 	#include <GL/glew.h>
 	#include <GLFW/glfw3.h>
-snippet glfw init
+snippet glfw_init
 	if (!glfwInit()) {
 		std::cerr << "ERROR: ${1:Fail to initialize glfw}\n";
 	}
@@ -10,15 +10,15 @@ snippet glfw init
 	${0}
 
 	glfwTerminate();
-snippet glfw errorcallback
+snippet glfw_errorcallback
 	glfwSetErrorCallback([](int error, const char* desc) {
 		std::cerr << "error code: " << error << " | " << desc << '\n';
 	});
-snippet glfw hints
+snippet glfw_hints
 	// set API version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, ${1:3});
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, ${2:3});
-snippet glfw window
+snippet glfw_window
 	// glfw window
 	GLFWwindow* ${1:window} = glfwCreateWindow(${2:640}, ${3:480}, "${4:Title}", nullptr, nullptr);
 	if (!window) {
@@ -32,7 +32,7 @@ snippet glfw window
 
 	${0}
 	glfwDestroyWindow($1);
-snippet glfw mainloop
+snippet glfw_mainloop
 	// main loop
 	while (!glfwWindowShouldClose(${1:window})) {
 		// get time
@@ -56,14 +56,14 @@ snippet glfw mainloop
 		double passed  = glfwGetTime() - start_time;
 		std::cout << '\rfps: ' << 1.0 / passed << std::flush;
 	}
-snippet glfw keyevent
+snippet glfw_keyevent
 	glfwSetKeyCallback(${1:window}, [](GLFWwindow* window, int key, int scancode,
 			int action, int mods) {
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 	});
-snippet glfw example simple
+snippet template_glfw_basic
 	#include <GLFW/glfw3.h>
 	#include <iostream>
 
@@ -118,7 +118,7 @@ snippet glfw example simple
 		glfwTerminate();
 		return 0;
 	}
-snippet glfw example class
+snippet glfw_class
 	class GLWindow {
 	 public:
 		GLWindow();
@@ -174,14 +174,14 @@ snippet glfw example class
 	}
 ##
 ## glut
-snippet glut include
+snippet glut_include
 	#include <GL/freeglut.h>
-snippet glut function render
+snippet glut_function_render
 	static void Render() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glutSwapBuffers();
 	}
-snippet glut init
+snippet glut_init
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(${1:1024}, ${2:768});
@@ -191,12 +191,32 @@ snippet glut init
 	glutDisplayFunc(${6:Render});
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glutMainLoop();
+snippet template_glut_basic
+	#include <GL/freeglut.h>
+
+	static void Render() {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glutSwapBuffers();
+	}
+
+	int main(int argc, char* argv[]) {
+		glutInit(&argc, argv);
+		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+		glutInitWindowSize(1024}, 768);
+		glutInitWindowPosition(0, 0);
+		glutCreateWindow("${1:Title}");
+
+		glutDisplayFunc(${2:Render});
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glutMainLoop();
+		return 0;
+	}
 ##
 ## glm
-snippet glm include
+snippet glm_include
 	#include <glm/mat4x4.hpp>
-snippet glm projection
+snippet glm_projection
 	glm::mat4 ${1:projection} = glm::perspective(glm::radians(${2:45.0f}),
 		${3:4.0f / 3.0f}, ${4:0.1f}, ${5:100.f});
-snippet glm translate
+snippet glm_translate
 	glm::mat4 ${1:translate} = glm::translate(${2:-1.0f}, ${3:0.0f}, ${4:0.0f});$0
