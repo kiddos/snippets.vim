@@ -68,21 +68,8 @@ snippet epydoc
 
 	@raise e: ${0: Description}
 	"""
-snippet dol
-	def ${1:__init__}(self, *args, **kwargs):
-		super(${0:ClassName}, self).$1(*args, **kwargs)
-snippet kwg
-	self.${1:var_name} = kwargs.get('$1', ${2:None})
-snippet lkwg
-	${1:var_name} = kwargs.get('$1', ${2:None})
-snippet args
-	*args${1:,}${0}
-snippet kwargs
-	**kwargs${1:,}${0}
-snippet akw
-	*args, **kwargs${1:,}${0}
 # sqlite3
-snippet sqlite3 connection
+snippet sqlite3_connection
 	connection = sqlite3.connect(${1:path})
 	cursor = connection.cursor()
 	${0}
@@ -90,15 +77,17 @@ snippet sqlite3 connection
 	connection.close()
 # argument parser
 snippet argparse
+	from argparse import ArgumentParser
+
 	parser = ArgumentParser()
 	${0}
 	args = parser.parse_args()
 ## defined classes template
-snippet class Unit Test
+snippet class_unit_test
 	class TestName(unittest.TestCase):
 		def test_case1(self):
 			self.assertTrue(True)
-snippet class Gym Environment
+snippet class_gym_environment
 	class CustomEnvironment(Env):
 		metadata = {'render.modes': ['ansi', 'rgb_array', 'human']}
 
@@ -140,8 +129,18 @@ snippet class Gym Environment
 		def _close(self):
 			pass
 ##
+## Serial
+snippet serial
+	import serial
+
+
+	s = serial.Serial('${1:/dev/ttyUSB0}', ${2:9600},
+		parity=${2:serial.PARITY_EVEN},
+		stopbits=${3:serial.STOPBITS_ONE},
+		timeout=${4:1000})
+##
 ## Tensorflow Framework
-snippet tensorflow object
+snippet tensorflow_object
 	class ${1:FeedForwardModel}(object):
 		def __init__(self, input_size, output_size,
 					model_name='$1',
@@ -266,7 +265,7 @@ snippet tensorflow object
 						output_period=10,
 						keep_prob=0.8,
 						max_epoch=100)
-snippet tensorflow feedforward
+snippet tensorflow_feedforward
 	# inputs
 	inputs = tf.placeholder(dtype=tf.float32, shape=[None, ${1:input_size}],
 		name='inputs')
@@ -317,7 +316,7 @@ snippet tensorflow feedforward
 	with tf.name_scope('optimizer'):
 		optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
 		train_op = optimizer.minimize(loss)
-snippet tensorflow convolution
+snippet tensorflow_convolution
 	# inputs
 	inputs = tf.placeholder(dtype=tf.float32,
 		shape=[None, ${1:input_height}, ${2:input_width}, ${3:input_channel}],
@@ -399,7 +398,7 @@ snippet tensorflow convolution
 	with tf.name_scope('optimizer'):
 		optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
 		train_op = optimizer.minimize(loss)
-snippet tensorflow recurrent
+snippet tensorflow_recurrent
 	# inputs
 	inputs = []
 	labels = []
@@ -472,7 +471,7 @@ snippet tensorflow recurrent
 		gvs = optimizer.compute_gradients(loss)
 		clipped_gvs = [(tf.clip_by_norm(g, max_grad), v) for g, v in gvs]
 		train_op = optimizer.apply_gradients(clipped_gvs)
-snippet tf layer feedforward
+snippet tf_layer_feedforward
 	with tf.name_scope('${1:fc1}'):
 		$1_size = ${2:256}
 		w = tf.get_variable(name='$1_w', shape=[${3:input_size}, $1_size],
@@ -484,7 +483,7 @@ snippet tf layer feedforward
 			initializer=tf.constant_initializer(value=1e-3))
 		h = tf.nn.relu(tf.matmul(${4:inputs}, w) + b)
 		h = tf.nn.dropout(h, keep_prob)
-snippet tf layer convolution
+snippet tf_layer_convolution
 	with tf.name_scope('${1:conv1}'):
 		$1_size = ${2:32}
 		w = tf.get_variable(name='$1_w',
@@ -499,12 +498,30 @@ snippet tf layer convolution
 		h = tf.nn.max_pool(h, strides=[1, 2, 2, 1], ksize=[1, 2, 2, 1],
 			padding='SAME')
 		h = tf.nn.dropout(h, keep_prob)
-snippet tf learning rate
+snippet tf_learning rate
 	self.learning_rate = tf.Variable(learning_rate, name='learning_rate',
 		trainable=False)
 	self.decay_lr = tf.assign(self.learning_rate, self.learning_rate * decay)
 	tf.summary.scalar(name='learning_rate', tensor=self.learning_rate)
-snippet parser
+snippet tensorflow_parser
+	FLAGS = tf.app.flags.FLAGS
+	tf.app.flags.DEFINE_bool('saving', False, 'saving model')
+	tf.app.flags.DEFINE_float('learning_rate', 1e-3, 'learning rate to train')
+	tf.app.flags.DEFINE_integer('batch_size', 64, 'batch size to train')
+	tf.app.flags.DEFINE_integer('max_epoch', 10000, 'max epoches to train')
+	tf.app.flags.DEFINE_integer('display_epoch', 100, 'epoches to display result')
+	tf.app.flags.DEFINE_integer('decay_epoch', 10000,
+		'epoches to decay learning rate')
+	tf.app.flags.DEFINE_integer('summary_epoch', 10000, 'epoches to save summary')
+	tf.app.flags.DEFINE_integer('save_epoch', 1000, 'epoches to save model')
+snippet tensorflow_app
+	def main(_):
+		pass
+
+
+	if __name__ == '__main__':
+		tf.app.run()
+snippet tensorflow_argparser
 	parser.add_argument('--learning-rate', dest='learning_rate', type=float,
 		default=1e-3, help='learning rate for training')
 	parser.add_argument('--batch-size', dest='batch_size', type=int,
@@ -525,7 +542,7 @@ snippet parser
 		default='False', help='rather to save the training result')
 ##
 ## ROS
-snippet ros publisher
+snippet ros_publisher
 	#!/usr/bin/env python
 	# -*- coding: utf-8 -*-
 
@@ -549,7 +566,7 @@ snippet ros publisher
 			talker()
 		except rospy.ROSInterruptException:
 			pass
-snippet ros subscriber
+snippet ros_subscriber
 	#!/usr/bin/env python
 	# -*- coding: utf-8 -*-
 
@@ -569,7 +586,7 @@ snippet ros subscriber
 
 	if __name__ == '__main__':
 		listener()
-snippet ros client
+snippet ros_client
 	#!/usr/bin/env python
 	# -*- coding: utf-8 -*-
 
@@ -595,7 +612,7 @@ snippet ros client
 
 	if __name__ == '__main__':
 		main()
-snippet ros server
+snippet ros_server
 	#!/usr/bin/env python
 	# -*- coding: utf-8 -*-
 
@@ -616,7 +633,7 @@ snippet ros server
 
 	if __name__ == '__main__':
 		start_server()
-snippet ros smach state machine
+snippet ros_smach_state_machine
 	#!/usr/bin/env python
 	# -*- coding: utf-8 -*-
 
