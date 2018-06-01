@@ -7,23 +7,23 @@ snippet pybind
 		py::module m("${1:module_name}", "${2:docstring}");
 		return m.ptr();
 	}
-snippet pybind include
+snippet pybind_include
 	#include <pybind11/pybind11.h>
 
 	namespace py = pybind11;
-snippet pybind plugin
+snippet pybind_plugin
 	PYBIND11_PLUGIN($1) {
 		py::module m("${1:module_name}", "${2:docstring}");
 		return m.ptr();
 	}
-snippet pybind function
+snippet pybind_function
 	m.def("${1:func}", &$1, "${2:docstring}");
-snippet pybind object
+snippet pybind_object
 	py::class_<${1:Object}>(m, "$2")
 		.def(py::init())
 		// .def(py::init<const std::string&>())
 		.def("${2:Function}", &$1::$2, "docstring");
-snippet pybind exception
+snippet pybind_exception
 	py::exception<${1:ExceptionClass}> except(m, "$1");
 	py::register_exception_translator([](std::exception_ptr p) {
 		try {
@@ -32,7 +32,7 @@ snippet pybind exception
 			PyErr_SetString(PyExc_RuntimeError, e.what());
 		}
 	});
-snippet pybind example
+snippet template_pybind_example
 	#include <pybind11/pybind11.h>
 
 	int add(int i, int j) {
