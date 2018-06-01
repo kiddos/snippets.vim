@@ -7,7 +7,7 @@ snippet glfw_init
 		std::cerr << "ERROR: ${1:Fail to initialize glfw}\n";
 	}
 
-	${0}
+	// code here...
 
 	glfwTerminate();
 snippet glfw_errorcallback
@@ -30,7 +30,8 @@ snippet glfw_window
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window_, GLFW_STICKY_KEYS, GL_TRUE);
 
-	${0}
+	// code here...
+
 	glfwDestroyWindow($1);
 snippet glfw_mainloop
 	// main loop
@@ -47,7 +48,8 @@ snippet glfw_mainloop
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		${0}
+		// render here...
+
 		glfwSwapBuffers($1);
 		glfwPollEvents();
 		// if application needs to render after
