@@ -4,13 +4,17 @@ snippet ros
 	});
 
 	ros.on('connection', function() {
-		${0:// code ...}
+		// handle connection
+	});
+
+	ros.on('close', function() {
+		// handle close
 	});
 
 	ros.on('error', function() {
-		${1:// error ...}
+		// handle error
 	});
-snippet ros topic
+snippet ros_topic
 	var topic = new ROSLIB.Topic({
 		ros: ros,
 		name: '${1:/topic}',
@@ -18,9 +22,9 @@ snippet ros topic
 	});
 
 	topic.subscribe(function(msg) {
-		${0:// code ...}
+		// handle message
 	});
 
 	topic.publish(new ROSLIB.Message({
-		${3:data: 'text'}
+		// message data
 	}));
