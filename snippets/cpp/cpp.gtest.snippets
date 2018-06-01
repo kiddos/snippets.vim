@@ -1,7 +1,7 @@
 snippet gtest_include
 	#include <gtest/gtest.h>
 snippet gtest_test_case
-	TEST(${0:TestName}, ${1:Description}) {
+	TEST(${1:TestName}, ${2:Description}) {
 		// test code...
 	}
 snippet gtest_template
@@ -22,10 +22,10 @@ snippet gtest_template
 		this->$2();
 	}
 snippet gtest_fixture
-	class ${0:FixtureTest} : public ::testing::Test {
+	class ${1:FixtureTest} : public ::testing::Test {
 	 protected:
-		$0() {}
-		~$0() {}
+		$1() {}
+		~$1() {}
 
 		void SetUp() override {
 			// setup
@@ -36,7 +36,7 @@ snippet gtest_fixture
 		}
 	};
 
-	TEST_F($0, ${1:TestName}) {
+	TEST_F($1, ${2:TestName}) {
 		// test code
 	}
 snippet gtest_main
@@ -47,7 +47,7 @@ snippet gtest_main
 snippet template_gtest
 	#include <gtest/gtest.h>
 
-	TEST(${0:TestName}, ${1:Description}) {
+	TEST(${1:TestName}, ${2:Description}) {
 		// test code...
 	}
 
