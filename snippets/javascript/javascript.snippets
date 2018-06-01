@@ -4,9 +4,9 @@ snippet doc
 	 * ${0:description}
 	 *
 	 */
-snippet doc param
+snippet doc_param
 	@param {${1:type}} ${2:name} ${0:description}
-snippet doc return
+snippet doc_return
 	@return {${1:type}} ${0:description}
 ## strict
 snippet strict
@@ -86,7 +86,8 @@ snippet print
 	console.log('${1:message}');
 snippet jshint
 	/* jshint node: true */
-snippet video
+snippet template_video
+	var video = document.getElementById('camera');
 	if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 		navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
 			video.src = window.URL.createObjectURL(stream);
