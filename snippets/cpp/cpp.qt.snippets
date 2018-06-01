@@ -1,0 +1,80 @@
+snippet main_qt
+	int main(int argc, char** argv) {
+		QApplication app(argc, argv);
+		return app.exec();
+	}
+snippet template_qt_app
+	#include <QApplication>
+
+	int main(int argc, char** argv) {
+		QApplication app(argc, argv);
+		return app.exec();
+	}
+snippet template_qt_basic_window
+	#include <QApplication>
+	#include <QMainWindow>
+	#include <QWidget>
+	#include <QObject>
+	#include <QtWidgets/QMenuBar>
+	#include <QtWidgets/QToolBar>
+	#include <QtWidgets/QStatusBar>
+
+	namespace ui {
+
+	class MainWindow : public QMainWindow {
+		Q_OBJECT
+
+	 public:
+		explicit MainWindow(QWidget* parent = nullptr);
+		~MainWindow();
+
+		virtual void SetupUI();
+
+	 private:
+		QMenuBar* menu_bar_;
+		QToolBar* main_tool_bar_;
+		QWidget* central_widget_;
+		QStatusBar* status_bar_;
+	};
+
+
+	MainWindow::MainWindow(QWidget* parent)
+			: QMainWindow(parent),
+			menu_bar_(nullptr),
+			main_tool_bar_(nullptr),
+			central_widget_(nullptr),
+			status_bar_(nullptr) {
+		SetupUI();
+	}
+
+	MainWindow::~MainWindow() {
+		if (menu_bar_) delete menu_bar_;
+		if (main_tool_bar_) delete main_tool_bar_;
+		if (central_widget_) delete central_widget_;
+		if (status_bar_) delete status_bar_;
+	}
+
+	void MainWindow::SetupUI() {
+		resize(400, 300);
+		menu_bar_ = new QMenuBar(this);
+		menu_bar_->setObjectName(QStringLiteral("menuBar"));
+		setMenuBar(menu_bar_);
+		main_tool_bar_ = new QToolBar(this);
+		main_tool_bar_->setObjectName(QStringLiteral("mainToolBar"));
+		addToolBar(main_tool_bar_);
+		central_widget_ = new QWidget(this);
+		central_widget_->setObjectName(QStringLiteral("centralWidget"));
+		setCentralWidget(central_widget_);
+		status_bar_ = new QStatusBar(this);
+		status_bar_->setObjectName(QStringLiteral("statusBar"));
+		setStatusBar(status_bar_);
+	}
+
+	} /* end of ui namespace */
+
+	int main(int argc, char* argv[]) {
+		QApplication app(argc, argv);
+		ui::MainWindow main_window;
+		main_window.show();
+		return app.exec();
+	}
