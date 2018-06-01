@@ -3,7 +3,7 @@ snippet benchmark_include
 snippet benchmark_basic
 	void $1(benchmark::State& state) {
 		while (state.KeepRunning()) {
-			${0:// test code...}
+			// benchmark code...
 		}
 		state.SetBytesProcessed(int64_t(state.iterations()) *
 								int64_t(state.range(0)));
@@ -17,7 +17,7 @@ snippet benchmark_template_type
 	template <typename T>
 	void $1(benchmark::State& state) {
 		while (state.KeepRunning()) {
-			${0:// test code...}
+			// benchmark code...
 		}
 		state.SetBytesProcessed(int64_t(state.iterations()) *
 								int64_t(state.range(0)));
