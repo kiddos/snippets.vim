@@ -30,7 +30,7 @@ snippet namespace
 	} /* end of $1 namespace */
 ##
 ## Cool Functions
-snippet function fast inverse square root
+snippet function_fast_inverse_square_root
 	float InverseSqrt(float x) {
 		float xhalf = 0.5f * x;
 		int i = *(int*) &x;
@@ -39,7 +39,7 @@ snippet function fast inverse square root
 		x = x * (1.5f - xhalf * x * x);
 		return x;
 	}
-snippet function random init array
+snippet function_random_init_array
 	template <typename T>
 	void RandomInitialize(T* A, int size) {
 		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
@@ -48,7 +48,7 @@ snippet function random init array
 			A[i] = dist(gen);
 		}
 	}
-snippet function random init vector
+snippet function_random_init_vector
 	template <typename T>
 	void RandomInitialize(std::vector<T>& vec, int size) {
 		vec = std::vector<T>(size);
@@ -167,7 +167,7 @@ snippet static_if
 	#endif /* end of include guard: STATIC_IF_H */
 ##
 ## Class
-snippet Class
+snippet class
 	class ${1:`Filename('$1')`} {
 	 public:
 		$1();
@@ -196,7 +196,7 @@ snippet Class
 	}
 
 	$1::~$1() {}
-snippet ClassTemplate
+snippet class_template
 	template <typename T>
 	class ${1:`Filename('$1')`} {
 	 public:
@@ -232,7 +232,7 @@ snippet ClassTemplate
 
 	template <typename T>
 	$1<T>::~$1() {}
-snippet ClassException
+snippet class_exception
 	#include <exception>
 
 	class ${1:Exception} : public std::exception {
@@ -252,16 +252,16 @@ snippet ClassException
 	};
 ##
 ## Meta Programming
-snippet MetaValue
+snippet meta_value
 	struct ${1:ValueHolder} {
 		enum { value = ${0:0} };
 	}
-snippet MetaFunction
+snippet meta_function
 	template <int ${2:A}, int ${3:B}>
 	struct ${1:Add} {
 		enum { result = $2 ${4:+} $3  };
 	}
-snippet MetaBranch
+snippet meta_branch
 	template <typename ${2:T1}, typename ${3:T2}>
 	struct ${1:SameType} {
 		enum { result = 0 };
@@ -271,7 +271,7 @@ snippet MetaBranch
 	struct $1<T, T> {
 		enum { result = 1 };
 	}
-snippet MetaRecursion
+snippet meta_recursion
 	template <unsigned long N>
 	struct ${1:Factorial} {
 		enum { value = N * $1<N-1>::value };
@@ -283,7 +283,7 @@ snippet MetaRecursion
 	}
 ##
 ## OpenGL
-snippet OpenglWindow
+snippet opengl_window
 	#include <GL/glew.h>
 	#include <GLFW/glfw3.h>
 	#include <iostream>
@@ -357,7 +357,7 @@ snippet OpenglWindow
 			glfwPollEvents();
 		} while (!glfwWindowShouldClose(window_));
 	}
-snippet OpenglObject
+snippet opengl_object
 	class ${1:OpenGLObject} {
 	 public:
 		$1();
@@ -525,16 +525,16 @@ snippet tbb_parallel
 	});
 
 # main
-snippet Main
+snippet main
 	int main(void) {
 		${0}
 		return 0;
 	}
-snippet MainArgs
+snippet main_args
 	int main(int argc, char* argv[]) {
 		return 0;
 	}
-snippet MainBoostProgramOptions
+snippet main_boost_program_options
 	#include <boost/program_options.hpp>
 	#include <iostream>
 
@@ -566,7 +566,7 @@ snippet MainBoostProgramOptions
 		}
 		return 0;
 	}
-snippet MainGlog
+snippet main_glog
 	#include <glog/logging.h>
 
 	int main(int argc, char** argv) {
@@ -574,7 +574,11 @@ snippet MainGlog
 		google::LogToStderr();
 		return 0;
 	}
-snippet Glog
+#
+## glog
+snippet glog_include
+	#include <glog/logging.h>
+snippet glog
 	google::InitGoogleLogging(argv[0]);
 	google::LogToStderr();
 # basic templates
