@@ -1,6 +1,6 @@
 ##
 ## base
-snippet make c
+snippet make_c
 	CC = gcc
 	CFLAGS = -g -Wall -Wextra
 
@@ -18,7 +18,7 @@ snippet make c
 		rm -f *.o $(TARGET)
 
 	.PHONY: all, clean
-snippet make cxx
+snippet make_cxx
 	CXX = g++
 	CXXFLAGS = -g -Wall -Wextra
 
@@ -38,7 +38,7 @@ snippet make cxx
 	.PHONY: all, clean
 ##
 ## proto
-snippet make proto
+snippet make_proto
 	PROTOC = protoc
 	PROTO_PATH = ${1:./src/proto}
 
@@ -56,7 +56,7 @@ snippet make proto
 		rm -rf $(PROTO_PATH)/*.pb.h $(PROTO_PATH)/*.pb.cc $(TARGET)
 
 	.PHONY: all clean
-snippet make grpc
+snippet make_grpc
 	PROTOC = protoc
 	GRPC_CPP_PLUGIN = grpc_cpp_plugin
 	GRPC_CPP_PLUGIN_PATH = `which $(GRPC_CPP_PLUGIN)`
