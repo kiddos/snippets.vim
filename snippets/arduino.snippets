@@ -1,46 +1,4 @@
-## IO
-# pinMode OUTPUT
-snippet pinout
-	pinMode(${1}, OUTPUT);
-# pinMode INPUT
-snippet pinin
-	pinMode(${1}, INPUT);
-# digitalWrite HIGH
-snippet dwHigh
-	digitalWrite(${1}, HIGH);
-# digitalWrite LOW
-snippet dwLow
-	digitalWrite(${1}, LOW);
-# digitalRead
-snippet dr
-	digitalRead(${1});
-# serialRead
-snippet sr
-	serialRead();
-# serial.println
-snippet sp
-	serial.println(${1});
-# delay
-snippet dl
-	delay(${1});
-snippet template empty
-	void Init() {
-		// normal timer
-		TCCR1A = _BV(WGM10);
-		TCCR1B = _BV(CS11) | _BV(CS10) | _BV(WGM12);
-		TCCR2A = _BV(WGM21) | _BV(WGM20);
-		TCCR2B = _BV(CS22);
-	}
-
-	void setup() {
-		Init();
-		${1:// setup code}
-	}
-
-	void loop() {
-		// loop
-	}
-snippet TimerDescription
+snippet timer_description
 	/**
 	 ** Waveform Generation Mode
 	 ** Mode WGM13 WGM12(CTC) WGM11(PWM11) WGM10(PWM10) Mode Operation                   TOP    Update of OCR1x at TOV1 Flag Set on
@@ -114,7 +72,7 @@ snippet TimerDescription
 	/** OCIEB: Output Compare B Match Interrupt Enable */
 	/** TOIE: Overflow Interrupt Enable */
 	/** tick time: 65535 / (16MHz / prescalar) */
-snippet TimerNormal
+snippet timer_normal
 	void TimerNormal() {
 		noInterrupts();
 
@@ -130,7 +88,7 @@ snippet TimerNormal
 	ISR(TIMER1_OVF_vect) {
 		TCNT1 = 65535 - 16000000 / 256;
 	}
-snippet TimerCTC
+snippet timer_ctc
 	void TimerCTC() {
 		noInterrupts();
 
@@ -151,7 +109,7 @@ snippet TimerCTC
 	ISR(TIMER1_COMPB_vect) {
 		// timer event
 	}
-snippet TimerPWM
+snippet timer_pwm
 	void TimerPWM() {
 		noInterrupts();
 
@@ -164,4 +122,199 @@ snippet TimerPWM
 		ICR1A = 128;
 
 		interrupts();
+	}
+snippet template_timer_empty
+	void Init() {
+		// normal timer
+		TCCR1A = _BV(WGM10);
+		TCCR1B = _BV(CS11) | _BV(CS10) | _BV(WGM12);
+		TCCR2A = _BV(WGM21) | _BV(WGM20);
+		TCCR2B = _BV(CS22);
+	}
+
+	void setup() {
+		Init();
+		${1:// setup code}
+	}
+
+	void loop() {
+		// loop
+	}
+snippet template_timer_normal
+	void TimerNormal() {
+		noInterrupts();
+
+		TCCR1A = 0;  // timer/counter control register A
+		TCCR1B = 0;  // timer/counter control register B
+		TCCR1B |= (1 << CS12);
+		TIMSK1 |= (1 << TOIE1); // timer interrupt mask register
+		TCNT1 = 65535 - 16000000 / 256; // timer counter value
+
+		interrupts();
+	}
+
+	ISR(TIMER1_OVF_vect) {
+		TCNT1 = 65535 - 16000000 / 256;
+	}
+
+	void setup() {
+		TimerNormal();
+	}
+
+	void loop() {
+		// other controls...
+	}
+snippet template_timer_ctc
+	void TimerCTC() {
+		noInterrupts();
+
+		TCCR1A = 0; // timer/counter control register A
+		TCCR1B = 0;  // timer/counter control register B
+		TCCR1B |= (1 << CS12) | (1 << WGM12);
+		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B); // timer interrupt mask register
+		OCR1A = 16000000 / 256;
+		OCR1B = 16000000 / 256 / 2;
+
+		interrupts();
+	}
+
+	ISR(TIMER1_COMPA_vect) {
+		// timer event
+	}
+
+	ISR(TIMER1_COMPB_vect) {
+		// timer event
+	}
+
+	void setup() {
+		TimerCTC();
+	}
+
+	void loop() {
+		// other controls...
+	}
+snippet template_timer_pwm
+	void TimerPWM() {
+		noInterrupts();
+
+		TCCR1A = 0;  // timer/counter control register A
+		TCCR1B = 0;  // timer/counter control register B
+		TCCR1B |= (1 << CS10) | (1 << WGM12) | (1 << WGM10) | (1 << WGM13);
+		TCCR1B |= (1 << COM1A1) | (1 << COM1B1);
+		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);  // timer interrupt mask register
+		OCR1A = 1;
+		ICR1A = 128;
+
+		interrupts();
+	}
+
+	void setup() {
+		TimerPWM();
+	}
+
+	void loop() {
+		// other controls...
+	}
+## i2c
+snippet template_i2c_master
+	#include <Wire.h>
+
+	#ifndef SLAVE_ID
+	#define SLAVE_ID 1
+	#endif
+
+	void setup() {
+		Wire.begin();
+	}
+
+	void I2CSend() {
+		Wire.beginTransmission(SLAVE_ID);
+		// send data...
+		Wire.endTransmission();
+	}
+
+	void I2CSignal() {
+		Wire.requestFrom(SLAVE_ID, 32, true);
+	}
+
+	void I2CEvent() {
+		while(Wire.available()) {
+			char c = Wire.read();
+			// process event...
+		}
+	}
+
+	void loop() {
+		// other controls...
+
+		I2CSend();
+		I2CSignal();
+		I2CEvent();
+	}
+snippet template_i2c_slave
+	#include <Wire.h>
+
+	#ifndef SLAVE_ID
+	#define SLAVE_ID 1
+	#endif
+
+	void HandleRequest() {
+		// handle request...
+		Wire.print("handle request\r\n");
+	}
+
+	void HandleData(int byte_count) {
+		for (int i = 0; i < byte_count && Wire.available(); ++i) {
+			char c = Wire.read();
+			// handle data...
+		}
+	}
+
+	void setup() {
+		Wire.begin(SLAVE_ID);
+		Wire.onRequest(HandleRequest);
+		Wire.onReceive(HandleData);
+	}
+
+	void loop() {
+		// other controls...
+	}
+## serial
+snippet template_serial
+	#define DELIMITER ','
+	#define END_TOKEN '\n'
+
+	String serial_buffer;
+
+	void setup() {
+		Serial.begin(9600);
+	}
+
+	void loop() {
+		// other control...
+	}
+
+	String NextInput(String& buffer) {
+		int index = buffer.indexOf(DELIMITER);
+		String next_input = buffer.substring(0, index);
+		buffer = buffer.substring(index + 1);
+		return next_input;
+	}
+
+	long NextInt(String& buffer) {
+		String val = NextInput(buffer);
+		return val.toInt();
+	}
+
+	float NextFloat(String& buffer) {
+		String val = NextInput(buffer);
+		return val.toFloat();
+	}
+
+	void ${1:serialEvent}() {
+		char c = Serial.read();
+		serial_buffer += c;
+		if (c == END_TOKEN) {
+			// process code here...
+		}
 	}
