@@ -13,7 +13,7 @@ snippet ceres
 
 		template <typename T>
 		bool operator()(const T* const x, T* err) const {
-			${0:// code ...}
+			// code here...
 			return true;
 		}
 
@@ -38,7 +38,7 @@ snippet ceres
 		//   std::cout << "x[" << i << "] = " << x[i] << '\n';
 		// }
 	}
-snippet ceres include
+snippet ceres_include
 	#include <ceres/ceres.h>
 
 	using ceres::AutoDiffCostFunction;
@@ -46,19 +46,18 @@ snippet ceres include
 	using ceres::Problem;
 	using ceres::Solver;
 	using ceres::Solve;
-	${0}
-snippet ceres autodiff cost function 
+snippet ceres_autodiff_cost_function 
 	double target = 0;
 	CostFunction* ${2:cost_function} =
 		new AutoDiffCostFunction<${1:CostFunctor}, 1, SIZE>(
 			new CostFunctor(target, SIZE));
 	problem.AddResidualBlock(cost_function, NULL, x);
-snippet ceres numeric cost function
+snippet ceres_numeric_cost_function
 	CostFunction* ${2:cost_function} =
 		new NumericDiffCostFunction<${1:CostFunctor}, ceres::CENTRAL, 1, SIZE>(
 			new CostFunctor(target, SIZE));
 	problem.AddResidualBlock(cost_function, NULL, x);
-snippet ceres solver
+snippet ceres_solver
 	Solver::Options options;
 	options.linear_solver_type = ceres::DENSE_QR;
 	// options.minimizer_progress_to_stdout = true;
@@ -68,7 +67,7 @@ snippet ceres solver
 	// for (int i = 0; i < SIZE; ++i) {
 	//   std::cout << "x[" << i << "] = " << x[i] << '\n';
 	// }
-snippet ceres example
+snippet template_ceres_solver
 	#include <ceres/ceres.h>
 	#include "glog/logging.h"
 
