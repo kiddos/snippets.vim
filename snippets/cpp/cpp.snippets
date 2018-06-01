@@ -12,12 +12,12 @@ snippet include
 
 	using std::cout;
 	using std::cin;
-snippet include cuda
+snippet include_cuda
 	#include <cuda_runtime.h>
 	#include <cublas_v2.h>
 	#include <cuda.h>
 	#include <memory>
-snippet include locale
+snippet include_locale
 	#include <iostream>
 	#include <string>
 	#include <locale>
@@ -167,7 +167,7 @@ snippet static_if
 	#endif /* end of include guard: STATIC_IF_H */
 ##
 ## Class
-snippet class
+snippet Class
 	class ${1:`Filename('$1')`} {
 	 public:
 		$1();
@@ -196,7 +196,7 @@ snippet class
 	}
 
 	$1::~$1() {}
-snippet TemplateClass
+snippet ClassTemplate
 	template <typename T>
 	class ${1:`Filename('$1')`} {
 	 public:
@@ -232,7 +232,7 @@ snippet TemplateClass
 
 	template <typename T>
 	$1<T>::~$1() {}
-snippet ExceptionClass
+snippet ClassException
 	#include <exception>
 
 	class ${1:Exception} : public std::exception {
@@ -283,7 +283,7 @@ snippet MetaRecursion
 	}
 ##
 ## OpenGL
-snippet opengl Window
+snippet OpenglWindow
 	#include <GL/glew.h>
 	#include <GLFW/glfw3.h>
 	#include <iostream>
@@ -357,7 +357,7 @@ snippet opengl Window
 			glfwPollEvents();
 		} while (!glfwWindowShouldClose(window_));
 	}
-snippet opengl Object
+snippet OpenglObject
 	class ${1:OpenGLObject} {
 	 public:
 		$1();
@@ -512,47 +512,14 @@ snippet opengl Object
 	}
 ##
 ## OpenMP
-snippet openmp parallel for
+snippet openmp_parallel_for
 	#pragma omp parallel for
-snippet openmp macro
+snippet openmp_macro
 	#define OPENMP() _Pragma("omp parallel for")
 ##
-## OpenCV
-snippet opencv3 camera
-	#include <opencv2/core.hpp>
-	#include <opencv2/highgui.hpp>
-	#include <opencv2/videoio.hpp>
-
-	class ${1:Camera} {
-	 public:
-		$1() : cam_(0) {}
-		$1(int device) : cam_(device) {}
-
-		void Run() {
-			while (true) {
-				cv::Mat cam_image;
-				cam_.read(cam_image);
-
-				cv::imshow("$1", cam_image);
-				char key = cv::waitKey(10);
-				if (key == 'q' || key == 'Q' || key == 27) {
-					break;
-				}
-			}
-		}
-
-	 private:
-		cv::VideoCapture cam_;
-	};
-
-	int main(void) {
-		$1 cam;
-		cam.Run();
-		return 0;
-	}
 ##
 ## Libtbb
-snippet tbb parallel
+snippet tbb_parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
 		${0:// parallel code...}
 	});
@@ -610,9 +577,44 @@ snippet MainGlog
 snippet Glog
 	google::InitGoogleLogging(argv[0]);
 	google::LogToStderr();
+# basic templates
+##
+## OpenCV
+snippet template_opencv_camera
+	#include <opencv2/core.hpp>
+	#include <opencv2/highgui.hpp>
+	#include <opencv2/videoio.hpp>
+
+	class ${1:Camera} {
+	 public:
+		$1() : cam_(0) {}
+		$1(int device) : cam_(device) {}
+
+		void Run() {
+			while (true) {
+				cv::Mat cam_image;
+				cam_.read(cam_image);
+
+				cv::imshow("$1", cam_image);
+				char key = cv::waitKey(10);
+				if (key == 'q' || key == 'Q' || key == 27) {
+					break;
+				}
+			}
+		}
+
+	 private:
+		cv::VideoCapture cam_;
+	};
+
+	int main(void) {
+		$1 cam;
+		cam.Run();
+		return 0;
+	}
 ##
 ## sqlite3
-snippet sqlite3 connection
+snippet template_sqlite3_connection
 	#include <sqlite3.h>
 	#include <cassert>
 	#include <iostream>
@@ -813,7 +815,7 @@ snippet sqlite3 connection
 	}  // namespace sql
 ##
 ## Qt
-snippet qt simple window
+snippet template_qt_basic_window
 	#include <QApplication>
 	#include <QMainWindow>
 	#include <QWidget>
@@ -883,7 +885,7 @@ snippet qt simple window
 	}
 ##
 ## SOCI
-snippet soci create sqlite3
+snippet template_soci_create_sqlite3
 	#include <soci/soci.h>
 	#include <soci/sqlite3/soci-sqlite3.h>
 	#include <exception>
@@ -915,7 +917,7 @@ snippet soci create sqlite3
 		}
 		return 0;
 	}
-snippet soci select sqlite3
+snippet template_soci_select_sqlite3
 	#include <soci/soci.h>
 	#include <soci/sqlite3/soci-sqlite3.h>
 	#include <exception>
