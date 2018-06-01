@@ -1,51 +1,117 @@
 snippet #!
 	#!/usr/bin/env node
 # module exports
-snippet ex
+snippet module
 	module.exports = ${1};
-# require
-snippet re
-	var ${1} = require('${2:module_name}');
 # EventEmitter
-snippet on
-	on('${1:event_name}', function(${2:stream}) {
-	  ${3}
+snippet template_event_emitter
+	const EventEmitter = require('events');
+
+	class Emitter extends EventEmitter {}
+
+	const emitter = new Emitter();
+
+	emitter.on('event', () => {
+		console.log('an event occurred!');
 	});
-snippet emit
-	emit('${1:event_name}', ${2:args});
-snippet once
-	once('${1:event_name}', function(${2:stream}) {
-	  ${3}
+
+	// listener that is called at most once for a particular event
+	emitter.once('event', () => {
+		console.log(++m);
 	});
+
+	emitter.emit('event');
 # http. User js function snippet as handler
-snippet http
-	http.createServer(${1:handler}).listen(${2:port_number});
-# net 
-snippet net
-	net.createServer(function(${1:socket}){
-		${1}.on('data', function('data'){
-		  ${2}
-		]});
-		${1}.on('end', function(){
-		  ${3}
+snippet template_http_server
+	const http = require('http');
+	const net = require('net');
+	const url = require('url');
+
+	// Create an HTTP tunneling proxy
+	const proxy = http.createServer((req, res) => {
+		res.writeHead(200, { 'Content-Type': 'text/plain' });
+		res.end('okay');
+	});
+
+	proxy.on('connect', (req, clientSocket, head) => {
+		// connect to an origin server
+		const serverUrl = url.parse(`http://${req.url}`);
+		const serverSocket = net.connect(serverUrl.port, serverUrl.hostname, () => {
+			clientSocket.write('HTTP/1.1 200 Connection Established\r\n' +
+							'Proxy-agent: Node.js-Proxy\r\n' +
+							'\r\n');
+			serverSocket.write(head);
+			serverSocket.pipe(clientSocket);
+			clientSocket.pipe(serverSocket);
 		});
-	}).listen(${4:8124});
-# Stream snippets
-snippet pipe
-	pipe(${1:stream})${2}
-# Express snippets
-snippet eget
-	${1:app}.get('${2:route}', ${3:handler});
-snippet epost
-	${1:app}.post('${2:route}', ${3:handler});
-snippet eput
-	${1:app}.put('${2:route}', ${3:handler});
-snippet edel
-	${1:app}.delete('${2:route}', ${3:handler});
-# process snippets
-snippet stdin
-	process.stdin
-snippet stdout
-	process.stdout
-snippet stderr
-	process.stderr
+	});
+
+	// now that proxy is running
+	proxy.listen(1337, '127.0.0.1', () => {
+		// make a request to a tunneling proxy
+		const options = {
+			port: 1337,
+			hostname: '127.0.0.1',
+			method: 'CONNECT',
+			path: 'www.google.com:80'
+		};
+
+		const req = http.request(options);
+		req.end();
+
+		req.on('connect', (res, socket, head) => {
+			console.log('got connected!');
+
+			// make a request over an HTTP tunnel
+			socket.write('GET / HTTP/1.1\r\n' +
+						'Host: www.google.com:80\r\n' +
+						'Connection: close\r\n' +
+						'\r\n');
+			socket.on('data', (chunk) => {
+				console.log(chunk.toString());
+			});
+			socket.on('end', () => {
+				proxy.close();
+			});
+		});
+	});
+# net 
+snippet template_http_client
+	const http = require('http');
+
+	http.get('${1:http://nodejs.org/dist/index.json}', (res) => {
+		const { statusCode } = res;
+		const contentType = res.headers['content-type'];
+
+		let error;
+		if (statusCode !== 200) {
+			error = new Error('Request Failed.\n' + `Status Code: ${statusCode}`);
+		} else if (!/^application\/json/.test(contentType)) {
+			error = new Error('Invalid content-type.\n' +
+							`Expected application/json but received ${contentType}`);
+		}
+		if (error) {
+			console.error(error.message);
+			// consume response data to free up memory
+			res.resume();
+			return;
+		}
+
+		res.setEncoding('utf8');
+		let rawData = '';
+
+		res.on('data', (chunk) => {
+			rawData += chunk;
+		});
+
+		res.on('end', () => {
+			try {
+				const parsedData = JSON.parse(rawData);
+				console.log(parsedData);
+			} catch (e) {
+				console.error(e.message);
+			}
+		});
+	}).on('error', (e) => {
+		console.error(`Got error: ${e.message}`);
+	});
