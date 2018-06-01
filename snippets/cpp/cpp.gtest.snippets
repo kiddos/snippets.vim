@@ -1,21 +1,15 @@
-snippet gtest
+snippet gtest_include
 	#include <gtest/gtest.h>
-
-	TEST(${1:TestName}, ${2:Description}) {
-		${0:// test code...}
+snippet gtest_test_case
+	TEST(${0:TestName}, ${1:Description}) {
+		// test code...
 	}
-snippet gtest include
-	#include <gtest/gtest.h>
-snippet gtest test case
-	TEST(${1:TestName}, ${2:Description}) {
-		${0:// test code...}
-	}
-snippet gtest template
+snippet gtest_template
 	template <typename T>
 	class ${1:TestName} : public ::testing::Test {
 	 public:
 		void ${2:TestCast}() {
-			${3:// test code...}
+			// test code
 		}
 	 int size_;
 	};
@@ -27,50 +21,83 @@ snippet gtest template
 		this->size_ = 1;
 		this->$2();
 	}
-snippet gtest fixture
-	class ${1:FixtureTest} : public ::testing::Test {
+snippet gtest_fixture
+	class ${0:FixtureTest} : public ::testing::Test {
 	 protected:
-		$1() {}
-		~$1() {}
+		$0() {}
+		~$0() {}
 
 		void SetUp() override {
-			${2:// setup}
+			// setup
 		}
 
 		void TearDown() override {
-			${3:// delete}
+			// delete
 		}
 	};
 
-	TEST_F($1, ${4:TestName}) {
-		${0:// test code ...}
+	TEST_F($0, ${1:TestName}) {
+		// test code
 	}
-snippet gtest main
+snippet gtest_main
 	int main(int argc, char **argv) {
 		::testing::InitGoogleTest(&argc, argv);
 		return RUN_ALL_TESTS();
 	}
-snippet expect equal
+snippet template_gtest
+	#include <gtest/gtest.h>
+
+	TEST(${0:TestName}, ${1:Description}) {
+		// test code...
+	}
+
+	int main(int argc, char **argv) {
+		::testing::InitGoogleTest(&argc, argv);
+		return RUN_ALL_TESTS();
+	}
+snippet template_gtest_template
+	template <typename T>
+	class ${1:TestName} : public ::testing::Test {
+	 public:
+		void ${2:TestCast}() {
+			// test code...
+		}
+	 int size_;
+	};
+
+	typedef ::testing::Types<${1:int, float, double}> TestTypes;
+	TYPED_TEST_CASE($1, TestTypes);
+
+	TYPED_TEST($1, $2) {
+		this->size_ = 1;
+		this->$2();
+	}
+
+	int main(int argc, char **argv) {
+		::testing::InitGoogleTest(&argc, argv);
+		return RUN_ALL_TESTS();
+	}
+snippet gtest_expect_equal
 	EXPECT_EQ(${1:v1}, ${2:v2})
-snippet expect not equal
+snippet gtest_expect_not_equal
 	EXPECT_NE(${1:v1}, ${2:v2})
-snippet expect less than
+snippet gtest_expect_less_than
 	EXPECT_LT(${1:v1}, ${2:v2})
-snippet expect less or equal
+snippet gtest_expect_less_or_equal
 	EXPECT_LE(${1:v1}, ${2:v2})
-snippet expect greater than
+snippet gtest_expect_greater_than
 	EXPECT_GT(${1:v1}, ${2:v2})
-snippet expect greater equal
+snippet gtest_expect_greater_equal
 	EXPECT_GE(${1:v1}, ${2:v2})
-snippet assert equal
+snippet gtest_assert_equal
 	ASSERT_EQ(${1:v1}, ${2:v2})
-snippet assert not equal
+snippet gtest_assert_not_equal
 	ASSERT_NE(${1:v1}, ${2:v2})
-snippet assert less than
+snippet gtest_assert_less_than
 	ASSERT_LT(${1:v1}, ${2:v2})
-snippet assert less or equal
+snippet gtest_assert_less_or_equal
 	ASSERT_LE(${1:v1}, ${2:v2})
-snippet assert greater than
+snippet gtest_assert_greater_than
 	ASSERT_GT(${1:v1}, ${2:v2})
-snippet assert greater equal
+snippet gtest_assert_greater_equal
 	ASSERT_GE(${1:v1}, ${2:v2})
