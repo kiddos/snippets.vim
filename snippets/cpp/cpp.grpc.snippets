@@ -1,4 +1,4 @@
-snippet GRPCInclude
+snippet grpc_include
 	#include <memory>
 	#include <thread>
 
@@ -7,10 +7,10 @@ snippet GRPCInclude
 	#include <grpc++/client_context.h>
 	#include <grpc++/create_channel.h>
 	#include <grpc++/security/credentials.h>
-snippet GRPCClientClass
+snippet grpc_client
 	class ${1:Client} {
 	 public:
-		$1();
+		$1(std::shared_ptr<Channel> channel);
 
 	 private:
 		std::shared_ptr<Channel> channel_;
@@ -21,7 +21,7 @@ snippet GRPCClientClass
 			: channel_(grpc::CreateChannel("localhost:50051",
 						grpc::InsecureChannelCredentials())),
 				stub_($2::NewStub(channel)) {}
-snippet GRPCSimpleCall
+snippet grpc_call
 	${1:Request} request;
 	${2:Response} response;
 	grpc::ClientContext context;
@@ -31,7 +31,7 @@ snippet GRPCSimpleCall
 	} else {
 		// failed
 	}
-snippet GRPCStreamReaderCall
+snippet grpc_stream_reader
 	${1:Request} request;
 	${2:Response} response;
 	grpc::ClientContext context;
@@ -47,7 +47,7 @@ snippet GRPCStreamReaderCall
 	} else {
 		// fail
 	}
-snippet GRPCStreamWriterCall
+snippet grpc_stream_writer
 	${1:Request} request;
 	${2:Response} response;
 	grpc::ClientContext context;
@@ -69,7 +69,7 @@ snippet GRPCStreamWriterCall
 	} else {
 		// failed
 	}
-snippet GRPCStreamReaderWriter
+snippet grpc_stream_reader_writer
 	grpc::ClientContext context;
 
 	std::shared_ptr<grpc::ClientReaderWriter<${1:Request}, ${2:Response}> > stream(
@@ -93,4 +93,207 @@ snippet GRPCStreamReaderWriter
 		// success
 	} else {
 		// failed
+	}
+snippet template_grpc_async_server
+	#include <memory>
+	#include <iostream>
+	#include <string>
+	#include <thread>
+
+	#include <grpc++/grpc++.h>
+	#include <grpc/support/log.h>
+
+	#include "${1:proto}.grpc.pb.h"
+
+	using grpc::Server;
+	using grpc::ServerAsyncResponseWriter;
+	using grpc::ServerBuilder;
+	using grpc::ServerContext;
+	using grpc::ServerCompletionQueue;
+	using grpc::Status;
+	using $1::${5:Request};
+	using $1::${6:Reply};
+	using $1::${4:Servicer};
+
+	class ${2:Service} final {
+	 public:
+		~$2() {
+			server_->Shutdown();
+			// Always shutdown the completion queue after the server.
+			cq_->Shutdown();
+		}
+
+	// There is no shutdown handling in this code.
+	void Run() {
+		std::string server_address("0.0.0.0:50051");
+
+		ServerBuilder builder;
+		// Listen on the given address without any authentication mechanism.
+		builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+		// Register "service_" as the instance through which we'll communicate with
+		// clients. In this case it corresponds to an *asynchronous* service.
+		builder.RegisterService(&service_);
+		// Get hold of the completion queue used for the asynchronous communication
+		// with the gRPC runtime.
+		cq_ = builder.AddCompletionQueue();
+		// Finally assemble the server.
+		server_ = builder.BuildAndStart();
+		// starting messages
+		std::cout << "Server listening on " << server_address << std::endl;
+
+		// Proceed to the server's main loop.
+		HandleRpcs();
+	}
+
+	 private:
+		// Class encompasing the state and logic needed to serve a request.
+		class ${3:Handler} {
+		 public:
+			// Take in the "service" instance (in this case representing an asynchronous
+			// server) and the completion queue "cq" used for asynchronous communication
+			// with the gRPC runtime.
+			$3($4::AsyncService* service, ServerCompletionQueue* cq)
+				: service_(service), cq_(cq), responder_(&ctx_), status_(CREATE) {
+				// Invoke the serving logic right away.
+				Proceed();
+			}
+
+			void Proceed() {
+				if (status_ == CREATE) {
+					// Make this instance progress to the PROCESS state.
+					status_ = PROCESS;
+
+					// As part of the initial CREATE state, we *request* that the system
+					// start processing SayHello requests. In this request, "this" acts are
+					// the tag uniquely identifying the request (so that different $3
+					// instances can serve different requests concurrently), in this case
+					// the memory address of this $3 instance.
+					service_->${7:RequestFunction}(&ctx_, &request_, &responder_, cq_, cq_,
+												this);
+				} else if (status_ == PROCESS) {
+					// Spawn a new $3 instance to serve new clients while we process
+					// the one for this $3. The instance will deallocate itself as
+					// part of its FINISH state.
+					new $3(service_, cq_);
+
+					// The actual processing.
+					std::string prefix("Hello ");
+
+					// reply code here...
+
+					// And we are done! Let the gRPC runtime know we've finished, using the
+					// memory address of this instance as the uniquely identifying tag for
+					// the event.
+					status_ = FINISH;
+					responder_.Finish(reply_, Status::OK, this);
+				} else {
+					GPR_ASSERT(status_ == FINISH);
+					// Once in the FINISH state, deallocate ourselves ($3).
+					delete this;
+				}
+			}
+
+		 private:
+			// The means of communication with the gRPC runtime for an asynchronous
+			// server.
+			$4::AsyncService* service_;
+			// The producer-consumer queue where for asynchronous server notifications.
+			ServerCompletionQueue* cq_;
+			// Context for the rpc, allowing to tweak aspects of it such as the use
+			// of compression, authentication, as well as to send metadata back to the
+			// client.
+			ServerContext ctx_;
+
+			// What we get from the client.
+			$5 request_;
+			// What we send back to the client.
+			$6 reply_;
+
+			// The means to get back to the client.
+			ServerAsyncResponseWriter<$6> responder_;
+
+			// Let's implement a tiny state machine with the following states.
+			enum HandlerStatus { CREATE, PROCESS, FINISH };
+			HandlerStatus status_;  // The current serving state.
+		};
+
+		// This can be run in multiple threads if needed.
+		void HandleRpcs() {
+			// Spawn a new $3 instance to serve new clients.
+			new $3(&service_, cq_.get());
+			void* tag = nullptr;  // uniquely identifies a request.
+			bool ok = false;
+			while (true) {
+				// Block waiting to read the next event from the completion queue. The
+				// event is uniquely identified by its tag, which in this case is the
+				// memory address of a $3 instance.
+				// The return value of Next should always be checked. This return value
+				// tells us whether there is any kind of event or cq_ is shutting down.
+				GPR_ASSERT(cq_->Next(&tag, &ok));
+				GPR_ASSERT(ok);
+				static_cast<$3*>(tag)->Proceed();
+			}
+		}
+
+		std::unique_ptr<ServerCompletionQueue> cq_;
+		$4::AsyncService service_;
+		std::unique_ptr<Server> server_;
+	};
+
+
+	int main(int argc, char** argv) {
+		$2 service;
+		service.Run();
+
+		return 0;
+	}
+snippet template_grpc_server
+	#include <iostream>
+	#include <memory>
+	#include <string>
+
+	#include <grpc++/grpc++.h>
+	#include "${1:proto}.grpc.pb.h"
+
+	using grpc::Server;
+	using grpc::ServerBuilder;
+	using grpc::ServerContext;
+	using grpc::Status;
+	using $1::${4:Request};
+	using $1::${5:Reply};
+	using $1::${2:Servicer};
+
+	// Logic and data behind the server's behavior.
+	class ${3:Service} final : public $2::Service {
+		Status ${6:ServiceFunction}(ServerContext* context, const $4* request,
+						$5* reply) override {
+			std::string prefix("Hello ");
+			// reply code here...
+			return Status::OK;
+		}
+	};
+
+	void RunServer() {
+		std::string server_address("0.0.0.0:50051");
+		$3 service;
+
+		ServerBuilder builder;
+		// Listen on the given address without any authentication mechanism.
+		builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+		// Register "service" as the instance through which we'll communicate with
+		// clients. In this case it corresponds to an *synchronous* service.
+		builder.RegisterService(&service);
+		// Finally assemble the server.
+		std::unique_ptr<Server> server(builder.BuildAndStart());
+		std::cout << "Server listening on " << server_address << std::endl;
+
+		// Wait for the server to shutdown. Note that some other thread must be
+		// responsible for shutting down the server for this call to ever return.
+		server->Wait();
+	}
+
+	int main(int argc, char** argv) {
+		RunServer();
+
+		return 0;
 	}
