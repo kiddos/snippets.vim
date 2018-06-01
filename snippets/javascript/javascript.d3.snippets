@@ -2,7 +2,7 @@ snippet d3
 	var canvas = d3.select('${1:#canvas}')
 		.append('svg')
 		.attr('width', ${2:500}).attr('height', ${3:500});
-snippet d3 margin
+snippet d3_margin
 	var ${1:margin} = {
 		top: ${2:10},
 		right: ${3:10},
@@ -16,18 +16,18 @@ snippet d3 margin
 	  .attr("height", $8 + $1.top + $1.bottom)
 	    .append("g")
 	  .attr("transform", "translate(" + $1.left + "," + $1.top + ")")
-snippet d3 circle
+snippet d3_circle
 	var circle = canvas
 		.append('circle')
-snippet d3 axis
+snippet d3_axis
 	d3.svg.axis()
 	  .orient(${1})
 	  .scale(${2})
-snippet d3 nest
+snippet d3_nest
 	d3.nest()
 	  .key(${1})
 	  .entries(${2})
-snippet d3 scale
+snippet d3_scale
 	d3.scale.linear()
 	  .domain(${1})
 	  .range(${2})
