@@ -2,10 +2,10 @@ snippet boost_current_datetime
 	boost::gregorian::date current(boost::gregorian::day_clock::local_day());
 	std::stringstream ss;
 	ss << current.year() << "/" << current.month() << "/" << current.day();
-	${0:std::string current_time = ss.str();}
+	std::string current_time = ss.str();
 snippet boost_timer
 	boost::timer::cpu_timer timer;
-	${0:// test code here...}
+	// test code here...
 	std::cout << timer.format() << '\n';
 snippet boost_shared_ptr
 	boost::shared_ptr<${1:int}> ${2:ptr}{new $1${0}};
@@ -23,7 +23,7 @@ snippet boost_signals2_include
 snippet boost_signals2_signal
 	struct ${1:Functor} {
 		void operator()() const {
-			${0:// signal code}
+			// signal code...
 		}
 	};
 
@@ -54,25 +54,25 @@ snippet boost_asio_deadline_async_timer
 	boost::asio::deadline_timer ${1:timer}(io);
 	$1.expires_from_now(boost::posix_time::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
-		${0:// code ...}
+		// code ...
 	});
 snippet boost_asio_system_async_timer
 	boost::asio::system_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
-		${0:// code ...}
+		// code ...
 	});
 snippet boost_asio_steady_async_timer
 	boost::asio::steady_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
-		${0:// code ...}
+		// code ...
 	});
 snippet boost_asio_high_resolution_async_timer
 	boost::asio::high_resolution_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
-		${0:// code ...}
+		// code ...
 	});
 ##
 ## bind
@@ -171,5 +171,5 @@ snippet boost_program_options_add
 
 	if (vmap.count("$1")) {
 		$2 $1 = vmap["$1"].as<$2>();
-		${0:// code here...}
+		// code here...
 	}
