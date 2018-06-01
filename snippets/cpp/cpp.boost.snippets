@@ -1,28 +1,26 @@
-snippet boost current datetime
+snippet boost_current_datetime
 	boost::gregorian::date current(boost::gregorian::day_clock::local_day());
 	std::stringstream ss;
 	ss << current.year() << "/" << current.month() << "/" << current.day();
 	${0:std::string current_time = ss.str();}
-snippet boost timer
+snippet boost_timer
 	boost::timer::cpu_timer timer;
 	${0:// test code here...}
 	std::cout << timer.format() << '\n';
-snippet boost shared_ptr
+snippet boost_shared_ptr
 	boost::shared_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost unique_ptr
+snippet boost_unique_ptr
 	boost::unique_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost scope_ptr
+snippet boost_scope_ptr
 	boost::scoped_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost lexical cast
+snippet boost_lexical cast
 	${1:std::string} ${2:s} = boost::lexical_cast<$1>(${3:0});
 ## signals2
-snippet boost signals2
-
-snippet boost signals2 include
+snippet boost_signals2_include
 	#include <boost/signals2.hpp>
 	#include <boost/bind.hpp>
 	${0}
-snippet boost signals2 signal
+snippet boost_signals2_signal
 	struct ${1:Functor} {
 		void operator()() const {
 			${0:// signal code}
@@ -34,43 +32,43 @@ snippet boost signals2 signal
 	$2();
 ##
 ## asio
-snippet boost asio
+snippet boost_asio
 	boost::asio::io_service io_service;
-snippet boost asio deadline sync timer
+snippet boost_asio_deadline_sync_timer
 	boost::asio::deadline_timer ${1:timer}(io_service);
 	$1.expires_from_now(boost::posix_time::seconds(1));
 	$1.wait();
-snippet boost asio system sync timer
+snippet boost_asio_system_sync_timer
 	boost::asio::system_timer ${1:timer}(io_service);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.wait();
-snippet boost asio steady sync timer
+snippet boost_asio steady_sync_timer
 	boost::asio::steady_timer ${1:timer}(io_service);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.wait();
-snippet boost asio high resolution sync timer
+snippet boost_asio_high_resolution_sync_timer
 	boost::asio::high_resolution_timer ${1:timer}(io_service);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.wait();
-snippet boost asio deadline async timer
+snippet boost_asio_deadline_async_timer
 	boost::asio::deadline_timer ${1:timer}(io);
 	$1.expires_from_now(boost::posix_time::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
 		${0:// code ...}
 	});
-snippet boost asio system async timer
+snippet boost_asio_system_async_timer
 	boost::asio::system_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
 		${0:// code ...}
 	});
-snippet boost asio steady async timer
+snippet boost_asio_steady_async_timer
 	boost::asio::steady_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
 		${0:// code ...}
 	});
-snippet boost asio high resolution async timer
+snippet boost_asio_high_resolution_async_timer
 	boost::asio::high_resolution_timer ${1:timer}(io);
 	$1.expires_from_now(std::chrono::seconds(1));
 	$1.async_wait([](const boost::system::error_code&) {
@@ -78,27 +76,27 @@ snippet boost asio high resolution async timer
 	});
 ##
 ## bind
-snippet BoostBind
+snippet boost_bind
 	boost::bind(${1:funcion}, ${2:_1});
 ##
 ## mpi
-snippet boost mpi
+snippet boost_mpi
 	mpi::environment env;
 	mpi::communicator world;
 	int r = world.rank();
-snippet boost mpi sync send
+snippet boost_mpi_sync_send
 	world.send(1, 0, ${1:msg});
-snippet boost mpi sync recv
+snippet boost_mpi_sync recv
 	world.recv(1, 1, ${1:msg});
-snippet boost mpi async send
+snippet boost_mpi_async_send
 	boost::mpi::request req = world.isend(1, 0, ${1:msg});
 	boost::mpi::wait_all(req, req + 1);
-snippet boost mpi async recv
+snippet boost_mpi_async_recv
 	boost::mpi::request req = world.irecv(1, 1, ${1:msg});
 	boost::mpi::wait_all(req, req + 1);
 ##
 ## enable_shared_from_this
-snippet boost enabled_shared_from_this
+snippet boost_enabled_shared_from_this
 	class ${1:Object} : public boost::enable_shared_from_this<$1> {
 	 public:
 		$1() {}
@@ -106,23 +104,23 @@ snippet boost enabled_shared_from_this
 	};
 ##
 ## file system
-snippet BoostFileSize
+snippet boost_file_size
 	uintmax_t filesize = boost::filesystem::file_size(argv[1]);
-snippet BoostFileExists
+snippet boost_file_exists
 	boost::filesystem::path p{${1:filepath}};
 	if (boost::filesystem::is_regular_file(p)) {
 		// found
 	} else {
 		// not found
 	}
-snippet BoostDirectoryExists
+snippet boost_directory_exists
 	boost::filesystem::path p{${1:filepath};
 	if (boost::filesystem::is_directory(p)) {
 		// found
 	} else {
 		// not found
 	}
-snippet BoostIterateDirectory
+snippet boost_iterate_directory
 	boost::filesystem::path p{${1:path};
 	if (boost::filesystem::is_directory(p)) {
 		for (boost::filesystem::directory_entry& x :
@@ -132,12 +130,12 @@ snippet BoostIterateDirectory
 	}
 ##
 ## log
-snippet BoostLog
+snippet boost_log
 	BOOST_LOG_TRIVIAL(${1:info}) << "${2:log message}";
-snippet BoostLogFilter
+snippet boost_log_filter
 	boost::log::core::get()->set_filter(boost::log::trivial::severity >=
 										boost::log::trivial::info);
-snippet BoostLogFile
+snippet boost_log_file
 	namespace logging = boost::log;
 	namespace src = boost::log::sources;
 	namespace sinks = boost::log::sinks;
@@ -150,10 +148,10 @@ snippet BoostLogFile
 							keywords::format = "[%TimeStamp%]: %Message%");
 ##
 ## format
-snippet BoostFormat
+snippet boost_format
 	boost::format("%1%") % "${1:string}"
 ## program options
-snippet BoostProgramOptions
+snippet boost_program_options
 	using namespace boost::program_options;
 	options_description desc("${1:Description}");
 	desc.add_options()("help,h", "${2:help messages}");
@@ -167,7 +165,7 @@ snippet BoostProgramOptions
 		return 0;
 	}
 	${0}
-snippet BoostProgramOptionsAdd
+snippet boost_program_options_add
 	desc.add_options()("${1:option_name}",
 		value<${2:int}>()->default_value(${3:0}), "${4:option help}");
 
