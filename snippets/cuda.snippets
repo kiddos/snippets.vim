@@ -1,48 +1,48 @@
 extends cpp
 
-snippet cuda include
+snippet cuda_include
 	#include <cuda.h>
 	#include <cuda_runtime_api.h>
 	#include <cassert>
 	${0}
-snippet cuda kernel
+snippet cuda_kernel
 	extern "C" __global__ ${1:void} ${2:kernel_name}(${3}) {
 		${4:// kernel code...}
 	}
-snippet cuda assert error
+snippet cuda_assert_error
 	cudaError_t error = cudaDeviceSynchronize();
 	if (error == cudaErrorAssert) {
 		std::cerr << "ERROR: ${1:Device assert failed} | " << cudaGetErrorString(error)
 				<< '\n';
 		${0}
 	}
-snippet cuda shared
+snippet cuda_shared
 	__shared__ ${1:double} tdata[1024];${2}
-snippet cuda shared external
+snippet cuda_shared_external
 	extern __shared__ ${1:double} tdata[];${2}
-snippet cuda function device
+snippet cuda_function_device
 	__device__ ${1:void} ${2:kernel_name}(${3}) {
 		${4:// kernel code...}
 	}
-snippet cuda function host
+snippet cuda_function_host
 	__host__ ${1:void} ${2:host_function}(${3}) {
 		${4:// host code...}
 	}
-snippet cuda sync threads
+snippet cuda_sync_threads
 	__syncthreads();
 	${0}
-snippet cuda index block
+snippet cuda_index_block
 	threadIdx.${1:x}
-snippet cuda index thread
+snippet cuda_index_thread
 	blockIdx.${1:x}
-snippet cuda check
+snippet cuda_check
 	int num_devices = 0;
 	cudaGetDeviceCount(&num_devices);
 	if (num_devices == 0) {
 		${1:// error message}
 		return -1;
 	}
-snippet cuda device info
+snippet cuda_device_info
 	int device_count = 0;
 	cudaGetDeviceCount(&device_count);
 	if (device_count == 0) {
@@ -60,7 +60,7 @@ snippet cuda device info
 				<< 2.0 * prop.memoryClockRate * (prop.memoryBusWidth / 8) / 1.0e6
 				<< '\n';
 	}
-snippet cuda timer
+snippet cuda_timer
 	cudaEvent_t ${1:start}, ${2:end};
 	cudaEventCreate(&$1);
 	cudaEventCreate(&$2);
@@ -71,11 +71,11 @@ snippet cuda timer
 	cudaEventSynchronize($2);
 	float ${3:elapsed_time} = 0;
 	cudaEventElapsedTime(&$3, $1, $2);
-snippet cuda malloc
+snippet cuda_malloc
 	cudaMalloc(${1:&d_data}, sizeof(${2:float}) * ${3:1});${0}
-snippet cuda free
+snippet cuda_free
 	cudaFree(${1:nullptr});${0}
-snippet cuda check macro
+snippet cuda_check_macro
 	void ${1:CudaErrorHandle}(cudaError_t error) {
 		if (error != cudaSuccess) {
 			${0:throw new std::exception();}
