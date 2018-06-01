@@ -10,3 +10,8 @@ snippet ec
 	charset = utf-8
 	trim_trailing_whitespace = true
 	insert_final_newline = true
+snippet platformio
+	[env:${1:uno}]
+	platform = atmelavr
+	board = ${2:uno}
+	framework = arduino
