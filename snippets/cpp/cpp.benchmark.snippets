@@ -1,12 +1,6 @@
-snippet benchmark
+snippet benchmark_include
 	#include <benchmark/benchmark.h>
-
-	${0}
-
-	BENCHMARK_MAIN();
-snippet benchmark include
-	#include <benchmark/benchmark.h>
-snippet benchmark case basic
+snippet benchmark_basic
 	void $1(benchmark::State& state) {
 		while (state.KeepRunning()) {
 			${0:// test code...}
@@ -19,7 +13,7 @@ snippet benchmark case basic
 		->Unit(${2:benchmark::kMillisecond})
 		->RangeMultiplier(${3:2})
 		->Range(8, 8 << 10);
-snippet benchmark case template
+snippet benchmark_template_type
 	template <typename T>
 	void $1(benchmark::State& state) {
 		while (state.KeepRunning()) {
@@ -33,3 +27,20 @@ snippet benchmark case template
 		->Unit(${2:benchmark::kMillisecond})
 		->RangeMultiplier(${3:2})
 		->Range(1 << 0, 8 << 10);
+snippet template_benchmark
+	#include <benchmark/benchmark.h>
+
+	void $1(benchmark::State& state) {
+		while (state.KeepRunning()) {
+			// test code...
+		}
+		state.SetBytesProcessed(int64_t(state.iterations()) *
+								int64_t(state.range(0)));
+	}
+
+	BENCHMARK(${1:BM_Function})
+		->Unit(${2:benchmark::kMillisecond})
+		->RangeMultiplier(${3:2})
+		->Range(8, 8 << 10);
+
+	BENCHMARK_MAIN();
