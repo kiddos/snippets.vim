@@ -1,17 +1,17 @@
-snippet ROSInclude
+snippet ros_include
 	#include <ros/ros.h>
-snippet ROSLoop
+snippet ros_loop
 	ros::Rate loop_rate(10);
 	while (ros::ok()) {
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
-snippet ROSMain
+snippet main_ros
 	int main(int argc, char* argv[]) {
 		ros::init(argc, argv, "{${1:node_name}}");
 		return 0;
 	}
-snippet ROSPublisherClass
+snippet ros_publisher
 	#include <ros/ros.h>
 	#include <std_msgs/String.h>
 	#include <sstream>
@@ -49,7 +49,7 @@ snippet ROSPublisherClass
 		pub.Run();
 		return 0;
 	}
-snippet ROSSubscriberClass
+snippet ros_subscriber
 	#include <ros/ros.h>
 	#include <std_msgs/String.h>
 
@@ -79,7 +79,7 @@ snippet ROSSubscriberClass
 		$4.Run();
 		return 0;
 	}
-snippet ROSClient
+snippet ros_client
 	#include <ros/ros.h>
 	#include <std_srvs/SetBool.h>
 
@@ -124,7 +124,7 @@ snippet ROSClient
 		client.Run();
 		return 0;
 	}
-snippet ROSServerClass
+snippet ros_server
 	#include <ros/ros.h>
 	#include <std_srvs/SetBool.h>
 	#include <thread>
