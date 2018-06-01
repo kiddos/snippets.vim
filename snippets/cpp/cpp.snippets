@@ -521,17 +521,18 @@ snippet openmp_macro
 ## Libtbb
 snippet tbb_parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
-		${0:// parallel code...}
+		// parallel code
 	});
 
 # main
 snippet main
 	int main(void) {
-		${0}
+		// code here...
 		return 0;
 	}
 snippet main_args
 	int main(int argc, char* argv[]) {
+		// code here...
 		return 0;
 	}
 snippet main_boost_program_options
@@ -560,9 +561,9 @@ snippet main_boost_program_options
 		}
 
 		if (vmap.count("input") && vmap.count("output")) {
-			${1:// code...}
+			// code here...
 		} else {
-			${2:// code...}
+			// code here...
 		}
 		return 0;
 	}
