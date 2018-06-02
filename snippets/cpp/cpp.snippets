@@ -178,10 +178,39 @@ snippet class
 		~$1();
 
 	 private:
-		${0:/* fields */}
+		/* fields */
 	};
 
 	$1::$1() {}
+
+	$1::$1(const $1& $2) {}
+
+	$1::$1($1&& $2) {}
+
+	$1& $1::operator=(const $1& $2) {
+		return *this;
+	}
+
+	$1&& $1::operator=($1&& $2) {
+		return *this;
+	}
+
+	$1::~$1() {}
+snippet class_header
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+		$1(const $1& ${2:`tolower('$1')`});
+		$1($1&& $2);
+		$1& operator=(const $1& $2);
+		$1&& operator=($1&& $2);
+		~$1();
+
+	 private:
+		${0:/* fields */}
+	};
+snippet class_implementation
+	${1:`Filename('$1')`}::$1() {}
 
 	$1::$1(const $1& $2) {}
 
@@ -232,6 +261,42 @@ snippet class_template
 
 	template <typename T>
 	$1<T>::~$1() {}
+snippet class_template_header
+	template <typename T>
+	class ${1:`Filename('$1')`} {
+	 public:
+		$1();
+		$1(const $1& ${2:`tolower('$1')`});
+		$1($1&& $2);
+		$1& operator=(const $1& $2);
+		$1& operator=($1&& $2);
+		~$1();
+
+	 private:
+		${0:/* fields */}
+	};
+snippet class_template_implementation
+	template <typename T>
+	${1:`Filename('$1')`}<T>::$1() {}
+
+	template <typename T>
+	$1<T>::$1(const $1& $2) {}
+
+	template <typename T>
+	$1<T>::$1($1&& $2) {}
+
+	template <typename T>
+	$1<T>& $1<T>::operator=(const $1& $2) {
+		return *this;
+	}
+
+	template <typename T>
+	$1<T>& $1<T>::operator=($1&& $2) {
+		return *this;
+	}
+
+	template <typename T>
+	$1<T>::~$1() {}
 snippet class_exception
 	#include <exception>
 
@@ -249,6 +314,14 @@ snippet class_exception
 
 	 protected:
 		std::string msg_;
+	};
+snippet class_abstract
+	class ${1:AbstractClass} {
+	 public:
+		$1();
+
+	 protected:
+		// member declaration
 	};
 ##
 ## Meta Programming
@@ -583,6 +656,16 @@ snippet glog
 	google::InitGoogleLogging(argv[0]);
 	google::LogToStderr();
 # basic templates
+##
+## glog
+snippet template_glog
+	#include <glog/logging.h>
+
+	int main(int argc, char** argv) {
+		google::InitGoogleLogging(argv[0]);
+		google::LogToStderr();
+		return 0;
+	}
 ##
 ## OpenCV
 snippet template_opencv_camera
