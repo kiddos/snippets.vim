@@ -222,3 +222,49 @@ snippet glm_projection
 		${3:4.0f / 3.0f}, ${4:0.1f}, ${5:100.f});
 snippet glm_translate
 	glm::mat4 ${1:translate} = glm::translate(${2:-1.0f}, ${3:0.0f}, ${4:0.0f});$0
+snippet opengl_load_shader
+	GLuint LoadShader(const std::string& shader_path, GLenum shader_type) {
+		GLuint shader = glCreateShader(shader_type);
+		std::ifstream shader_file(shader_path);
+		if (shader_file.is_open()) {
+			std::stringstream ss;
+			ss << shader_file.rdbuf();
+
+			const std::string shader_source = ss.str();
+			const char* shader_source_str = shader_source.c_str();
+			glShaderSource(shader, 1, &shader_source_str, nullptr);
+			glCompileShader(shader);
+			shader_file.close();
+
+			GLint is_compiled = 0;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &is_compiled);
+			if (!is_compiled) {
+				int log_length = 0;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+				std::string info_log(log_length + 1, '\0');
+				glGetShaderInfoLog(shader, log_length, &log_length, &info_log[0]);
+				std::cerr << "error: " << info_log << std::endl;
+			}
+		}
+		return shader;
+	}
+snippet opengl_create_program
+	GLuint CreateProgram(const std::vector<GLuint>& shaders) {
+		GLuint program = glCreateProgram();
+		for (int i = 0; i < shaders.size(); ++i) {
+			glAttachShader(program, shaders[i]);
+		}
+		glLinkProgram(program);
+
+		GLint is_linked = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, &is_linked);
+		if (!is_linked) {
+			int log_length = 0;
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_length);
+			std::string info_log(log_length + 1, '\0');
+			glGetProgramInfoLog(program, log_length, &log_length, &info_log[0]);
+			std::cerr << "error: " << info_log << std::endl;
+		}
+
+		return program;
+	}
