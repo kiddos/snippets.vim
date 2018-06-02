@@ -58,6 +58,37 @@ snippet function_random_init_vector
 			vec[i] = dist(gen);
 		}
 	}
+snippet function_quick_sort
+	template <typename T>
+	int Partition(std::vector<T>& vec, int left, int end) {
+		T pivot = vec[left];
+		int i = left - 1, j = end + 1;
+		while (true) {
+			do {
+				++i;
+			} while (vec[i] < pivot);
+
+			do {
+				--j;
+			} while (vec[j] > pivot);
+			if (i >= j) return j;
+			std::swap(vec[j], vec[i]);
+		}
+	}
+
+	template <typename T>
+	void QuickSort(std::vector<T>& vec, int start, int end) {
+		if (start < end) {
+			int index = Partition(vec, start, end);
+			QuickSort(vec, start, index);
+			QuickSort(vec, index + 1, end);
+		}
+	}
+
+	template <typename T>
+	void QuickSort(std::vector<T>& vec) {
+		QuickSort(vec, 0, vec.size() - 1);
+	}
 ##
 ## Input/Output
 snippet cout
