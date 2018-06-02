@@ -174,6 +174,184 @@ snippet glfw_class
 		}
 		glfwTerminate();
 	}
+snippet template_glfw
+	#include <iostream>
+	#include <string>
+	#include <fstream>
+	#include <sstream>
+
+	#include <GL/glew.h>
+	#include <GLFW/glfw3.h>
+	#include <glm/glm.hpp>
+	#include <glm/gtc/matrix_transform.hpp>
+	#include <boost/program_options.hpp>
+
+	GLuint LoadShader(const std::string& shader_path, GLenum shader_type) {
+		GLuint shader = glCreateShader(shader_type);
+		std::ifstream shader_file(shader_path);
+		if (shader_file.is_open()) {
+			std::stringstream ss;
+			ss << shader_file.rdbuf();
+
+			const std::string shader_source = ss.str();
+			const char* shader_source_str = shader_source.c_str();
+			glShaderSource(shader, 1, &shader_source_str, nullptr);
+			glCompileShader(shader);
+			shader_file.close();
+
+			GLint is_compiled = 0;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &is_compiled);
+			if (!is_compiled) {
+				int log_length = 0;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+				std::string info_log(log_length + 1, '\0');
+				glGetShaderInfoLog(shader, log_length, &log_length, &info_log[0]);
+				std::cerr << "error: " << info_log << std::endl;
+			}
+		}
+		return shader;
+	}
+
+	GLuint CreateProgram(const std::vector<GLuint>& shaders) {
+		GLuint program = glCreateProgram();
+		for (int i = 0; i < shaders.size(); ++i) {
+			glAttachShader(program, shaders[i]);
+		}
+		glLinkProgram(program);
+
+		GLint is_linked = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, &is_linked);
+		if (!is_linked) {
+			int log_length = 0;
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_length);
+			std::string info_log(log_length + 1, '\0');
+			glGetProgramInfoLog(program, log_length, &log_length, &info_log[0]);
+			std::cerr << "error: " << info_log << std::endl;
+		}
+
+		return program;
+	}
+
+	class Window {
+	 public:
+		Window() : window_(nullptr) {}
+		~Window() {
+			delete triangle_;
+			if (window_) glfwDestroyWindow(window_);
+			glfwTerminate();
+		}
+
+		bool Init(int width, int height, const std::string& title) {
+			glfwWindowHint(GLFW_SAMPLES, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+			if (!glfwInit()) {
+				std::cerr << "fail to initialize glfw\n";
+				return false;
+			}
+
+			window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+			glfwMakeContextCurrent(window_);
+
+			glewExperimental = true;
+			GLenum err = glewInit();
+			if (err != GLEW_OK) {
+				std::cerr << "error: " << glewGetErrorString(err) << std::endl;
+				return false;
+			}
+
+			// loading shader
+			GLuint vertex_shader = LoadShader("./shader.vert", GL_VERTEX_SHADER);
+			GLuint fragment_shader = LoadShader("./shader.frag", GL_FRAGMENT_SHADER);
+			program_ = CreateProgram({vertex_shader, fragment_shader});
+
+			glGenVertexArrays(1, &vao_);
+			glBindVertexArray(vao_);
+
+			view_ = glm::lookAt(glm::vec3(0, 0, -6.0f), glm::vec3(0, 0, 0.01f),
+								glm::vec3(0, 1.0f, 0));
+			perspective_ = glm::perspective(glm::radians(45.0f),
+										static_cast<float>(width) / height,
+										0.1f, 100.0f);
+			return true;
+		}
+
+		void Update() {
+			// model -> view -> perspective matrices
+			GLuint view_matrix = glGetUniformLocation(program_, "view");
+			GLuint perspective_matrix = glGetUniformLocation(program_, "perspective");
+			glUniformMatrix4fv(view_matrix, 1, GL_FALSE, &view_[0][0]);
+			glUniformMatrix4fv(perspective_matrix, 1, GL_FALSE, &perspective_[0][0]);
+
+			// update objects here...
+		}
+
+		void Display() {
+			// key event
+			glfwSetKeyCallback(window_, &Window::KeyEvent);
+			// use shader program
+			glUseProgram(program_);
+
+			do {
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				Update();
+
+				glEnableVertexAttribArray(0);
+				// render here...
+
+				glDisableVertexAttribArray(0);
+
+				glfwSwapBuffers(window_);
+				glfwPollEvents();
+			} while (glfwWindowShouldClose(window_) == 0);
+		}
+
+		static void KeyEvent(GLFWwindow* window, int key, int scancode, int action,
+							int mods) {
+			if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+				glfwSetWindowShouldClose(window, 1);
+			}
+		}
+
+	 private:
+		GLFWwindow* window_;
+		GLuint program_, vao_;
+
+		glm::mat4 view_, perspective_;
+	};
+
+	int main(int argc, char* argv[]) {
+		using namespace boost::program_options;
+		options_description desc("./opengl_window <width> <height> <title>");
+		desc.add_options()("help,h", "help messages");
+		desc.add_options()("width",
+			value<int>()->default_value(400), "width");
+		desc.add_options()("height",
+			value<int>()->default_value(300), "height");
+		desc.add_options()("title",
+			value<std::string>()->default_value("Matrices"), "title");
+
+		variables_map vmap;
+		store(parse_command_line(argc, argv, desc), vmap);
+		notify(vmap);
+
+		if (vmap.count("help")) {
+			std::cout << desc << "\n";
+			return 0;
+		}
+
+		int width = vmap["width"].as<int>();
+		int height = vmap["height"].as<int>();
+		const std::string title = vmap["title"].as<std::string>();
+		Window window;
+		if (window.Init(width, height, title)) {
+			window.Display();
+		}
+		return 0;
+	}
 ##
 ## glut
 snippet glut_include
