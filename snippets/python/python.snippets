@@ -690,3 +690,98 @@ snippet ros_smach_state_machine
 
 	if __name__ == '__main__':
 		main()
+##
+## scripts
+snippet script_mnist_train_sqlite
+	import sqlite3
+	import pandas as pd
+	import numpy as np
+
+
+	data_frame = pd.read_csv('./train.csv').as_matrix()
+
+	connection = sqlite3.connect('mnist.sqlite3')
+	cursor = connection.cursor()
+
+	cursor.execute("""CREATE TABLE IF NOT EXISTS mnist(
+	image BLOB NOT NULL,
+	width INTEGER NOT NULL,
+	height INTEGER NOT NULL,
+	label INTEGER NOT NULL);""")
+
+
+	for i in range(len(data_frame)):
+		label = data_frame[i, 0]
+		image = data_frame[i, 1:].astype(np.uint8)
+		cursor.execute("""INSERT INTO mnist VALUES(?, ?, ?, ?)""",
+			[buffer(image), 28, 28, label])
+
+	connection.commit()
+	connection.close()
+snippet script_keras_train
+	import sqlite3
+	import numpy as np
+	import os
+	import logging
+
+	import keras
+	from keras.models import Sequential
+	from keras.layers import Dense, Activation
+
+
+	logging.basicConfig()
+	logger = logging.getLogger('mnist')
+	logger.setLevel(logging.INFO)
+
+
+
+	def load_data(db_path):
+		data = []
+		label = []
+
+		if os.path.isfile(db_path):
+			logger.info('loading %s...', db_path)
+
+			connection = sqlite3.connect(db_path)
+			cursor = connection.cursor()
+
+			cursor.execute("""SELECT * FROM mnist;""")
+			raw_data = cursor.fetchall()
+			for entry in raw_data:
+				image = np.frombuffer(entry[0], np.uint8)
+				image = image.reshape([entry[2], entry[1]])
+				data.append(image)
+				label.append(entry[-1])
+
+			connection.commit()
+			connection.close()
+		else:
+			logger.error('fail to find %s.', db_path)
+
+	return np.array(data), np.array(label)
+
+
+	def build_model():
+		model = Sequential()
+		model.add(Dense(256, input_dim=784,
+			kernel_initializer=keras.initializers.RandomNormal(stddev=0.02)))
+		model.add(Activation('relu'))
+		model.add(Dense(10))
+		model.add(Activation('softmax'))
+		model.compile(loss='categorical_crossentropy',
+			optimizer=keras.optimizers.SGD(lr=1e-4, momentum=0.9),
+			metrics=['accuracy'])
+	return model
+
+
+	def main():
+		data, label = load_data('./mnist.sqlite3')
+		data = data.reshape([-1, 28 * 28])
+		label = np.eye(10)[label]
+
+		model = build_model()
+		model.fit(data, label, epochs=100, batch_size=256)
+
+
+	if __name__ == '__main__':
+		main()
