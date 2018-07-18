@@ -240,3 +240,35 @@ snippet download_numpy
 			https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i
 			./numpy.i EXPECTED_MD5 7ace9cd48149759e03624dae78cf2216 SHOW_PROGRESS)
 	endif ()
+snippet template_opengl
+	cmake_minimum_required(VERSION 3.0)
+	project(${1:main})
+
+	set(CMAKE_CXX_STANDARD 11)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+	set(BUILD_SHARED_LIBS ON)
+
+	if (NOT CMAKE_BUILD_TYPE)
+		set(CMAKE_BUILD_TYPE Debug)
+	endif ()
+
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW_LIBRARIES REQUIRED)
+	find_library(GLFW_LIBRARIES glfw)
+	if (NOT GLFW_LIBRARIES)
+		message(FATAL_ERROR "Fail to find GLFW")
+	else ()
+		set(GLFW_FOUND TRUE)
+	endif ()
+
+	include_directories(${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+
+	file(GLOB SRC *.h *.cc)
+
+	add_executable($1 ${SRC})
+	target_link_libraries($1
+		${OPENGL_LIBRARIES}
+		${GLEW_LIBRARIES}
+		${GLFW_LIBRARIES})
