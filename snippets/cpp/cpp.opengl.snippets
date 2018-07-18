@@ -446,3 +446,77 @@ snippet opengl_create_program
 
 		return program;
 	}
+snippet opengl_shader
+	class Shader {
+	 public:
+		Shader() = default;
+		bool Load(const std::string& shader_path, GLenum shader_type);
+
+		GLuint shader() const { return shader_; }
+
+	 private:
+		GLuint shader_;
+	};
+
+	bool Shader::Load(const std::string& shader_path, GLenum shader_type) {
+		shader_ = glCreateShader(shader_type);
+		std::ifstream shader_file(shader_path);
+		if (shader_file.is_open()) {
+			std::stringstream ss;
+			ss << shader_file.rdbuf();
+
+			const std::string shader_source = ss.str();
+			const char* shader_source_str = shader_source.c_str();
+			glShaderSource(shader_, 1, &shader_source_str, nullptr);
+			glCompileShader(shader_);
+			shader_file.close();
+
+			GLint is_compiled = 0;
+			glGetShaderiv(shader_, GL_COMPILE_STATUS, &is_compiled);
+			if (!is_compiled) {
+				int log_length = 0;
+				glGetShaderiv(shader_, GL_INFO_LOG_LENGTH, &log_length);
+				std::string info_log(log_length + 1, '\0');
+				glGetShaderInfoLog(shader_, log_length, &log_length, &info_log[0]);
+				std::cerr << "error: " << info_log << std::endl;
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+snippet opengl_shader_program
+	class ShaderProgram {
+	 public:
+		ShaderProgram() = default;
+		bool Create(const std::vector<GLuint>& shaders);
+		void Use();
+
+	 private:
+		GLuint program_;
+	};
+
+	bool ShaderProgram::Create(const std::vector<GLuint>& shaders) {
+		program_ = glCreateProgram();
+		for (int i = 0; i < shaders.size(); ++i) {
+			glAttachShader(program_, shaders[i]);
+		}
+		glLinkProgram(program_);
+
+		GLint is_linked = 0;
+		glGetProgramiv(program_, GL_LINK_STATUS, &is_linked);
+		if (!is_linked) {
+			int log_length = 0;
+			glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &log_length);
+			std::string info_log(log_length + 1, '\0');
+			glGetProgramInfoLog(program_, log_length, &log_length, &info_log[0]);
+			std::cerr << "error: " << info_log << std::endl;
+			return false;
+		}
+
+		return true;;
+	}
+
+	void ShaderProgram::Use() {
+		glUseProgram(program_);
+	}
