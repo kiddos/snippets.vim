@@ -1,4 +1,4 @@
-snippet fragment
+snippet template_fragment
 	#version 330 core
 
 	out vec3 color;
@@ -6,7 +6,7 @@ snippet fragment
 	void main() {
 		color = vec3(1, 1, 1);
 	}
-snippet vertex
+snippet template_vertex
 	#version 330 core
 
 	layout(location = 0) in vec3 vertex_position_modelspace;
@@ -14,4 +14,42 @@ snippet vertex
 	void main() {
 		gl_Position.xyz = vertex_position_modelspace;
 		gl_Position.w = 1.0;
+	}
+snippet template_vertex_light
+	#version 330 core
+
+	layout(location = 0) in vec3 vertex;
+	layout(location = 1) in vec3 vertex_normal;
+	layout(location = 2) in vec3 vertex_color;
+
+	uniform mat4 perspective;
+	uniform mat4 camera;
+	uniform mat4 model;
+
+	out vec3 light_direction;
+	out vec3 normal;
+	out vec3 color;
+
+	void main() {
+		gl_Position = perspective * camera * model * vec4(vertex, 1.0);
+		normal = vertex_normal;
+		color = vertex_color;
+
+		vec3 light = vec3(0, 6.0, 6.0);
+		light_direction = light - vertex;
+	}
+snippet template_fragment_light
+	#version 330 core
+
+	in vec3 light_direction;
+	in vec3 normal;
+	in vec3 color;
+
+	out vec3 vertex_color;
+
+	void main() {
+		vec3 diffuse = 0.6 * color.rgb * (dot(normal, light_direction) / length(normal *
+			light_direction));
+		vec3 ambient = 0.1 * color;
+		vertex_color = ambient + diffuse;
 	}
