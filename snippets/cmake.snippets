@@ -1,7 +1,7 @@
 ##
 ## Project
 snippet template_project
-	cmake_minimum_required(version ${1:2.8})
+	cmake_minimum_required(VERSION ${1:3.0})
 	project(${2:ProjectName})
 
 	set(CMAKE_CXX_STANDARD ${3:11})
@@ -186,6 +186,21 @@ snippet package_mpi
 		include_directories(${MPI_INCLUDE_PATH})
 		link_libraries(${MPI_LIBRARIES})
 	endif ()
+snippet package_thread
+	find_package (Threads)
+	link_libraries(${CMAKE_THREAD_LIBS_INIT})
+snippet package_ceres
+	find_package(Ceres)
+	if (CERES_FOUND)
+		message(STATUS "ceres found: ${CERES_VERSION}")
+		include_directories(${CERES_INCLUDE_DIRS})
+		link_libraries(${CERES_LIBRARIES})
+	endif ()
+snippet package_freenect2
+	find_package(freenect2)
+	message(STATUS "freenect2 version: ${freenect2_VERSION}")
+	include_directories(${freenect2_INCLUDE_DIRS})
+	link_libraries(${freenect2_LIBRARIES})
 ##
 ## Libraries
 snippet library_benchmark
@@ -208,8 +223,7 @@ snippet library_grpc
 	if (GRPC_LIBRARY AND GRPCXX_LIBRARY)
 		set(GRPC_FOUND)
 		message(STATUS "grpc found ${GRPC_LIBRARY} ${GRPCXX_LIBRARY}")
-		link_libraries(${GRPC_LIBRARY})
-		link_libraries(${GRPCXX_LIBRARY})
+		link_libraries(${GRPC_LIBRARY} ${GRPCXX_LIBRARY})
 	endif ()
 ##
 ## target
