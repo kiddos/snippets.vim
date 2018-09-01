@@ -173,3 +173,98 @@ snippet boost_program_options_add
 		$2 $1 = vmap["$1"].as<$2>();
 		// code here...
 	}
+##
+## serial port
+snippet boost_serial_port
+	#include <string>
+
+	#include <boost/asio/serial_port.hpp>
+	#include <boost/system/error_code.hpp>
+
+	class SerialPort {
+	 public:
+		SerialPort(const std::string& device);
+		SerialPort(const std::string& device, int baudrate);
+
+		void Write(char c);
+		void Write(const std::string& message);
+		void WriteLine(const std::string& message);
+		char Read();
+		std::string Read(int size);
+		void ReadLine(std::string& message);
+
+		bool is_opened() const { return serial_port_.is_open(); }
+		boost::system::error_code get_error_code() const { return error_code_; }
+
+	 private:
+		boost::asio::io_service io_service_;
+		boost::asio::serial_port serial_port_;
+
+		boost::system::error_code error_code_;
+	};
+
+	SerialPort::SerialPort(const std::string& device) : SerialPort(device, 9600) {}
+
+	SerialPort::SerialPort(const std::string& device, int baudrate)
+			: serial_port_(io_service_) {
+		using boost::asio::serial_port_base;
+		serial_port_.open(device);
+
+		serial_port_.set_option(serial_port_base::baud_rate(baudrate));
+		serial_port_.set_option(serial_port_base::character_size(8));
+		serial_port_.set_option(
+			serial_port_base::stop_bits(serial_port_base::stop_bits::one));
+		serial_port_.set_option(
+			serial_port_base::parity(serial_port_base::parity::none));
+		serial_port_.set_option(
+			serial_port_base::flow_control(serial_port_base::flow_control::none));
+	}
+
+	void SerialPort::Write(char c) {
+		if (serial_port_.is_open())
+			serial_port_.write_some(boost::asio::buffer(&c, 1), error_code_);
+	}
+
+	void SerialPort::Write(const std::string& message) {
+		if (serial_port_.is_open()) {
+			for (int i = 0; i < message.length(); ++i) Write(message[i]);
+		}
+	}
+
+	void SerialPort::WriteLine(const std::string& message) {
+		if (serial_port_.is_open()) {
+			if (message.length() > 0 && message[message.length() - 1] == '\n') {
+				Write(message);
+			} else {
+				Write(message + '\n');
+			}
+		}
+	}
+
+	char SerialPort::Read() {
+		char c;
+		if (serial_port_.is_open()) {
+			serial_port_.read_some(boost::asio::buffer(&c, 1), error_code_);
+		}
+		return c;
+	}
+
+	std::string SerialPort::Read(int size) {
+		std::string message;
+		if (serial_port_.is_open()) {
+			for (int i = 0; i < size; ++i) {
+				message += Read();
+			}
+		}
+		return message;
+	}
+
+	void SerialPort::ReadLine(std::string& message) {
+		if (serial_port_.is_open()) {
+			while (true) {
+				char c = Read();
+				message += c;
+				if (c == '\n') break;
+			}
+		}
+	}
