@@ -634,3 +634,12 @@ snippet script_tensorflow_gan
 
 	if __name__ == '__main__':
 		unittest.main()
+snippet tensorflow_load_graph
+	def load_graph(pb_file):
+		with tf.gfile.GFile(pb_file, 'rb') as f:
+			graph_def = tf.GraphDef()
+			graph_def.ParseFromString(f.read())
+
+		with tf.Graph().as_default() as g:
+			tf.import_graph_def(graph_def)
+		return g
