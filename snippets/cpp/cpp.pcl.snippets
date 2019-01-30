@@ -1,0 +1,8 @@
+snippet pcl_cloud_viewer
+	pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(
+		new pcl::PointCloud<pcl::PointXYZRGBA>);
+	pcl::io::loadPCDFile("point_cloud.pcd", *cloud);
+
+	pcl::visualization::CloudViewer viewer("Cloud Viewer");
+	viewer.showCloud(cloud);
+	while (!viewer.wasStopped());
