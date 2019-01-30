@@ -687,7 +687,14 @@ snippet glog
 	google::InitGoogleLogging(argv[0]);
 	google::LogToStderr();
 # basic templates
-##
+## simple
+snippet template_hello_world
+	#include <iostream>
+
+	int main(void) {
+		std::cout << "hello word" << std::endl;
+		return 0;
+	}
 ## glog
 snippet template_glog
 	#include <glog/logging.h>
