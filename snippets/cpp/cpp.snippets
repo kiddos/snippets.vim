@@ -354,6 +354,11 @@ snippet class_abstract
 	 protected:
 		// member declaration
 	};
+snippet member
+	${1:double} ${2:var}_;
+
+	void set_$2(double $2) { $2_ = $2; }
+	$1 $2() { return $2_; }
 ##
 ## Meta Programming
 snippet meta_value
