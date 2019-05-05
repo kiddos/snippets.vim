@@ -7,7 +7,6 @@ snippet #!3
 snippet unicode
 	def __unicode__(self):
 		${0:representation}
-# Module Docstring
 snippet docs
 	"""
 	File: ${1:`vim_snippets#Filename('$1.py', 'foo.py')`}
@@ -17,47 +16,7 @@ snippet docs
 	Description: ${0}
 	"""
 
-# New Property
-snippet property
-	def ${1:foo}():
-		doc = "${2:The $1 property.}"
-		def fget(self):
-			${3:return self._$1}
-		def fset(self, value):
-			${4:self._$1 = value}
-		def fdel(self):
-			${0:del self._$1}
-		return locals()
-	$1 = property(**$1())
-# Encodes
-snippet encoding utf8
-	# -*- coding: utf-8 -*-
-snippet encoding latin1
-	# -*- coding: latin-1 -*-
-snippet encoding ascii
-	# -*- coding: ascii -*-
-# if __name__ == '__main__':
-snippet ifmain
-	if __name__ == '__main__':
-		${0:main()}
-# pdb in nosetests
-snippet nosetrace
-	from nose.tools import set_trace
-	set_trace()
-snippet pprint
-	import pprint
-	pprint.pprint(${1})
-# logging
-snippet logging
-	import logging
-	logger = logging.getLogger(${0:__name__})
-snippet logger
-	logging.basicConfig()
-	logger = logging.getLogger(${1:__name__})
-	logger.setLevel(${2:logging.INFO})
-	${0}
-# conflict with lambda=ld, therefor we change into Logger.debuG
-snippet epydoc
+snippet edocs
 	"""${1:Description}
 
 	@param ${2:param}: ${3: Description}
@@ -68,13 +27,33 @@ snippet epydoc
 
 	@raise e: ${0: Description}
 	"""
-# sqlite3
-snippet sqlite3_connection
-	connection = sqlite3.connect(${1:path})
-	cursor = connection.cursor()
-	${0}
-	connection.commit()
-	connection.close()
+# Encodes
+snippet encoding_utf8
+	# -*- coding: utf-8 -*-
+snippet encoding_latin1
+	# -*- coding: latin-1 -*-
+snippet encoding_ascii
+	# -*- coding: ascii -*-
+snippet main
+	def main():
+		${1:pass}
+
+
+	if __name__ == '__main__':
+		${0:main()}
+snippet ifmain
+	if __name__ == '__main__':
+		${0:main()}
+# logging
+snippet logging
+	import logging
+	logger = logging.getLogger(${0:__name__})
+
+snippet logger
+	logging.basicConfig()
+	logger = logging.getLogger(${1:__name__})
+	logger.setLevel(${2:logging.INFO})
+
 # argument parser
 snippet argparse
 	from argparse import ArgumentParser
@@ -87,207 +66,15 @@ snippet class_unit_test
 	class TestName(unittest.TestCase):
 		def test_case1(self):
 			self.assertTrue(True)
-snippet class_gym_environment
-	class CustomEnvironment(Env):
-		metadata = {'render.modes': ['ansi', 'rgb_array', 'human']}
-
-		def __init__(self, path):
-			self.current_dir = os.path.dirname(os.path.realpath(__file__))
-			self._reset()
-			logging.basicConfig()
-			self.logger = logging.getLogger(__name__)
-			self.logger.setLevel(logging.INFO)
-			self.spec = None
-			self.view = None
-			self.action_space = spaces.Discrete(2)
-			self.observation_space = spaces.Box(low=0, high=1, shape=(1, 1))
-
-		def get_state(self):
-			return np.zeros(shape=[1, 1])
-
-		def _seed(self, seed=None):
-			pass
-
-		def _step(self, action):
-			info = {}
-			reward = 0
-			done = False
-			return self.get_state(), reward, done, info
-
-		def _reset(self):
-			return self.get_state()
-
-		def _render(self, mode='human', close=False):
-			if not close:
-				if mode == 'rgb_array':
-					return self.get_state()
-				elif mode is 'human':
-					pass
-				else:
-					self.logger.info('\n%s\n' % (str(self.get_state())))
-
-		def _close(self):
-			pass
 ##
 ## Serial
 snippet serial
 	import serial
 
-
 	s = serial.Serial('${1:/dev/ttyUSB0}', ${2:9600},
 		parity=${2:serial.PARITY_EVEN},
 		stopbits=${3:serial.STOPBITS_ONE},
 		timeout=${4:1000})
-##
-## ROS
-snippet ros_publisher
-	#!/usr/bin/env python
-	# -*- coding: utf-8 -*-
-
-	import rospy
-	from std_msgs.msg import String
-
-
-	def talker():
-		pub = rospy.Publisher('${2:topic}', String, queue_size=100)
-		rospy.init_node('${1:node_name}', anonymous=True)
-		rate = rospy.Rate(10)
-		while not rospy.is_shutdown():
-			msg = 'message [%s]' % rospy.get_time()
-			rospy.loginfo(msg)
-			pub.publish(msg)
-			rate.sleep()
-
-
-	if __name__ == '__main__':
-		try:
-			talker()
-		except rospy.ROSInterruptException:
-			pass
-snippet ros_subscriber
-	#!/usr/bin/env python
-	# -*- coding: utf-8 -*-
-
-	import rospy
-	from std_msgs.msg import String
-
-
-	def listen_callback(data):
-		rospy.loginfo(rospy.get_caller_id() + ' %s' % (data.data))
-
-
-	def listener():
-		rospy.init_node('listener', anonymous=True)
-		rospy.Subscriber('chatter', String, listen_callback)
-		rospy.spin()
-
-
-	if __name__ == '__main__':
-		listener()
-snippet ros_client
-	#!/usr/bin/env python
-	# -*- coding: utf-8 -*-
-
-	import sys
-	import rospy
-	from std_srvs.srv import SetBool
-
-
-	def set_bool_command(b):
-		rospy.wait_for_service('set_bool')
-		try:
-			set_bool = rospy.ServiceProxy('set_bool', SetBool)
-			res = set_bool(b)
-			return res.success, res.message
-		except rospy.ServiceException as e:
-			print('Service Call Failed: %s' % (e))
-
-
-	def main():
-		success, message = set_bool_command(True)
-		print('%s, %s' % (success, message))
-
-
-	if __name__ == '__main__':
-		main()
-snippet ros_server
-	#!/usr/bin/env python
-	# -*- coding: utf-8 -*-
-
-	from std_srvs.srv import SetBool, SetBoolResponse
-	import rospy
-
-
-	def set_bool(req):
-		return SetBoolResponse(req.data, 'success')
-
-
-	def start_server():
-		rospy.init_node('set_bool_server')
-		rospy.Service('set_bool', SetBool, set_bool)
-		print('Server Ready...')
-		rospy.spin()
-
-
-	if __name__ == '__main__':
-		start_server()
-snippet ros_smach_state_machine
-	#!/usr/bin/env python
-	# -*- coding: utf-8 -*-
-
-	import roslib
-	import rospy
-	import smach
-	import smach_ros
-
-
-	class ${2:State1}(smach.State):
-		def __init__(self):
-			smach.State.__init__(self, outcomes=['outcome1', 'outcome2'],
-								input_keys=['counter_in'],
-								output_keys=['counter_out'])
-
-		def execute(self, userdata):
-			rospy.loginfo('Executing state 1')
-			if userdata.counter_in < 3:
-				userdata.counter_out = userdata.counter_in + 1
-				return 'outcome1'
-			else:
-				return 'outcome2'
-
-
-	class ${3:State2}(smach.State):
-		def __init__(self):
-			smach.State.__init__(self, outcomes=['outcome2'],
-								input_keys=['counter_in'])
-
-		def execute(self, userdata):
-			rospy.loginfo('Executing state 2')
-			rospy.loginfo('Counter: %f' % (userdata.counter_in))
-			return 'outcome1'
-
-
-	def main():
-		rospy.init_node('${1:smach_state_machine}')
-		sm = smach.StateMachine(outcomes=['outcome4'])
-		sm.userdata.sm_counter = 0
-
-		with sm:
-			smach.StateMachine.add('$2', $2(),
-								transitions={'outcome1': '$2', 'outcome2':
-												'outcome4'},
-								remapping={'counter_in': 'sm_counter',
-											'counter_out': 'sm_counter'})
-			smach.StateMachine.add('$3', $3(),
-								transitions={'outcome2': '$3'},
-								remapping={'counter_in': 'sm_counter'})
-
-		outcome = sm.execute()
-		print(outcome)
-
-
-	if __name__ == '__main__':
-		main()
 ##
 ## scripts
 snippet script_mnist_train_sqlite
@@ -316,75 +103,6 @@ snippet script_mnist_train_sqlite
 
 	connection.commit()
 	connection.close()
-snippet script_keras_train
-	import sqlite3
-	import numpy as np
-	import os
-	import logging
-
-	import keras
-	from keras.models import Sequential
-	from keras.layers import Dense, Activation
-
-
-	logging.basicConfig()
-	logger = logging.getLogger('mnist')
-	logger.setLevel(logging.INFO)
-
-
-
-	def load_data(db_path):
-		data = []
-		label = []
-
-		if os.path.isfile(db_path):
-			logger.info('loading %s...', db_path)
-
-			connection = sqlite3.connect(db_path)
-			cursor = connection.cursor()
-
-			cursor.execute("""SELECT * FROM mnist;""")
-			raw_data = cursor.fetchall()
-			for entry in raw_data:
-				image = np.frombuffer(entry[0], np.uint8)
-				image = image.reshape([entry[2], entry[1]])
-				data.append(image)
-				label.append(entry[-1])
-
-			connection.commit()
-			connection.close()
-		else:
-			logger.error('fail to find %s.', db_path)
-
-	return np.array(data), np.array(label)
-
-
-	def build_model():
-		model = Sequential()
-		model.add(Dense(256, input_dim=784,
-			kernel_initializer=keras.initializers.RandomNormal(stddev=0.02)))
-		model.add(Activation('relu'))
-		model.add(Dense(10))
-		model.add(Activation('softmax'))
-		model.compile(loss='categorical_crossentropy',
-			optimizer=keras.optimizers.SGD(lr=1e-4, momentum=0.9),
-			metrics=['accuracy'])
-	return model
-
-
-	def main():
-		data, label = load_data('./mnist.sqlite3')
-		data = data.reshape([-1, 28 * 28])
-		label = np.eye(10)[label]
-
-		model = build_model()
-		model.fit(data, label, epochs=100, batch_size=256)
-
-
-	if __name__ == '__main__':
-		main()
-##
-##
 snippet script_replay_buffer
 	import numpy as np
 	import random
