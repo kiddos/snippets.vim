@@ -634,7 +634,7 @@ snippet script_tensorflow_gan
 
 	if __name__ == '__main__':
 		unittest.main()
-snippet tensorflow_load_graph
+snippet def_tf_load_graph
 	def load_graph(pb_file):
 		with tf.gfile.GFile(pb_file, 'rb') as f:
 			graph_def = tf.GraphDef()
@@ -643,3 +643,77 @@ snippet tensorflow_load_graph
 		with tf.Graph().as_default() as g:
 			tf.import_graph_def(graph_def)
 		return g
+snippet import_tf
+	import tensorflow as tf
+	import tensorflow.keras.backend as K
+	import tensorflow.keras.layers as layers
+	from tensorflow.keras.models import Model, Sequential
+	from tensorflow.data import Dataset
+
+snippet import_ml
+	import numpy as np
+	import pandas as pd
+	import matplotlib.pyplot as plt
+	import seaborn as sns
+
+snippet class_keras_layer
+	class ${1:MyLayer}(tf.keras.layers.Layer):
+		def __init__(self, **kwargs):
+			super($1, self).__init__(**kwargs)
+			${2:## code}
+
+		def build(self, input_shape):
+			${3:## code}
+			super($1, self).build(input_shape)
+
+		def call(self, x):
+			return x
+
+		def compute_output_shape(self, input_shape):
+			return input_shape
+snippet class_keras_relu_layer
+	class ${1:ReLUConv2D}(tf.keras.layers.Layer):
+		def __init__(self, output_size, ksize, stride, **kwargs):
+			super($1, self).__init__(**kwargs)
+			self.output_size = output_size
+			self.ksize = ksize
+			self.stride = stride
+
+		def build(self, input_shape):
+			self.conv = tf.keras.layers.Conv2D(self.output_size,
+				self.ksize, self.stride, padding='same')
+			self.norm = tf.keras.layers.BatchNormalization()
+			self.relu = tf.keras.layers.ReLU()
+			super($1, self).build(input_shape)
+
+		def call(self, x):
+			conv = self.conv(x)
+			norm = self.norm(conv)
+			return self.relu(norm)
+
+		def compute_output_shape(self, input_shape):
+			return (input_shape[0],
+				input_shape[1] / self.stride,
+				input_shape[2] / self.stride,
+				self.output_size)
+snippet class_keras_pool
+	class ${1:Pool}(layers.Layer):
+		def __init__(self, output_size, ksize, **kwargs):
+			super($1, self).__init__(**kwargs)
+			self.output_size = output_size
+			self.ksize = ksize
+
+		def build(self, input_shape):
+			self.conv = layers.Conv2D(self.output_size, self.ksize, 1,
+				padding='valid')
+			self.norm = layers.BatchNormalization()
+			self.relu = layers.ReLU()
+			super($1, self).build(input_shape)
+
+		def call(self, x):
+			conv = self.conv(x)
+			norm = self.norm(conv)
+			return self.relu(norm)
+
+		def compute_output_shape(self, input_shape):
+			return (input_shape[0], 1, 1, self.output_size)
