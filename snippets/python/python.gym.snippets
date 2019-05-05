@@ -1,13 +1,39 @@
-snippet gym_import
+snippet import_gym
 	import gym
-	import numpy as np
+	from gym import Wrapper
 
-snippet gym_reset_wrapper
-	class FireResetEnv(gym.Wrapper):
+snippet class_gym_wrapper
+	class ${1:MyWrapper}(gym.Wrapper):
 		def __init__(self, env):
-			gym.Wrapper.__init__(self, env)
-			assert env.unwrapped.get_action_meanings()[1] == 'FIRE'
-			assert len(env.unwrapped.get_action_meanings()) >= 3
+			super($1, self).init(env)
+			print(self.metadata)
+			print(self.action_space)
+			print(self.observation_space)
+			print(self.reward_range)
+			print(self.spec)
+
+		def _step(self, action):
+			${2:# code...}
+			return self.env.step(action)
+
+		def _reset(self):
+			${3:# code...}
+			return self.env.reset()
+
+		def _render(self):
+			return self.env.render()
+
+		def _close(self):
+			return self.env.close()
+
+		def _seed(self, seed=None):
+			return self.env.seed(seed)
+
+snippet class_gym_reset_wrapper
+	class ${1:ResetEnv}(gym.Wrapper):
+		def __init__(self, env):
+			super($1, self).init(env)
+			${2:# code...}
 
 		def reset(self):
 			self.env.reset()
@@ -19,10 +45,11 @@ snippet gym_reset_wrapper
 
 		def step(self, action):
 			return self.env.step(action)
-snippet gym_episodic_life_wrapper
-	class EpisodicLifeEnv(gym.Wrapper):
+
+snippet class_gym_episodic_life_wrapper
+	class ${1:EpisodicLifeEnv}(gym.Wrapper):
 		def __init__(self, env):
-			gym.Wrapper.__init__(self, env)
+			super($1, self).init(env)
 			self.lives = 0
 			self.was_real_done = True
 
@@ -41,10 +68,11 @@ snippet gym_episodic_life_wrapper
 				state, _, _, info = self.env.step(0)
 				self.lives = info['ale.lives']
 			return state
-snippet gym_image_state_wrapper
-	class MapState(gym.ObservationWrapper):
+
+snippet class_gym_image_state_wrapper
+	class ${1:ImageObservationWrapper}(gym.ObservationWrapper):
 		def __init__(self, env, w, h):
-			gym.ObservationWrapper.__init__(self, env)
+			super($1, self).init(env)
 			self.w, self.h = w, h
 			self.observation_space = gym.spaces.Box(
 				low=0, high=255, shape=(self.h, self.w))
@@ -58,13 +86,14 @@ snippet gym_image_state_wrapper
 			image = image.resize([input_width, input_height], Image.NEAREST).convert('L')
 			img = np.array(image, dtype=np.uint8)
 			return img
-snippet gym_fire_live_loss_wrapper
-	class FireLiveLoss(gym.Wrapper):
+
+snippet class_gym_fire_live_loss_wrapper
+	class ${1:FireLiveLoss}(gym.Wrapper):
 		def __init__(self, env):
-			gym.Wrapper.__init__(self, env)
+			super($1, self).init(env)
 			self.lives = 0
 
-		def step(self, action):
+		def _step(self, action):
 			state, reward, done, info = self.env.step(action)
 			lives = info['ale.lives']
 			if lives < self.lives:
@@ -72,16 +101,17 @@ snippet gym_fire_live_loss_wrapper
 				state, _, _, info = self.env.step(1)
 			self.lives = lives
 			return state, reward, done, info
+
 snippet gym_history_state_wrapper
-	class HistoryStatesEnv(gym.Wrapper):
+	class ${1:HistoryStatesEnv}(gym.Wrapper):
 		def __init__(self, env, history_size):
-			gym.Wrapper.__init__(self, env)
+			super($1, self).init(env)
 			self.history = deque(maxlen=history_size)
 
 		def observation(self, obs):
 			return self.env.observation(obs)
 
-		def reset(self):
+		def _reset(self):
 			state = self.env.reset()
 			empty = np.zeros(self.observation_space.shape, np.uint8)
 			for _ in range(self.history.maxlen - 1):
@@ -92,10 +122,11 @@ snippet gym_history_state_wrapper
 		def _history(self):
 			return np.stack(self.history, axis=2)
 
-		def step(self, action):
+		def _step(self, action):
 			state, reward, done, info = self.env.step(action)
 			self.history.append(state)
 			return self._history(), reward, done, info
+
 snippet script_gym_atari_environment
 	import gym
 	import numpy as np
