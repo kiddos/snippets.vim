@@ -10,9 +10,9 @@ snippet unicode
 snippet docs
 	"""
 	File: ${1:`vim_snippets#Filename('$1.py', 'foo.py')`}
-	Author: `g:snips_author`
-	Email: `g:snips_email`
-	Github: `g:snips_github`
+	Author: Joseph
+	Email: kiddo831007@gmail.com
+	Github: https://github.com/kiddos
 	Description: ${0}
 	"""
 
@@ -279,3 +279,6 @@ snippet script_experience_replay
 				return self.env.action_space.sample()
 			else:
 				return self.policy(self.replay_buffer.recent_state(state))
+snippet import_unit_test
+	import unittest
+	from unittest import TestCase
