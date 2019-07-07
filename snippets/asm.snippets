@@ -1,0 +1,13 @@
+snippet section
+    section .text
+        global ${1:_start}
+
+    $1:
+        $0
+
+snippet print_x86
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, ${1:message}
+    mov edx, ${2:messageLength}
+    int 0x80
