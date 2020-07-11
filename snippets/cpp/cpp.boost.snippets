@@ -1,4 +1,4 @@
-snippet boost_current_datetime
+snippet current_datetime
 	boost::gregorian::date current(boost::gregorian::day_clock::local_day());
 	std::stringstream ss;
 	ss << current.year() << "/" << current.month() << "/" << current.day();
@@ -7,14 +7,6 @@ snippet boost_timer
 	boost::timer::cpu_timer timer;
 	// test code here...
 	std::cout << timer.format() << '\n';
-snippet boost_shared_ptr
-	boost::shared_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost_unique_ptr
-	boost::unique_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost_scope_ptr
-	boost::scoped_ptr<${1:int}> ${2:ptr}{new $1${0}};
-snippet boost_lexical cast
-	${1:std::string} ${2:s} = boost::lexical_cast<$1>(${3:0});
 ## signals2
 snippet boost_signals2_include
 	#include <boost/signals2.hpp>

@@ -6,95 +6,21 @@ snippet once
 	${0}
 
 	#endif /* end of include guard: $1 */
-snippet include
-	#include <iostream>
-	#include <iomanip>
+snippet template
+    #include <bits/stdc++.h>
 
-	using std::cout;
-	using std::cin;
-snippet include_cuda
-	#include <cuda_runtime.h>
-	#include <cublas_v2.h>
-	#include <cuda.h>
-	#include <memory>
-snippet include_locale
-	#include <iostream>
-	#include <string>
-	#include <locale>
-	#include <codecvt>
+    using namespace std;
+
+    int main(void) {
+        // code here...
+        return 0;
+    }
 ##
 ## namespace
 snippet namespace
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
 	} /* end of $1 namespace */
-##
-## Cool Functions
-snippet function_fast_inverse_square_root
-	float InverseSqrt(float x) {
-		float xhalf = 0.5f * x;
-		int i = *(int*) &x;
-		i = 0x5f3759df - (i >> 1);
-		x = *(float*)&i;
-		x = x * (1.5f - xhalf * x * x);
-		return x;
-	}
-snippet function_random_init_array
-	template <typename T>
-	void RandomInitialize(T* A, int size) {
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			A[i] = dist(gen);
-		}
-	}
-snippet function_random_init_vector
-	template <typename T>
-	void RandomInitialize(std::vector<T>& vec, int size) {
-		vec = std::vector<T>(size);
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			vec[i] = dist(gen);
-		}
-	}
-snippet function_quick_sort
-	template <typename T>
-	int Partition(std::vector<T>& vec, int left, int end) {
-		T pivot = vec[left];
-		int i = left - 1, j = end + 1;
-		while (true) {
-			do {
-				++i;
-			} while (vec[i] < pivot);
-
-			do {
-				--j;
-			} while (vec[j] > pivot);
-			if (i >= j) return j;
-			std::swap(vec[j], vec[i]);
-		}
-	}
-
-	template <typename T>
-	void QuickSort(std::vector<T>& vec, int start, int end) {
-		if (start < end) {
-			int index = Partition(vec, start, end);
-			QuickSort(vec, start, index);
-			QuickSort(vec, index + 1, end);
-		}
-	}
-
-	template <typename T>
-	void QuickSort(std::vector<T>& vec) {
-		QuickSort(vec, 0, vec.size() - 1);
-	}
-##
-## Input/Output
-snippet cout
-	std::cout << ${1} << std::endl;
-snippet cin
-	std::cin >> ${1};
 snippet static_if
 	#ifndef STATIC_IF_H
 	#define STATIC_IF_H
@@ -198,137 +124,7 @@ snippet static_if
 	#endif /* end of include guard: STATIC_IF_H */
 ##
 ## Class
-snippet class
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1&& operator=($1&& $2);
-		~$1();
-
-	 private:
-		/* fields */
-	};
-
-	$1::$1() {}
-
-	$1::$1(const $1& $2) {}
-
-	$1::$1($1&& $2) {}
-
-	$1& $1::operator=(const $1& $2) {
-		return *this;
-	}
-
-	$1&& $1::operator=($1&& $2) {
-		return *this;
-	}
-
-	$1::~$1() {}
-snippet class_header
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1&& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class_implementation
-	${1:`Filename('$1')`}::$1() {}
-
-	$1::$1(const $1& $2) {}
-
-	$1::$1($1&& $2) {}
-
-	$1& $1::operator=(const $1& $2) {
-		return *this;
-	}
-
-	$1&& $1::operator=($1&& $2) {
-		return *this;
-	}
-
-	$1::~$1() {}
-snippet class_template
-	template <typename T>
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-
-	template <typename T>
-	$1<T>::$1() {}
-
-	template <typename T>
-	$1<T>::$1(const $1& $2) {}
-
-	template <typename T>
-	$1<T>::$1($1&& $2) {}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=(const $1& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=($1&& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>::~$1() {}
-snippet class_template_header
-	template <typename T>
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class_template_implementation
-	template <typename T>
-	${1:`Filename('$1')`}<T>::$1() {}
-
-	template <typename T>
-	$1<T>::$1(const $1& $2) {}
-
-	template <typename T>
-	$1<T>::$1($1&& $2) {}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=(const $1& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=($1&& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>::~$1() {}
-snippet class_exception
+snippet exception
 	#include <exception>
 
 	class ${1:Exception} : public std::exception {
@@ -346,19 +142,6 @@ snippet class_exception
 	 protected:
 		std::string msg_;
 	};
-snippet class_abstract
-	class ${1:AbstractClass} {
-	 public:
-		$1();
-
-	 protected:
-		// member declaration
-	};
-snippet member
-	${1:double} ${2:var}_;
-
-	void set_$2(double $2) { $2_ = $2; }
-	$1 $2() { return $2_; }
 ##
 ## Meta Programming
 snippet meta_value
@@ -379,16 +162,6 @@ snippet meta_branch
 	template <typename T>
 	struct $1<T, T> {
 		enum { result = 1 };
-	}
-snippet meta_recursion
-	template <unsigned long N>
-	struct ${1:Factorial} {
-		enum { value = N * $1<N-1>::value };
-	}
-
-	template <>
-	struct $1<0> {
-		enum { value = 1 };
 	}
 ##
 ## OpenGL
@@ -632,7 +405,7 @@ snippet tbb_parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
 		// parallel code
 	});
-
+#
 # main
 snippet main
 	int main(void) {
@@ -692,14 +465,6 @@ snippet glog
 	google::InitGoogleLogging(argv[0]);
 	google::LogToStderr();
 # basic templates
-## simple
-snippet template_hello_world
-	#include <iostream>
-
-	int main(void) {
-		std::cout << "hello word" << std::endl;
-		return 0;
-	}
 ## glog
 snippet template_glog
 	#include <glog/logging.h>
