@@ -11,7 +11,7 @@ snippet main_ros
 		ros::init(argc, argv, "{${1:node_name}}");
 		return 0;
 	}
-snippet ros_publisher
+snippet template_ros_publisher
 	#include <ros/ros.h>
 	#include <std_msgs/String.h>
 	#include <sstream>
@@ -124,7 +124,7 @@ snippet ros_client
 		client.Run();
 		return 0;
 	}
-snippet ros_server
+snippet template_ros_server
 	#include <ros/ros.h>
 	#include <std_srvs/SetBool.h>
 	#include <thread>

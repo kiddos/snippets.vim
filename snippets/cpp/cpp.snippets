@@ -6,74 +6,21 @@ snippet once
 	${0}
 
 	#endif /* end of include guard: $1 */
+snippet template
+    #include <bits/stdc++.h>
+
+    using namespace std;
+
+    int main(void) {
+        // code here...
+        return 0;
+    }
+##
 ## namespace
 snippet namespace
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
 	} // end of $1 namespace
-##
-## Cool Functions
-snippet function_fast_inverse_square_root
-	float InverseSqrt(float x) {
-		float xhalf = 0.5f * x;
-		int i = *(int*) &x;
-		i = 0x5f3759df - (i >> 1);
-		x = *(float*)&i;
-		x = x * (1.5f - xhalf * x * x);
-		return x;
-	}
-snippet function_random_init_array
-	template <typename T>
-	void RandomInitialize(T* A, int size) {
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			A[i] = dist(gen);
-		}
-	}
-snippet function_random_init_vector
-	template <typename T>
-	void RandomInitialize(std::vector<T>& vec, int size) {
-		vec = std::vector<T>(size);
-		std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
-		std::normal_distribution<T> dist(0, ${1:1.0});
-		for (int i = 0; i < size; ++i) {
-			vec[i] = dist(gen);
-		}
-	}
-snippet function_quick_sort
-	template <typename T>
-	int Partition(std::vector<T>& vec, int left, int end) {
-		T pivot = vec[left];
-		int i = left - 1, j = end + 1;
-		while (true) {
-			do {
-				++i;
-			} while (vec[i] < pivot);
-
-			do {
-				--j;
-			} while (vec[j] > pivot);
-			if (i >= j) return j;
-			std::swap(vec[j], vec[i]);
-		}
-	}
-
-	template <typename T>
-	void QuickSort(std::vector<T>& vec, int start, int end) {
-		if (start < end) {
-			int index = Partition(vec, start, end);
-			QuickSort(vec, start, index);
-			QuickSort(vec, index + 1, end);
-		}
-	}
-
-	template <typename T>
-	void QuickSort(std::vector<T>& vec) {
-		QuickSort(vec, 0, vec.size() - 1);
-	}
-##
-## Input/Output
 snippet static_if
 	#ifndef STATIC_IF_H
 	#define STATIC_IF_H
@@ -177,137 +124,7 @@ snippet static_if
 	#endif /* end of include guard: STATIC_IF_H */
 ##
 ## Class
-snippet class
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1&& operator=($1&& $2);
-		~$1();
-
-	 private:
-		/* fields */
-	};
-
-	$1::$1() {}
-
-	$1::$1(const $1& $2) {}
-
-	$1::$1($1&& $2) {}
-
-	$1& $1::operator=(const $1& $2) {
-		return *this;
-	}
-
-	$1&& $1::operator=($1&& $2) {
-		return *this;
-	}
-
-	$1::~$1() {}
-snippet class_header
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1&& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class_implementation
-	${1:`Filename('$1')`}::$1() {}
-
-	$1::$1(const $1& $2) {}
-
-	$1::$1($1&& $2) {}
-
-	$1& $1::operator=(const $1& $2) {
-		return *this;
-	}
-
-	$1&& $1::operator=($1&& $2) {
-		return *this;
-	}
-
-	$1::~$1() {}
-snippet class_template
-	template <typename T>
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-
-	template <typename T>
-	$1<T>::$1() {}
-
-	template <typename T>
-	$1<T>::$1(const $1& $2) {}
-
-	template <typename T>
-	$1<T>::$1($1&& $2) {}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=(const $1& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=($1&& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>::~$1() {}
-snippet class_template_header
-	template <typename T>
-	class ${1:`Filename('$1')`} {
-	 public:
-		$1();
-		$1(const $1& ${2:`tolower('$1')`});
-		$1($1&& $2);
-		$1& operator=(const $1& $2);
-		$1& operator=($1&& $2);
-		~$1();
-
-	 private:
-		${0:/* fields */}
-	};
-snippet class_template_implementation
-	template <typename T>
-	${1:`Filename('$1')`}<T>::$1() {}
-
-	template <typename T>
-	$1<T>::$1(const $1& $2) {}
-
-	template <typename T>
-	$1<T>::$1($1&& $2) {}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=(const $1& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>& $1<T>::operator=($1&& $2) {
-		return *this;
-	}
-
-	template <typename T>
-	$1<T>::~$1() {}
-snippet class_exception
+snippet exception
 	#include <exception>
 
 	class ${1:Exception} : public std::exception {
@@ -325,19 +142,6 @@ snippet class_exception
 	 protected:
 		std::string msg_;
 	};
-snippet class_abstract
-	class ${1:AbstractClass} {
-	 public:
-		$1();
-
-	 protected:
-		// member declaration
-	};
-snippet member
-	${1:double} ${2:var}_;
-
-	void set_$2(double $2) { $2_ = $2; }
-	$1 $2() { return $2_; }
 ##
 ## Meta Programming
 snippet meta_value
@@ -358,16 +162,6 @@ snippet meta_branch
 	template <typename T>
 	struct $1<T, T> {
 		enum { result = 1 };
-	}
-snippet meta_recursion
-	template <unsigned long N>
-	struct ${1:Factorial} {
-		enum { value = N * $1<N-1>::value };
-	}
-
-	template <>
-	struct $1<0> {
-		enum { value = 1 };
 	}
 ##
 ## OpenGL
@@ -537,7 +331,7 @@ snippet tbb_parallel
 	tbb::parallel_for(${1:0}, ${2:size}, ${3:1}, [=](int i) {
 		// parallel code
 	});
-
+#
 # main
 snippet main
 	int main(void) {
@@ -549,6 +343,300 @@ snippet main_args
 		// code here...
 		return 0;
 	}
+snippet main_boost_program_options
+	#include <boost/program_options.hpp>
+	#include <iostream>
+
+	namespace popt = boost::program_options;
+
+	int main(int argc, char* argv[]) {
+		popt::options_description desc("Allowed options");
+		desc.add_options()("help,h", "help messages");
+		desc.add_options()("input,i",
+							popt::value<std::string>()->default_value("input"),
+							"input file");
+		desc.add_options()("output,o",
+							popt::value<std::string>()->default_value("output"),
+							"output file");
+
+		popt::variables_map vmap;
+		popt::store(popt::parse_command_line(argc, argv, desc), vmap);
+		popt::notify(vmap);
+
+		if (vmap.count("help")) {
+			std::cout << desc << "\n";
+			return 0;
+		}
+
+		if (vmap.count("input") && vmap.count("output")) {
+			// code here...
+		} else {
+			// code here...
+		}
+		return 0;
+	}
+snippet main_glog
+	#include <glog/logging.h>
+
+	int main(int argc, char** argv) {
+		google::InitGoogleLogging(argv[0]);
+		google::LogToStderr();
+		return 0;
+	}
+#
+## glog
+snippet glog_include
+	#include <glog/logging.h>
+snippet glog
+	google::InitGoogleLogging(argv[0]);
+	google::LogToStderr();
+# basic templates
+## glog
+snippet template_glog
+	#include <glog/logging.h>
+
+	int main(int argc, char** argv) {
+		google::InitGoogleLogging(argv[0]);
+		google::LogToStderr();
+		return 0;
+	}
+##
+## OpenCV
+snippet template_opencv_camera
+	#include <opencv2/core.hpp>
+	#include <opencv2/highgui.hpp>
+	#include <opencv2/videoio.hpp>
+
+	class ${1:Camera} {
+	 public:
+		$1() : cam_(0) {}
+		$1(int device) : cam_(device) {}
+
+		void Run() {
+			while (true) {
+				cv::Mat cam_image;
+				cam_.read(cam_image);
+
+				cv::imshow("$1", cam_image);
+				char key = cv::waitKey(10);
+				if (key == 'q' || key == 'Q' || key == 27) {
+					break;
+				}
+			}
+		}
+
+	 private:
+		cv::VideoCapture cam_;
+	};
+
+	int main(void) {
+		$1 cam;
+		cam.Run();
+		return 0;
+	}
+##
+## sqlite3
+snippet template_sqlite3_connection
+	#include <sqlite3.h>
+	#include <cassert>
+	#include <iostream>
+	#include <map>
+	#include <sstream>
+	#include <string>
+	#include <tuple>
+	#include <utility>
+	#include <vector>
+
+	namespace ${2:sql} {
+
+	class ${1:SqliteConnection} {
+	 public:
+		$1();
+		~$1();
+		bool Open(const std::string& db_name);
+		void Close();
+		// basic execution
+		bool Exec(const std::string& sql_query, sqlite3_callback callback,
+					void* data);
+		bool Exec(const std::string& sql_query);
+		// transaction
+		bool BeginTransaction();
+		bool Commit();
+		// create table
+		bool CreateTable(const std::string& table_name);
+		template <typename... Args>
+		bool CreateTable(const std::string& table_name,
+						const std::string& column_name, Args... args) {
+			if (ss_.str() != "") ss_ << ", ";
+			ss_ << column_name;
+			return CreateTable(table_name, args...);
+		}
+		// insert
+		bool Insert(const std::string& table_name,
+					const std::vector<std::string>& column_names);
+		template <typename T, typename... Args>
+		bool Insert(const std::string& table_name,
+					const std::vector<std::string>& column_names, T col_entry,
+					Args... args) {
+			if (ss_.str() != "") ss_ << ", ";
+			ss_ << col_entry;
+			return Insert(table_name, column_names, args...);
+		}
+		bool SelectAll(const std::string& table_name,
+						std::vector<std::map<std::string, std::string>>& entries);
+		bool SelectWhere(const std::string& table_name,
+						std::vector<std::map<std::string, std::string>>& entries,
+						const std::string& where_clause);
+		template <typename T>
+		bool Update(const std::string& table_name, const std::string& column_name,
+					T new_value, const std::string& where_clause) {
+			std::stringstream query;
+			query << "UPDATE " << table_name << " set " << column_name << " = "
+				<< new_value << " WHERE " << where_clause << ";";
+			return Exec(query.str());
+		}
+		bool Delete(const std::string& table_name, const std::string& where_clause) {
+			std::stringstream query;
+			query << "DELETE from " << table_name << " WHERE " << where_clause << ";";
+			return Exec(query.str());
+		}
+
+		void set_verbose(bool verbose) { verbose_ = verbose; }
+
+	 private:
+		bool verbose_;
+		std::stringstream ss_;
+		std::string db_name_;
+		sqlite3* db_;
+	};
+
+	}
+
+	namespace $2 {
+
+	using std::vector;
+	using std::string;
+
+	$1::$1() : verbose_(false), db_(nullptr) {}
+
+	$1::~$1() { Close(); }
+
+	bool $1::Exec(const string& sql_query) {
+		return Exec(sql_query, nullptr, nullptr);
+	}
+
+	bool $1::Exec(const string& sql_query, sqlite3_callback callback,
+								void* data) {
+		char* error_msg = nullptr;
+		int rc = sqlite3_exec(db_, sql_query.c_str(), callback, data, &error_msg);
+		if (rc != SQLITE_OK) {
+			if (verbose_) {
+				std::cerr << "SQL error: " << error_msg << '\n';
+			}
+			sqlite3_free(error_msg);
+			return false;
+		}
+		return true;
+	}
+
+	bool $1::Open(const string& db_name) {
+		db_name_ = db_name;
+		int result_code = sqlite3_open(db_name.c_str(), &db_);
+		if (result_code) {
+			if (verbose_) {
+				std::cerr << "Can't open database: " << sqlite3_errmsg(db_) << '\n';
+			}
+			return false;
+		}
+		return true;
+	}
+
+	void $1::Close() {
+		if (db_) {
+			if (verbose_) {
+				std::cout << "Closing db: " << db_name_;
+			}
+			sqlite3_close(db_);
+			db_ = nullptr;
+		}
+	}
+
+	bool $1::BeginTransaction() { return Exec("BEGIN TRANSACTION"); }
+
+	bool $1::Commit() { return Exec("COMMIT"); }
+
+	bool $1::CreateTable(const string& table_name) {
+		std::string columns = ss_.str();
+		std::stringstream query;
+		query << "CREATE TABLE IF NOT EXISTS " << table_name << "(" << columns
+				<< ");";
+		bool result = Exec(query.str());
+
+		// clear string stream
+		ss_.str("");
+		return result;
+	}
+
+	bool $1::Insert(const string& table_name,
+								const vector<string>& column_names) {
+		std::stringstream query;
+		query << "INSERT INTO " << table_name << "(";
+		int num_columns = column_names.size();
+		for (int i = 0; i < num_columns; ++i) {
+			if (i != 0) query << ", ";
+			query << column_names[i];
+		}
+		query << ") VALUES(" << ss_.str() << ");";
+
+		// clear string stream
+		ss_.str("");
+		return Exec(query.str());
+	}
+
+	bool $1::SelectAll(const string& table_name,
+									vector<std::map<string, string>>& entries) {
+		auto query_func = [](void* data, int n_cols, char** values,
+							char** column_names) -> int {
+			vector<std::map<string, string>>* data_collection =
+				(vector<std::map<string, string>>*)(data);
+			// create autocaststring vec
+			std::map<string, string> m;
+			for (int i = 0; i < n_cols; ++i) {
+			m[column_names[i]] = values[i];
+			}
+			data_collection->push_back(m);
+			return 0;
+		};
+
+		std::stringstream query;
+		query << "SELECT * FROM " << table_name << ";";
+		return Exec(query.str(), query_func, &entries);
+	}
+
+	bool $1::SelectWhere(const string& table_name,
+									vector<std::map<string, string>>& entries,
+									const string& where_clause) {
+		auto query_func = [](void* data, int n_cols, char** values,
+							char** column_names) -> int {
+			vector<std::map<string, string>>* data_collection =
+				(vector<std::map<string, string>>*)(data);
+			// create autocaststring vec
+			std::map<string, string> m;
+			for (int i = 0; i < n_cols; ++i) {
+			m[column_names[i]] = values[i];
+			}
+			data_collection->push_back(m);
+			return 0;
+		};
+
+		std::stringstream query;
+		query << "SELECT * FROM " << table_name << " WHERE " << where_clause << ";";
+		return Exec(query.str(), query_func, &entries);
+	}
+
+	}  // namespace sql
+##
+>>>>>>> 7ef82baeb6889d5a7afc20a2ef07f8c5d165a600
 ## SOCI
 snippet template_soci_create_sqlite3
 	#include <soci/soci.h>
