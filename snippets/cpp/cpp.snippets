@@ -23,7 +23,7 @@ snippet template
 snippet namespace
 	namespace ${1:`Filename('', 'my')`} {
 		${2}
-	} /* end of $1 namespace */
+	} // end of $1 namespace
 snippet static_if
 	#ifndef STATIC_IF_H
 	#define STATIC_IF_H
@@ -168,80 +168,6 @@ snippet meta_branch
 	}
 ##
 ## OpenGL
-snippet opengl_window
-	#include <GL/glew.h>
-	#include <GLFW/glfw3.h>
-	#include <iostream>
-
-	class ${1:GLWindow} {
-	 public:
-		$1();
-		~$1();
-		bool Init();
-		void MainLoop();
-
-	 private:
-		GLFWwindow* window_;
-	};
-
-	$1::$1() : window_(nullptr) {}
-
-	$1::~$1() {
-		glfwTerminate();
-		// window object will be clean up
-	}
-
-	bool $1::Init() {
-		// initialize glfw
-		if (!glfwInit()) {
-			std::cerr << "fail to initialize glfw\n";
-			return 1;
-		}
-		// window setting
-		glfwWindowHint(GLFW_SAMPLES, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, ${4:3});
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, ${4:3});
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-		// create window
-		window_ = glfwCreateWindow(${2:1024}, ${3:756}, "$1", nullptr, nullptr);
-		if (!window_) {
-			std::cerr
-				<< "Failed to open GLFW window. If you have an Intel GPU, they are "
-					"not 3.3 compatible. Try the 2.1 version of the tutorials.\n";
-			glfwTerminate();
-			return false;
-		}
-		glfwMakeContextCurrent(window_);
-
-		// init glew
-		if (glewInit() != GLEW_OK) {
-			std::cerr << "Failed to initialize GLEW\n";
-			glfwTerminate();
-			return false;
-		}
-
-		// Ensure we can capture the escape key being pressed below
-		glfwSetInputMode(window_, GLFW_STICKY_KEYS, GL_TRUE);
-		return true;
-	}
-
-	void $1::MainLoop() {
-		// Dark blue background
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		do {
-			// Clear the screen
-			// flickering, so it's there nonetheless.
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			// Draw
-
-			// Swap buffers
-			glfwSwapBuffers(window_);
-			glfwPollEvents();
-		} while (!glfwWindowShouldClose(window_));
-	}
 snippet opengl_object
 	class ${1:OpenGLObject} {
 	 public:
@@ -713,6 +639,7 @@ snippet template_sqlite3_connection
 
 	}  // namespace sql
 ##
+>>>>>>> 7ef82baeb6889d5a7afc20a2ef07f8c5d165a600
 ## SOCI
 snippet template_soci_create_sqlite3
 	#include <soci/soci.h>
